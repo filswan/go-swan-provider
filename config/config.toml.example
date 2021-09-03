@@ -1,0 +1,48 @@
+port="8888"
+dev = true
+
+
+[DataBase]
+dbHost="localhost"
+dbPort="3306"
+dbSchemaName="payment_bridge"
+dbUsername="root"
+dbPwd="123456"
+dbArgs="charset=utf8mb4&parseTime=True&loc=Local"
+
+[GoerliMainnetNode]
+rpcUrl = "https://goerli.infura.io/v3/48f20ab65d0142c58e8e73658940a533"
+paymentContractAddress = "0x97916e6CC8DD75c6E6982FFd949Fc1768CF8c055"
+contractFunctionSignature = "0x88e2ea3170ebb5d73f832e672e27a855b3daf0b2264ac6c09b04009dc151509e"
+scanStep = 10000
+startFromBlockNo = 5000000
+cycleTimeInterval = 60 #unit:second
+
+
+[PolygonMainnetNode]
+#rpcUrl="https://rpc-mumbai.maticvigil.com"
+rpcUrl = "https://polygon-mumbai.g.alchemy.com/v2/86HeefA3O9EF22t2NTLbmcpfN0hb9vlv"
+paymentContractAddress = "0x5210ED929B5BEdBFFBA2F6b9A0b1B608eEAb3aa0"
+contractFunctionSignature = "0x88e2ea3170ebb5d73f832e672e27a855b3daf0b2264ac6c09b04009dc151509e"
+scanStep = 1000
+startFromBlockNo = 15000000
+cycleTimeInterval = 60 #unit:second
+
+[NbaiMainnetNode]
+rpcUrl = "https://api.nbai.io/"
+paymentContractAddress = "0x60a43A2d57E79938b8dF8652d86D1b3A2132CBcE"
+contractFunctionSignature = "0xa8133e3dab1689781429189302ba4b39d9a2ba21e28bdc487c2339c798393900"
+scanStep = 1000
+startFromBlockNo = 60000
+cycleTimeInterval = 60 #unit:second
+
+[BscMainnetNode]
+rpcUrl = "https://data-seed-prebsc-1-s1.binance.org:8545/"
+#rpcUrl = "http://192.168.88.121:8545/"
+bscAdminWallet = "0xc4fcaAdCb0b00a9501e56215c37B10fAF9e79c0a"
+childChainManageContractAddress = "0xa1A58C82bA4a0D8e856D8fad76bB72b04fd9736b"
+gasLimit = 800000
+chainID = 97  # mainnet 56 ;test net 97
+
+[ScheduleRule]
+nbai2BscMappingRedoRule = "0 */1 * * * ?"  #every minute
