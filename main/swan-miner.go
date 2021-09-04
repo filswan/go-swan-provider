@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"os"
 	"swan-miner/common/constants"
+	"swan-miner/common/utils"
 	"swan-miner/config"
 	"swan-miner/logs"
 	"swan-miner/routers/commonRouters"
@@ -18,6 +19,22 @@ func main() {
 
 	config.InitConfig("")
 
+	response := utils.Get("https://jsonplaceholder.typicode.com/todos/1")
+	fmt.Println(response)
+	todo := utils.Todo{1, 2, "lorem ipsum dolor sit amet", true}
+	response = utils.Post("https://jsonplaceholder.typicode.com/todos", todo)
+	fmt.Println(response)
+
+	response = utils.Put("https://jsonplaceholder.typicode.com/todos/1", todo)
+	fmt.Println(response)
+
+	response = utils.Delete("https://jsonplaceholder.typicode.com/todos/1", todo)
+	fmt.Println(response)
+	//
+	//createServer()
+}
+
+func createServer() {
 	r := gin.Default()
 	r.Use(cors.Middleware(cors.Config{
 		Origins:         "*",
@@ -36,7 +53,6 @@ func main() {
 	if err != nil {
 		logs.GetLogger().Fatal(err)
 	}
-
 }
 
 func LoadEnv() {
