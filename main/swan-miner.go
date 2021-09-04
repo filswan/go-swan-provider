@@ -19,6 +19,12 @@ func main() {
 
 	config.InitConfig("")
 
+	testRestApiAccessor()
+	//
+	//createServer()
+}
+
+func testRestApiAccessor(){
 	response := utils.Get("https://jsonplaceholder.typicode.com/todos/1")
 	fmt.Println(response)
 	todo := utils.Todo{1, 2, "lorem ipsum dolor sit amet", true}
@@ -28,10 +34,11 @@ func main() {
 	response = utils.Put("https://jsonplaceholder.typicode.com/todos/1", todo)
 	fmt.Println(response)
 
+	title := utils.GetFieldFromJson(response,"title")
+	fmt.Println("title",title)
+
 	response = utils.Delete("https://jsonplaceholder.typicode.com/todos/1", todo)
 	fmt.Println(response)
-	//
-	//createServer()
 }
 
 func createServer() {

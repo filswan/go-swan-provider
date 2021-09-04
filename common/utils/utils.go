@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"math/big"
 	"os"
@@ -36,4 +38,14 @@ func ReadContractAbiJsonFile(aptpath string) (string, error) {
 func GetRewardPerBlock() *big.Int {
 	rewardBig, _ := new(big.Int).SetString("35000000000000000000", 10) // the unit is wei
 	return rewardBig
+}
+
+func GetFieldFromJson(jsonStr string, fieldName string) (interface{}){
+	var result map[string]interface{}
+	json.Unmarshal([]byte(jsonStr), &result)
+	fieldVal := result[fieldName].(interface{})
+
+	fmt.Println(fieldName,fieldVal)
+
+	return fieldVal
 }
