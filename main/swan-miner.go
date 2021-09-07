@@ -31,13 +31,13 @@ func testRestApiAccessor(){
 	response = utils.Post("https://jsonplaceholder.typicode.com/todos", todo)
 	fmt.Println(response)
 
-	response = utils.Put("https://jsonplaceholder.typicode.com/todos/1", todo)
+	response = utils.Put("https://jsonplaceholder.typicode.com/todos/1", "",todo)
 	fmt.Println(response)
 
 	title := utils.GetFieldFromJson(response,"title")
 	fmt.Println("title",title)
 
-	response = utils.Delete("https://jsonplaceholder.typicode.com/todos/1", todo)
+	response = utils.Delete("https://jsonplaceholder.typicode.com/todos/1", "",todo)
 	fmt.Println(response)
 }
 

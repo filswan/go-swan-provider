@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"swan-miner/config"
+	"swan-miner/logs"
 )
 
 type TokenAccessInfo struct {
@@ -28,4 +29,14 @@ func getJwtToken(){
 /*
 	payload = jwt.decode(jwt=self.jwt_token, verify=False, algorithm='HS256')
 	self.jwt_token_expiration = payload['exp']*/
+}
+
+func updateTaskByUuid(taskUuid, minerFid string, csvFile interface{}){
+	logs.GetLogger().Info("Updating Swan task.")
+	uri := config.GetConfig().Main.ApiUrl + "/uuid_tasks/" + taskUuid
+	tokenString :=""
+	payloadData := "{\"miner_fid\": "+minerFid+"}"
+
+	Put(uri,tokenString,payloadData)
+	logs.GetLogger().Info("Swan task updated.")
 }
