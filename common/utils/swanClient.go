@@ -11,7 +11,12 @@ type TokenAccessInfo struct {
 	access_token string
 }
 
-func getJwtToken(){
+type SwanClient struct {
+	jwt_token string
+	jwt_token_expiration int64
+}
+
+func (self *SwanClient) GetJwtToken(){
 	fmt.Println("Refreshing token")
 	mainConf := config.GetConfig().Main
 	uri := mainConf.ApiUrl+"/user/api_keys/jwt"
@@ -31,7 +36,7 @@ func getJwtToken(){
 	self.jwt_token_expiration = payload['exp']*/
 }
 
-func updateTaskByUuid(taskUuid, minerFid string, csvFile interface{}){
+func (self *SwanClient) UpdateTaskByUuid(taskUuid, minerFid string, csvFile interface{}){
 	logs.GetLogger().Info("Updating Swan task.")
 	uri := config.GetConfig().Main.ApiUrl + "/uuid_tasks/" + taskUuid
 	tokenString :=""
@@ -40,3 +45,19 @@ func updateTaskByUuid(taskUuid, minerFid string, csvFile interface{}){
 	Put(uri,tokenString,payloadData)
 	logs.GetLogger().Info("Swan task updated.")
 }
+
+
+func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) (interface{}){
+	uri := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + limit + "&offset=0"
+	response := Get(uri)
+	deal := GetFieldFromJson(response, "deal")
+	return deal
+}
+
+func (self *SwanClient) UpdateOfflineDealDetails(status,note string, dealId string, filePath string, fileSize string)  {
+	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + string(dealId)
+	body := fmt.Sprintf("{\"status\": %s, \"note\": %s, \"file_path\": %s, \"file_size\": %s}", status, note,filePath, fileSize)
+	Put(url,"",body)
+}
+
+

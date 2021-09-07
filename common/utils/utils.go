@@ -49,3 +49,18 @@ func GetFieldFromJson(jsonStr string, fieldName string) (interface{}){
 
 	return fieldVal
 }
+
+func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
+	var result map[string]interface{}
+	json.Unmarshal([]byte(jsonStr), &result)
+	fieldVal := result[fieldName].(interface{})
+
+	fmt.Println(fieldName,fieldVal)
+
+	return fieldVal.(string)
+}
+
+func ToJson(obj interface{}) (string){
+	jsonString, _ := json.Marshal(obj)
+	return string(jsonString)
+}
