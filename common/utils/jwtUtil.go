@@ -1,18 +1,15 @@
 package utils
 
-
-
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"os"
 	"time"
 )
 
 type User struct {
-	ID uint64            `json:"id"`
+	ID uint64       `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Phone string `json:"phone"`
@@ -47,27 +44,29 @@ func Login(c *gin.Context) {
 }
 
 func CreateToken(userId uint64) (string, error) {
-	var err error
-	//Creating Access Token
-	os.Setenv("ACCESS_SECRET", secretKey) //this should be in an env file
-	atClaims := jwt.MapClaims{}
-	atClaims["authorized"] = true
-	atClaims["user_id"] = userId
-	atClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
-	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
-	tokenString, err := at.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["authorized"] = true
+	claims["user_id"] = userId
+	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+
+	tokenString, err := token.SignedString([]byte(secretKey))
+
 	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
 
-	extractClaims(tokenString)
+	c, e := ExtractToken(tokenString)
+	fmt.Println(c,e)
+	exp := GetTokenExpiration(tokenString)
+	fmt.Println(exp)
 
-	return tokenString, nil
+	return tokenString, err
 }
 
-func extractClaims(tokenStr string) (jwt.MapClaims, bool) {
-	hmacSecretString := secretKey// Value
-	hmacSecret := []byte(hmacSecretString)
+func ExtractToken(tokenStr string) (jwt.MapClaims, bool) {
+	hmacSecret := []byte(secretKey)
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		// check token signing method etc
 		return hmacSecret, nil
@@ -85,12 +84,19 @@ func extractClaims(tokenStr string) (jwt.MapClaims, bool) {
 }
 
 func GetTokenExpiration(tokenString string) (int64){
-	claims,ok :=extractClaims(tokenString)
+	claims,ok := ExtractToken(tokenString)
+	if !ok{
+		return -1
+	}
 
-	fmt.Println(claims)
+	//fmt.Println(claims)
 	expirationFloat, ok := claims["exp"].(float64)
+	if !ok{
+		return -1
+	}
+
 	expirationInt := int64(expirationFloat)
-	fmt.Println(expirationInt,ok)
+	//fmt.Println(expirationInt,ok)
 
 	return expirationInt
 }
