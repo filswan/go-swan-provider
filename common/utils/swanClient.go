@@ -12,8 +12,9 @@ type TokenAccessInfo struct {
 }
 
 type SwanClient struct {
-	jwt_token string
-	jwt_token_expiration int64
+	ApiUrl string
+	ApiKey string
+	Token string
 }
 
 func (self *SwanClient) GetJwtToken(){

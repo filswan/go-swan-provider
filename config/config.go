@@ -36,6 +36,11 @@ type aria2 struct {
 	RpcSaveUploadMetadata        bool
 	RpcSecure                    bool
 	RpcSecret                    string
+	Aria2DownloadDir             string
+	Aria2Conf                    string
+	Aria2Host                    string
+	Aria2Port                    int
+	Aria2Secret                  string
 }
 
 type main struct {
@@ -46,11 +51,6 @@ type main struct {
 	ScanInterval        int
 	ApiKey              string
 	AccessToken         string
-	Aria2DownloadDir    string
-	Aria2Conf           string
-	Aria2Host           string
-	Aria2Port           int
-	Aria2Secret         string
 }
 
 var config *Configuration
