@@ -47,14 +47,14 @@ func updateOfflineDealDetails(status, note, dealId string, swanClient *utils.Swa
 
 func findNextDealReady2Download(minerFid string, swanClient *utils.SwanClient) (interface{}) {
 	deals := swanClient.GetOfflineDeals(minerFid, DEAL_CREATED_STATUS, "1")
-	if len(deals.(string)) == 0 {
+	if len(deals) == 0 {
 		deals = swanClient.GetOfflineDeals(minerFid, DEAL_WAITING_STATUS, "1")
 	}
 
 	return deals
 }
 
-func findDealsByStatus(status, minerFid string, swanClient *utils.SwanClient) (interface{}){
+func findDealsByStatus(status, minerFid string, swanClient *utils.SwanClient) ([]utils.OfflineDeal){
 	deals := swanClient.GetOfflineDeals(minerFid, status, "50")
 	return deals
 }
@@ -139,7 +139,7 @@ func checkDownloadStatus(aria2c Aria2c, swanClient *utils.SwanClient, minerFid s
 func startDownloading(maxDownloadingTaskNum int, minerFid, outDir string, aria2Client Aria2c, swanClient *utils.SwanClient) {
 	for{
 		downloadingDeals := findDealsByStatus(DEAL_DOWNLOADING_STATUS, minerFid, swanClient)
-		countDownloadingDeals := len(downloadingDeals.(string))
+		countDownloadingDeals := len(downloadingDeals)
 		if maxDownloadingTaskNum > countDownloadingDeals {
 			newTaskNum := maxDownloadingTaskNum - countDownloadingDeals
 			i := 1

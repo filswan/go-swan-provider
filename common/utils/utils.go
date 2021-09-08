@@ -55,7 +55,7 @@ func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
 	json.Unmarshal([]byte(jsonStr), &result)
 	fieldVal := result[fieldName].(interface{})
 
-	fmt.Println(fieldName,fieldVal)
+	//fmt.Println(fieldName,fieldVal)
 
 	return fieldVal.(string)
 }
@@ -65,7 +65,7 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) (map[string]interface
 	json.Unmarshal([]byte(jsonStr), &result)
 	fieldVal := result[fieldName].(interface{})
 
-	fmt.Println(fieldName,fieldVal)
+	//fmt.Println(fieldName,fieldVal)
 
 	return fieldVal.(map[string]interface{})
 }

@@ -21,13 +21,18 @@ func main() {
 
 	//testRestApiAccessor()
 
-	utils.GetJwtToken()
+	swanClient := utils.GetJwtToken()
+
+	fmt.Println(swanClient)
+
+	mainConf := config.GetConfig().Main
+	swanClient.GetOfflineDeals(mainConf.MinerFid,"", "10")
 	//
 	//createServer()
 }
 
 func testRestApiAccessor(){
-	response := utils.Get("https://jsonplaceholder.typicode.com/todos/1")
+	response := utils.Get("https://jsonplaceholder.typicode.com/todos/1", "", "")
 	fmt.Println(response)
 	todo := utils.Todo{1, 2, "lorem ipsum dolor sit amet", true}
 	response = utils.Post("https://jsonplaceholder.typicode.com/todos", todo)

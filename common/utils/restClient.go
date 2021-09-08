@@ -10,20 +10,11 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"swan-miner/config"
 )
 
 const contentType = "application/json; charset=utf-8"
 
-func GetOfflineDeals(self, miner_fid, status, limit string) string {
-	url := config.GetConfig().Main.ApiUrl + "/offline_deals/" + miner_fid + "?deal_status=" + status + "&limit=" + limit + "&offset=0"
-
-	response := Get(url)
-
-	return response
-}
-
-func Get(uri string) string {
+/*func Get(uri string) string {
 	fmt.Println("Performing Http Get..." + uri)
 	response, err := http.Get(uri)
 
@@ -43,7 +34,7 @@ func Get(uri string) string {
 	//fmt.Println(result)
 
 	return result
-}
+}*/
 
 func Post(uri string, jsonRequest interface{}) string {
 	fmt.Println("Performing Http Post...", uri, contentType, jsonRequest)
@@ -63,6 +54,12 @@ func Post(uri string, jsonRequest interface{}) string {
 	return responseStr
 }
 
+func Get(uri, tokenString  string, jsonRequest interface{}) string {
+	response := httpRequest(http.MethodGet, uri, tokenString , jsonRequest)
+
+	return response
+}
+
 func Put(uri, tokenString  string, jsonRequest interface{}) string {
 	response := httpRequest(http.MethodPut, uri, tokenString , jsonRequest)
 
@@ -76,7 +73,7 @@ func Delete(uri, tokenString  string, jsonRequest interface{}) string {
 }
 
 func httpRequest(httpMethod, uri, tokenString string, jsonRequest interface{}) string {
-	fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
+	//fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
 	jsonReq, err := json.Marshal(jsonRequest)
 	request, err := http.NewRequest(httpMethod, uri, bytes.NewBuffer(jsonReq))
 	request.Header.Set("Content-Type", contentType)
