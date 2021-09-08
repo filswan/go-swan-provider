@@ -26,7 +26,7 @@ func main() {
 	fmt.Println(swanClient)
 
 	mainConf := config.GetConfig().Main
-	swanClient.GetOfflineDeals(mainConf.MinerFid,"", "10")
+	swanClient.GetOfflineDeals(mainConf.MinerFid,"Offline", "10")
 	//
 	//createServer()
 }

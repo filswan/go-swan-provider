@@ -35,6 +35,12 @@ type OfflineDeal struct {
 	start_epoch      string
 }
 
+type DealDetail struct {
+	status string
+	note string
+	file_path string
+	file_size string
+}
 
 func GetJwtToken() (*SwanClient){
 	//fmt.Println("Refreshing token")
@@ -83,8 +89,14 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]Offli
 
 func (self *SwanClient) UpdateOfflineDealDetails(status,note string, dealId string, filePath string, fileSize string)  {
 	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + string(dealId)
-	body := fmt.Sprintf("{\"status\": %s, \"note\": %s, \"file_path\": %s, \"file_size\": %s}", status, note,filePath, fileSize)
-	Put(url,"",body)
+	dealDetail := DealDetail{
+		status: status,
+		note: note,
+		file_path: filePath,
+		file_size: fileSize,
+	}
+	response := Put(url,self.Token,dealDetail)
+	fmt.Println(response)
 }
 
 
