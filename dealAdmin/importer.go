@@ -25,7 +25,7 @@ func getDealOnChainStatus(dealCid string) (string) {
 	return result
 }
 
-func updateOfflineDealStatus(status, note, dealId string, client *utils.SwanClient) {
+func updateOfflineDealStatus(status, note, dealId string, client *SwanClient) {
 	logs.GetLogger().Info()
 	client.UpdateOfflineDealDetails(status,note,dealId,"","")
 }
@@ -41,7 +41,7 @@ func Importer() {
 	expectedSealingTime := confMain.ExpectedSealingTime
 	minerFid := confMain.MinerFid
 
-	client := &utils.SwanClient{
+	client := &SwanClient{
 		apiUrl,
 		apiKey,
 		accessToken,

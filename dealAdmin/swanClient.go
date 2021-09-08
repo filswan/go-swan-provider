@@ -1,7 +1,8 @@
-package utils
+package dealAdmin
 
 import (
 	"fmt"
+	"swan-miner/common/utils"
 	"swan-miner/config"
 )
 
@@ -46,12 +47,12 @@ func GetJwtToken() (*SwanClient){
 	//fmt.Println("Refreshing token")
 	mainConf := config.GetConfig().Main
 	uri := mainConf.ApiUrl+"/user/api_keys/jwt"
-	data := TokenAccessInfo{ApiKey: mainConf.ApiKey, AccessToken: mainConf.AccessToken}//
+	data := TokenAccessInfo{ApiKey: mainConf.ApiKey, AccessToken: mainConf.AccessToken} //
 	//dataJson := fmt.Sprintf(`{\"apikey\":\"%s\",\"access_token\":\"%s\"}`, mainConf.ApiKey, mainConf.AccessToken)//ToJson(data)
-	response := Post(uri,data)
+	response := utils.Post(uri,data)
 	//fmt.Println(response)
 
-	jwtToken := GetFieldMapFromJson(response,"data")
+	jwtToken := utils.GetFieldMapFromJson(response,"data")
 	jwt:= jwtToken["jwt"].(string)
 	fmt.Println(jwt)
 
@@ -78,9 +79,9 @@ func GetJwtToken() (*SwanClient){
 func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]OfflineDeal){
 	url := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + limit + "&offset=0"
 	fmt.Println(url)
-	response := Get(url, self.Token, "")
+	response := utils.Get(url, self.Token, "")
 	fmt.Println(response)
-	data := GetFieldMapFromJson(response, "data")
+	data := utils.GetFieldMapFromJson(response, "data")
 	fmt.Println(data)
 	deals := data["deal"].([]OfflineDeal)
 	fmt.Println(deals)
@@ -95,7 +96,7 @@ func (self *SwanClient) UpdateOfflineDealDetails(status,note string, dealId stri
 		file_path: filePath,
 		file_size: fileSize,
 	}
-	response := Put(url,self.Token,dealDetail)
+	response := utils.Put(url,self.Token,dealDetail)
 	fmt.Println(response)
 }
 

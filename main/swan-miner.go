@@ -9,6 +9,7 @@ import (
 	"swan-miner/common/constants"
 	"swan-miner/common/utils"
 	"swan-miner/config"
+	"swan-miner/dealAdmin"
 	"swan-miner/logs"
 	"swan-miner/routers/commonRouters"
 	"time"
@@ -21,12 +22,12 @@ func main() {
 
 	//testRestApiAccessor()
 
-	swanClient := utils.GetJwtToken()
+	swanClient := dealAdmin.GetJwtToken()
 
 	fmt.Println(swanClient)
 
 	mainConf := config.GetConfig().Main
-	swanClient.GetOfflineDeals(mainConf.MinerFid,"Offline", "10")
+	swanClient.GetOfflineDeals(mainConf.MinerFid,"Waiting", "10")
 	//
 	//createServer()
 }

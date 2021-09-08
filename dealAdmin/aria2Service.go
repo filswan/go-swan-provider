@@ -41,11 +41,11 @@ func isCompleted(task string) (bool){
 	return false
 }
 
-func updateOfflineDealDetails(status, note, dealId string, swanClient *utils.SwanClient, filePath string, fileSize string) {
+func updateOfflineDealDetails(status, note, dealId string, swanClient *SwanClient, filePath string, fileSize string) {
 	swanClient.UpdateOfflineDealDetails(status,note,dealId, filePath, fileSize)
 }
 
-func findNextDealReady2Download(minerFid string, swanClient *utils.SwanClient) (interface{}) {
+func findNextDealReady2Download(minerFid string, swanClient *SwanClient) (interface{}) {
 	deals := swanClient.GetOfflineDeals(minerFid, DEAL_CREATED_STATUS, "1")
 	if len(deals) == 0 {
 		deals = swanClient.GetOfflineDeals(minerFid, DEAL_WAITING_STATUS, "1")
@@ -54,12 +54,12 @@ func findNextDealReady2Download(minerFid string, swanClient *utils.SwanClient) (
 	return deals
 }
 
-func findDealsByStatus(status, minerFid string, swanClient *utils.SwanClient) ([]utils.OfflineDeal){
+func findDealsByStatus(status, minerFid string, swanClient *SwanClient) ([]OfflineDeal){
 	deals := swanClient.GetOfflineDeals(minerFid, status, "50")
 	return deals
 }
 
-func startDownloadForDeal(deal, outDir string, aria2Client Aria2c, swanClient *utils.SwanClient) {
+func startDownloadForDeal(deal, outDir string, aria2Client *Aria2Client, swanClient *SwanClient) {
 	logs.GetLogger().Info("start downloading deal id ",utils.GetFieldFromJson(deal,"id"))
 	fileResourceUrl := utils.GetFieldFromJson(deal, "file_source_url")
 	url, err := url.Parse(fileResourceUrl.(string))
@@ -76,7 +76,7 @@ func startDownloadForDeal(deal, outDir string, aria2Client Aria2c, swanClient *u
 	response = aria2Client.post(STATUS, gid.(string))
 }
 
-func checkDownloadStatus(aria2c Aria2c, swanClient *utils.SwanClient, minerFid string) {
+func checkDownloadStatus(aria2c Aria2Client, swanClient *SwanClient, minerFid string) {
 	downloadingDeals := findDealsByStatus(DEAL_DOWNLOADING_STATUS, minerFid, swanClient)
 
 	switch reflect.TypeOf(downloadingDeals).Kind() {
@@ -136,7 +136,7 @@ func checkDownloadStatus(aria2c Aria2c, swanClient *utils.SwanClient, minerFid s
 	}
 }
 
-func startDownloading(maxDownloadingTaskNum int, minerFid, outDir string, aria2Client Aria2c, swanClient *utils.SwanClient) {
+func startDownloading(maxDownloadingTaskNum int, minerFid, outDir string, aria2Client *Aria2Client, swanClient *SwanClient) {
 	for{
 		downloadingDeals := findDealsByStatus(DEAL_DOWNLOADING_STATUS, minerFid, swanClient)
 		countDownloadingDeals := len(downloadingDeals)

@@ -43,7 +43,7 @@ func getCurrentEpoch() int {
 }
 
 
-func updateOfflineDealStatus1(status, note, dealId string, client *utils.SwanClient) {
+func updateOfflineDealStatus1(status, note, dealId string, client *SwanClient) {
 	client.UpdateOfflineDealDetails(status, note, dealId, "", "")
 }
 
@@ -56,9 +56,9 @@ func Scanner() {
 	scanInterval := confMain.ScanInterval
 	minerFid := confMain.MinerFid
 
-	client := &utils.SwanClient{ApiUrl: apiUrl, ApiKey: apiKey, Token: accessToken}
+	client := &SwanClient{ApiUrl: apiUrl, ApiKey: apiKey, Token: accessToken}
 	for {
-		deals := client.GetOfflineDeals(minerFid, DEAL_STATUS_FILE_IMPORTED, SCAN_NUMBER).(string)
+		deals := client.GetOfflineDeals(minerFid, DEAL_STATUS_FILE_IMPORTED, SCAN_NUMBER)
 
 		if len(deals)==0{
 			logs.GetLogger().Info("No ongoing offline deals found.")

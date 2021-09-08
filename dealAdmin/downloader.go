@@ -2,9 +2,8 @@ package dealAdmin
 
 import (
 	"fmt"
-	"swan-miner/common/utils"
-	"swan-miner/config"
 	"github.com/jasonlvhit/gocron"
+	"swan-miner/config"
 )
 
 
@@ -16,8 +15,6 @@ func Downloader(){
 	confAria := conf.Aria2
 
 	minerFild := confMain.MinerFid
-	aria2Host := confAria.Aria2Host
-	aria2Port := confAria.Aria2Port
 /*	aria2Secret := confAria.Aria2Secret
 	ariaConf := confAria.Aria2Conf*/
 	outDir := confAria.Aria2DownloadDir
@@ -25,13 +22,9 @@ func Downloader(){
 	apiKey := confMain.ApiKey
 	accessToken := confMain.AccessToken
 
-	aria2Client := Aria2c{
-		host: aria2Host,
-		port: string(aria2Port),
-		token: accessToken,
-	}
+	aria2Client := GetAria2Client()
 
-	swanClient := &utils.SwanClient{
+	swanClient := &SwanClient{
 		apiUrl,
 		apiKey,
 		accessToken,
