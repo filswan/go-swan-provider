@@ -19,7 +19,9 @@ func main() {
 
 	config.InitConfig("")
 
-	testRestApiAccessor()
+	//testRestApiAccessor()
+
+	utils.GetJwtToken()
 	//
 	//createServer()
 }

@@ -7,8 +7,8 @@ import (
 )
 
 type TokenAccessInfo struct {
-	apikey       string
-	access_token string
+	ApiKey      string   `json:"apikey"`
+	AccessToken string   `json:"access_token"`
 }
 
 type SwanClient struct {
@@ -17,24 +17,26 @@ type SwanClient struct {
 	Token string
 }
 
-func (self *SwanClient) GetJwtToken(){
+func GetJwtToken() (*SwanClient){
 	fmt.Println("Refreshing token")
 	mainConf := config.GetConfig().Main
 	uri := mainConf.ApiUrl+"/user/api_keys/jwt"
-	data := TokenAccessInfo{mainConf.ApiKey, mainConf.AccessToken}
+	data := TokenAccessInfo{ApiKey: mainConf.ApiKey, AccessToken: mainConf.AccessToken}//
+	//dataJson := fmt.Sprintf(`{\"apikey\":\"%s\",\"access_token\":\"%s\"}`, mainConf.ApiKey, mainConf.AccessToken)//ToJson(data)
 	response := Post(uri,data)
 	fmt.Println(response)
 
-	jwtToken := GetFieldFromJson(response,"jwt")
-	fmt.Println(jwtToken)
+	jwtToken := GetFieldMapFromJson(response,"data")
+	jwt:= jwtToken["jwt"].(string)
+	fmt.Println(jwt)
 
-	tokenString,ok := jwtToken.(string)
-	fmt.Println(tokenString,ok)
-	jwtTokenExpiration := GetTokenExpiration(tokenString)
-	fmt.Println(jwtTokenExpiration)
-/*
-	payload = jwt.decode(jwt=self.jwt_token, verify=False, algorithm='HS256')
-	self.jwt_token_expiration = payload['exp']*/
+	swanClient := &SwanClient{
+		ApiUrl: mainConf.ApiUrl,
+		ApiKey: mainConf.ApiKey,
+		Token: jwt,
+	}
+
+	return swanClient
 }
 
 func (self *SwanClient) UpdateTaskByUuid(taskUuid, minerFid string, csvFile interface{}){
