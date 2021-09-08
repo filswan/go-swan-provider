@@ -1,10 +1,11 @@
 package dealAdmin
 
 import (
-	"container/list"
 	"fmt"
+	"strings"
 	"swan-miner/common/utils"
 	"swan-miner/config"
+	"swan-miner/logs"
 )
 
 const IDPREFIX = "nbfs"
@@ -15,64 +16,69 @@ const ACTIVE = "aria2.tellActive"
 const STATUS = "aria2.tellStatus"
 
 type Aria2Client struct {
-	host string
+	Host string
 	port int
 	token string
-	serverUrl string "http://{host}:{port}/jsonrpc"
+	serverUrl string
+}
+
+type Payload struct {
+	JsonRpc string   `json:"jsonrpc"`
+	Id      string   `json:"id"`
+	Method  string   `json:"method"`
+	Params  []interface{} `json:"params"`
 }
 
 func GetAria2Client() (*Aria2Client){
 	confAria2c := config.GetConfig().Aria2
 	aria2cClient := &Aria2Client{
-		host: confAria2c.Aria2Host,
-		port: confAria2c.Aria2Port,
+		Host:  confAria2c.Aria2Host,
+		port:  confAria2c.Aria2Port,
 		token: confAria2c.Aria2Secret,
 	}
 
-	aria2cClient.serverUrl = fmt.Sprintf("http://%s:%d/jsonrpc", aria2cClient.host, aria2cClient.port)
+	aria2cClient.serverUrl = fmt.Sprintf("http://%s:%d/jsonrpc", aria2cClient.Host, aria2cClient.port)
 
 	return aria2cClient
 }
 
-func (self *Aria2Client) GenPayload(method string, uris string , options string, cid string, IDPREFIX string) (string){
-	if cid!=""{
-		cid = IDPREFIX+cid
-	}else {
-		cid =IDPREFIX+IDPREFIX
+func (self *Aria2Client) GenPayload(method string, uri string , options interface{}) (interface{}){
+	var params []interface{}
+	//params = append(params, "token:"+self.token)
+	var urls [] string
+	urls = append(urls, uri)
+	params = append(params, urls)
+	params = append(params, options)
+
+	payload := Payload{
+		JsonRpc: "2.0",
+		Id: IDPREFIX,
+		Method: method,
+		Params: params,
 	}
 
-
-	l := list.New()
-	if len(self.token)>0{
-		l.PushBack("token:"+self.token)
-	}
-
-	if (len(uris)>0){
-		l.PushBack(uris)
-	}
-
-	if (len(options)>0){
-		l.PushBack(options)
-	}
-
-	var p map[string]interface{}
-	p["jsonrpc"]="2.0"
-	p["id"]=cid
-	p["method"]=method
-	p["params"]=l
-
-	return utils.ToJson(p)
+	return payload
 }
 
-func (self *Aria2Client) post(action, params string) (string) {
-	payloads := self.GenPayload(action, "", "", "", "")
+func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) {
+	payloads := self.GenPayload(ADD_URI, uri, options)
 	result := utils.Post(self.serverUrl,payloads)
-	return result
+	fmt.Println(result)
+	if strings.Contains(result,"error"){
+		errorInfo := utils.GetFieldMapFromJson(result, "error")
+		errorCode := errorInfo["code"]
+		errorMsg := errorInfo["message"]
+		msg := fmt.Sprintf("ERROR: %s, %s",errorCode, errorMsg)
+		logs.GetLogger().Error(msg)
+		return ""
+	}else{
+		return result
+	}
 }
 
-func (self *Aria2Client) addUri(uri, options string) (string) {
-	result := self.post(ADD_URI,options)
+/*func (self *Aria2Client) Download(uri string, options interface{}) (string) {
+	result := self.Download(ADD_URI, uri, options)
 	return result
-}
+}*/
 
 

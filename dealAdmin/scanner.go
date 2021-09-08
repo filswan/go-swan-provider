@@ -42,23 +42,14 @@ func getCurrentEpoch() int {
 	return currentEpoch
 }
 
-
-func updateOfflineDealStatus1(status, note, dealId string, client *SwanClient) {
-	client.UpdateOfflineDealDetails(status, note, dealId, "", "")
-}
-
-
 func Scanner() {
 	confMain := config.GetConfig().Main
-	apiUrl := confMain.ApiUrl
-	apiKey := confMain.ApiKey
-	accessToken := confMain.AccessToken
 	scanInterval := confMain.ScanInterval
 	minerFid := confMain.MinerFid
 
-	client := &SwanClient{ApiUrl: apiUrl, ApiKey: apiKey, Token: accessToken}
+	swanClient := GetJwtToken()
 	for {
-		deals := client.GetOfflineDeals(minerFid, DEAL_STATUS_FILE_IMPORTED, SCAN_NUMBER)
+		deals := swanClient.GetOfflineDeals(minerFid, DEAL_STATUS_FILE_IMPORTED, SCAN_NUMBER)
 
 		if len(deals)==0{
 			logs.GetLogger().Info("No ongoing offline deals found.")
@@ -83,7 +74,7 @@ func Scanner() {
 				result,_ := utils.ExecOsCmd(cmd, "")
 				if result == ""{
 					note := "Failed to find deal on chain."
-					client.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, dealId, "","")
+					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, dealId, "","")
 					msg := fmt.Sprintf("Deal details: %s", result)
 					logs.GetLogger().Info(msg)
 					logs.GetLogger().Info()
@@ -94,14 +85,14 @@ func Scanner() {
 				onChainStatus := result //some value get from result
 				if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 					onChainMessage= result // some value get from result
-					updateOfflineDealStatus(DEAL_STATUS_FAILED, onChainMessage, dealId, client)
+					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, onChainMessage, dealId, "","")
 					msg := fmt.Sprintf("Setting deal %s status as ImportFailed", dealCid)
 					logs.GetLogger().Info(msg)
 				}
 
 				if onChainStatus ==ONCHAIN_DEAL_STATUS_ACTIVE{
 					note:="Deal has been completed"
-					updateOfflineDealStatus(ONCHAIN_DEAL_STATUS_ACTIVE, note, dealId, client)
+					swanClient.UpdateOfflineDealDetails(ONCHAIN_DEAL_STATUS_ACTIVE, note, dealId, "","")
 					msg := fmt.Sprintf("Setting deal %s status as Active", dealCid)
 					logs.GetLogger().Info(msg)
 				}
@@ -111,7 +102,7 @@ func Scanner() {
 					startEpoch := utils.GetFieldFromJson(deal, "start_epoch").(int)
 					if currentEpoch != -1 && currentEpoch > startEpoch{
 						note := "Sector is proved and active, while deal on chain status is StorageDealAwaitingPreCommit. Set deal status as ImportFailed."
-						updateOfflineDealStatus(DEAL_STATUS_FAILED, note, dealId, client)
+						swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, dealId, "","")
 						msg := fmt.Sprintf("Setting deal %s status as ImportFailed due to on chain status bug.", dealCid)
 						logs.GetLogger().Info(msg)
 						message:= fmt.Sprintf("{\"on_chain_status\": %s,\"on_chain_message\": %s}", onChainStatus, onChainMessage)

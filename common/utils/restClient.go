@@ -75,6 +75,7 @@ func Delete(uri, tokenString  string, jsonRequest interface{}) string {
 func httpRequest(httpMethod, uri, tokenString string, jsonRequest interface{}) string {
 	//fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
 	jsonReq, err := json.Marshal(jsonRequest)
+	fmt.Println(string(jsonReq))
 	request, err := http.NewRequest(httpMethod, uri, bytes.NewBuffer(jsonReq))
 	request.Header.Set("Content-Type", contentType)
 	if len(tokenString)>0{

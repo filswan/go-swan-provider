@@ -25,30 +25,18 @@ func getDealOnChainStatus(dealCid string) (string) {
 	return result
 }
 
-func updateOfflineDealStatus(status, note, dealId string, client *SwanClient) {
-	logs.GetLogger().Info()
-	client.UpdateOfflineDealDetails(status,note,dealId,"","")
-}
-
 func Importer() {
 	conf:=config.GetConfig()
 	confMain:=conf.Main
 
-	apiUrl := confMain.ApiUrl
-	apiKey := confMain.ApiKey
-	accessToken := confMain.AccessToken
 	importInterval := confMain.ImportInterval
 	expectedSealingTime := confMain.ExpectedSealingTime
 	minerFid := confMain.MinerFid
 
-	client := &SwanClient{
-		apiUrl,
-		apiKey,
-		accessToken,
-	}
+	swanClient := GetJwtToken()
 
 	for {
-		deals := client.GetOfflineDeals(minerFid,DEAL_STATUS_READY, IMPORT_NUMNBER)
+		deals := swanClient.GetOfflineDeals(minerFid,DEAL_STATUS_READY, IMPORT_NUMNBER)
 		if deals==nil{
 			logs.GetLogger().Info("No pending offline deals found.")
 			logs.GetLogger().Info("Sleeping...")
@@ -94,7 +82,7 @@ func Importer() {
 					logs.GetLogger().Info("Deal on chain status is error before importing.")
 					note := "Deal error before importing."
 					dealId := utils.GetFieldStrFromJson(deal, "id")
-					updateOfflineDealStatus(DEAL_STATUS_FAILED, note, dealId, client)
+					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, dealId, "","")
 					continue
 				}
 
@@ -102,7 +90,7 @@ func Importer() {
 					logs.GetLogger().Info("Deal on chain status is active before importing.")
 					note := "Deal active before importing."
 					dealId := utils.GetFieldStrFromJson(deal, "id")
-					updateOfflineDealStatus(DEAL_STATUS_ACTIVE, note, dealId, client)
+					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, dealId, "","")
 					continue
 				}
 
@@ -115,7 +103,7 @@ func Importer() {
 					logs.GetLogger().Info("Deal on chain status not found.")
 					note := "Deal not found."
 					dealId := utils.GetFieldStrFromJson(deal, "id")
-					updateOfflineDealStatus(DEAL_STATUS_FAILED, note, dealId, client)
+					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, dealId, "","")
 					continue
 				}
 
@@ -123,7 +111,7 @@ func Importer() {
 					logs.GetLogger().Info("Deal is already imported, please check.")
 					note := onChainStatus
 					dealId := utils.GetFieldStrFromJson(deal, "id")
-					updateOfflineDealStatus(DEAL_STATUS_FILE_IMPORTED, note,dealId, client)
+					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, dealId, "","")
 					continue
 				}
 
@@ -140,28 +128,28 @@ func Importer() {
 				startEpoch := utils.GetFieldFromJson(deal, "start_epoch").(int)
 				msg = fmt.Sprintf("Current epoch: %s. Deal starting epoch: %s", currentEpoch)
 
+				dealId := utils.GetFieldStrFromJson(deal, "id")
 				if startEpoch-currentEpoch<expectedSealingTime{
 					logs.GetLogger().Info("Deal will start too soon. Do not import this deal.")
 					note := "Deal expired."
-					updateOfflineDealStatus(DEAL_STATUS_FAILED, note, dealCid, client)
+					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, dealId, "","")
 					continue
 				}
 
-				dealId := utils.GetFieldStrFromJson(deal, "id")
 				command := "lotus-miner storage-deals import-data " + dealId + " " + filePath
 				logs.GetLogger().Info("Command: "+command)
-				updateOfflineDealStatus(DEAL_STATUS_FILE_IMPORTING, "", dealId, client)
+				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, "note", dealId, "","")
 
 				result,_ = utils.ExecOsCmd(command,"")
 
 				if result==""{
-					updateOfflineDealStatus(DEAL_STATUS_FAILED, result, dealId, client)
+					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, "note", dealId, "","")
 					msg = fmt.Sprintf("Import deal failed. CID: %s. Error message: %s", dealId,result)
 					logs.GetLogger().Error()
 					continue
 				}
 
-				updateOfflineDealStatus(DEAL_STATUS_FILE_IMPORTED, "", dealId, client)
+				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, "note", dealId, "","")
 				msg = fmt.Sprintf("Deal CID %s imported.", dealId)
 				logs.GetLogger().Info("Sleeping...")
 				time.Sleep(time.Duration(importInterval) * time.Second)

@@ -37,10 +37,10 @@ type OfflineDeal struct {
 }
 
 type DealDetail struct {
-	status string
-	note string
-	file_path string
-	file_size string
+	Status   string   `json:"status"`
+	Note     string   `json:"note"`
+	FilePath string   `json:"file_path"`
+	FileSize string   `json:"file_size"`
 }
 
 func GetJwtToken() (*SwanClient){
@@ -76,27 +76,28 @@ func GetJwtToken() (*SwanClient){
 }
 */
 
-func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]OfflineDeal){
+func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]interface{}){
 	url := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + limit + "&offset=0"
 	fmt.Println(url)
 	response := utils.Get(url, self.Token, "")
 	fmt.Println(response)
 	data := utils.GetFieldMapFromJson(response, "data")
 	fmt.Println(data)
-	deals := data["deal"].([]OfflineDeal)
+	deals := data["deal"].([]interface{})
 	fmt.Println(deals)
 	return deals
 }
 
-func (self *SwanClient) UpdateOfflineDealDetails(status,note string, dealId string, filePath string, fileSize string)  {
-	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + string(dealId)
+func (self *SwanClient) UpdateOfflineDealDetails(status,note,dealId string, filePath string, fileSize string)  {
+	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + dealId
 	dealDetail := DealDetail{
-		status: status,
-		note: note,
-		file_path: filePath,
-		file_size: fileSize,
+		Status: status,
+		Note: note,
+		FilePath: filePath,
+		FileSize: fileSize,
 	}
 	response := utils.Put(url,self.Token,dealDetail)
+	fmt.Println(url)
 	fmt.Println(response)
 }
 

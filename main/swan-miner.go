@@ -28,6 +28,10 @@ func main() {
 
 	mainConf := config.GetConfig().Main
 	swanClient.GetOfflineDeals(mainConf.MinerFid,"Waiting", "10")
+	swanClient.UpdateOfflineDealDetails("Completed","test note","2455","","")
+
+	aria2Client := dealAdmin.GetAria2Client()
+	dealAdmin.StartDownloadForDeal1("https://file-examples-com.github.io/uploads/2020/03/file_example_WEBP_500kB.webp","163","/Users/dorachen", aria2Client)
 	//
 	//createServer()
 }
