@@ -47,7 +47,7 @@ func Scanner() {
 	scanInterval := confMain.ScanInterval
 	minerFid := confMain.MinerFid
 
-	swanClient := GetJwtToken()
+	swanClient := GetSwanClient()
 	for {
 		deals := swanClient.GetOfflineDeals(minerFid, DEAL_STATUS_FILE_IMPORTED, SCAN_NUMBER)
 

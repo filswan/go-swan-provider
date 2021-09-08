@@ -17,25 +17,6 @@ type SwanClient struct {
 	Token  string
 }
 
-type OfflineDeal struct {
-	uuid             string
-	source_file_name string
-	source_file_path string
-	source_file_md5  string
-	source_file_url  string
-	source_file_size string
-	car_file_name    string
-	car_file_path    string
-	car_file_md5     string
-	car_file_url     string
-	car_file_size    string
-	deal_cid         string
-	data_cid         string
-	piece_cid        string
-	miner_id         string
-	start_epoch      string
-}
-
 type DealDetail struct {
 	Status   string   `json:"status"`
 	Note     string   `json:"note"`
@@ -43,7 +24,7 @@ type DealDetail struct {
 	FileSize string   `json:"file_size"`
 }
 
-func GetJwtToken() (*SwanClient){
+func GetSwanClient() (*SwanClient){
 	//fmt.Println("Refreshing token")
 	mainConf := config.GetConfig().Main
 	uri := mainConf.ApiUrl+"/user/api_keys/jwt"

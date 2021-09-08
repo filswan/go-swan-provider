@@ -33,7 +33,7 @@ func Importer() {
 	expectedSealingTime := confMain.ExpectedSealingTime
 	minerFid := confMain.MinerFid
 
-	swanClient := GetJwtToken()
+	swanClient := GetSwanClient()
 
 	for {
 		deals := swanClient.GetOfflineDeals(minerFid,DEAL_STATUS_READY, IMPORT_NUMNBER)

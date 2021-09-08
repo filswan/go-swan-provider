@@ -44,7 +44,7 @@ func GetAria2Client() (*Aria2Client){
 
 func (self *Aria2Client) GenPayload(method string, uri string , options interface{}) (interface{}){
 	var params []interface{}
-	//params = append(params, "token:"+self.token)
+	params = append(params, "token:"+self.token)
 	var urls [] string
 	urls = append(urls, uri)
 	params = append(params, urls)
