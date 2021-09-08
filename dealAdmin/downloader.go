@@ -10,7 +10,7 @@ import (
 
 const MAX_DOWNLOADING_TASKS = 10
 
-func downloader(){
+func Downloader(){
 	conf := config.GetConfig()
 	confMain := conf.Main
 	confAria := conf.Aria2

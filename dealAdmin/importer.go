@@ -10,14 +10,7 @@ import (
 	"time"
 )
 
-const DEAL_STATUS_FAILED = "ImportFailed"
 const DEAL_STATUS_READY = "ReadyForImport"
-const DEAL_STATUS_FILE_IMPORTING = "FileImporting"
-const DEAL_STATUS_FILE_IMPORTED = "FileImported"
-const DEAL_STATUS_ACTIVE = "DealActive"
-
-const ONCHAIN_DEAL_STATUS_ERROR = "StorageDealError"
-const ONCHAIN_DEAL_STATUS_ACTIVE = "StorageDealActive"
 const ONCHAIN_DEAL_STATUS_NOTFOUND = "StorageDealNotFound"
 const ONCHAIN_DEAL_STATUS_WAITTING = "StorageDealWaitingForData"
 const ONCHAIN_DEAL_STATUS_ACCEPT = "StorageDealAcceptWait"
@@ -37,7 +30,7 @@ func updateOfflineDealStatus(status, note, dealId string, client *utils.SwanClie
 	client.UpdateOfflineDealDetails(status,note,dealId,"","")
 }
 
-func importer() {
+func Importer() {
 	conf:=config.GetConfig()
 	confMain:=conf.Main
 
