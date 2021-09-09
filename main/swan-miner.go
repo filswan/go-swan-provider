@@ -23,7 +23,7 @@ func main() {
 	//offlineDealAdmin.AdminOfflineDeal()
 	//testRestApiAccessor()
 
-	swanClient := offlineDealAdmin.GetSwanClient()
+/*	swanClient := offlineDealAdmin.GetSwanClient()
 
 	//fmt.Println(swanClient)
 
@@ -40,7 +40,9 @@ func main() {
 
 	aria2Service := offlineDealAdmin.GetAria2Service()
 	aria2Service.StartDownloadForDeal(*offlineDeal, aria2Client, swanClient)
-	aria2Client.GetDownloadStatus("f80d913a4dff40651")
+	aria2Client.GetDownloadStatus("f80d913a4dff40651")*/
+
+	offlineDealAdmin.Downloader()
 	//
 	//createServer()
 }

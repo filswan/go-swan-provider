@@ -3,7 +3,6 @@ package offlineDealAdmin
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jasonlvhit/gocron"
 	"log"
 	"net/url"
 	"strings"
@@ -246,12 +245,12 @@ func Downloader(){
 	swanClient := GetSwanClient()
 	aria2Service := GetAria2Service()
 
-	gocron.Every(1).Minute().Do(func (){
+	aria2Service.startDownloading(aria2Client, swanClient)
+
+	//gocron.Every(1).Minute().Do(func (){
 		//fmt.Println(1)
 		aria2Service.CheckDownloadStatus(aria2Client,swanClient)
-	})
-
-	aria2Service.startDownloading(aria2Client, swanClient)
+	//})
 }
 
 

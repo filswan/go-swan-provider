@@ -29,18 +29,6 @@ func NewOfflineDealMessage(messageType, messageBody, offlineDealCid string) (*Of
 	return p
 }
 
-func getCurrentEpoch() int {
-	result,err := utils.ExecOsCmd("lotus-miner", "proving info")
-	currentEpoch := 1 //something get from result
-
-	fmt.Println(result)
-	if len(err) != 0 {
-		logs.GetLogger().Error("Failed to get current epoch. Please check if miner is running properly.")
-		return -1
-	}
-	return currentEpoch
-}
-
 func Scanner() {
 	confMain := config.GetConfig().Main
 	logger := logs.GetLogger()
@@ -92,7 +80,7 @@ func Scanner() {
 			}
 
 			if onChainStatus == ONCHAIN_DEAL_STATUS_AWAITING {
-				currentEpoch := getCurrentEpoch()
+				currentEpoch := utils.GetCurrentEpoch()
 				if currentEpoch != -1 && currentEpoch > deal.StartEpoch {
 					note := "Sector is proved and active, while deal on chain status is StorageDealAwaitingPreCommit. Set deal status as ImportFailed."
 					swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, note, deal.Id)
