@@ -36,7 +36,9 @@ func main() {
 		UserId: string(163),
 		SourceFileUrl: "https://file-examples-com.github.io/uploads/2020/03/file_example_WEBP_500kB.webp",
 	}
-	dealAdmin.StartDownloadForDeal(*offlineDeal, aria2Client, swanClient)
+
+	aria2Service := dealAdmin.GetAria2Service()
+	aria2Service.StartDownloadForDeal(*offlineDeal, aria2Client, swanClient)
 	//
 	//createServer()
 }

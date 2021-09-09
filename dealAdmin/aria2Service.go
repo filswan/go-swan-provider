@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"reflect"
 	"strconv"
 	"swan-miner/common/utils"
 	"swan-miner/config"
@@ -26,6 +25,19 @@ type DownloadOption struct {
 	Dir string   `json:"dir"`
 }
 
+type Aria2Service struct {
+	MinerFid string
+	OutDir   string
+}
+
+func GetAria2Service() (*Aria2Service){
+	aria2Service := &Aria2Service{
+		MinerFid: config.GetConfig().Main.MinerFid,
+		OutDir: config.GetConfig().Aria2.Aria2DownloadDir,
+	}
+
+	return aria2Service
+}
 
 func isCompleted(task string) (bool){
 	errCode := utils.GetFieldFromJson(task, "errorCode")
@@ -47,10 +59,10 @@ func isCompleted(task string) (bool){
 	return false
 }
 
-func findNextDealReady2Download(minerFid string, swanClient *SwanClient) (*OfflineDeal) {
-	deals := swanClient.GetOfflineDeals(minerFid, DEAL_CREATED_STATUS, "1")
+func  (self *Aria2Service) findNextDealReady2Download(swanClient *SwanClient) (*OfflineDeal) {
+	deals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_CREATED_STATUS, "1")
 	if len(deals) == 0 {
-		deals = swanClient.GetOfflineDeals(minerFid, DEAL_WAITING_STATUS, "1")
+		deals = swanClient.GetOfflineDeals(self.MinerFid, DEAL_WAITING_STATUS, "1")
 	}
 
 	if len(deals)>0{
@@ -61,13 +73,12 @@ func findNextDealReady2Download(minerFid string, swanClient *SwanClient) (*Offli
 	return nil
 }
 
-func findDealsByStatus(status, minerFid string, swanClient *SwanClient) ([]interface{}){
-	deals := swanClient.GetOfflineDeals(minerFid, status, "50")
+func (self *Aria2Service) findDealsByStatus(status string, swanClient *SwanClient) ([]interface{}){
+	deals := swanClient.GetOfflineDeals(self.MinerFid, status, "50")
 	return deals
 }
 
-func StartDownloadForDeal(offlineDeal OfflineDeal, aria2Client *Aria2Client, swanClient *SwanClient) {
-	outDir := config.GetConfig().Aria2.Aria2DownloadDir
+func (self *Aria2Service) StartDownloadForDeal(offlineDeal OfflineDeal, aria2Client *Aria2Client, swanClient *SwanClient) {
 	logs.GetLogger().Info("start downloading deal id ", offlineDeal.Id)
 	url, err := url.Parse(offlineDeal.SourceFileUrl)
 	if err != nil {
@@ -78,7 +89,7 @@ func StartDownloadForDeal(offlineDeal OfflineDeal, aria2Client *Aria2Client, swa
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
 	option := DownloadOption{
 		Out: filename,
-		Dir: outDir +"/"+ offlineDeal.UserId + "/" + timeStr,
+		Dir: self.OutDir +"/"+ offlineDeal.UserId + "/" + timeStr,
 	}
 	response := aria2Client.DownloadFile(offlineDeal.SourceFileUrl, option)
 	fmt.Println(response)
@@ -87,20 +98,14 @@ func StartDownloadForDeal(offlineDeal OfflineDeal, aria2Client *Aria2Client, swa
 	response = aria2Client.DownloadFile(STATUS, gid.(string),"")*/
 }
 
-func checkDownloadStatus(aria2Client Aria2Client, swanClient *SwanClient, minerFid string) {
-	downloadingDeals := findDealsByStatus(DEAL_DOWNLOADING_STATUS, minerFid, swanClient)
+func (self *Aria2Service) CheckDownloadStatus(aria2Client Aria2Client, swanClient *SwanClient, minerFid string) {
+	downloadingDeals := self.findDealsByStatus(DEAL_DOWNLOADING_STATUS, swanClient)
 
-	switch reflect.TypeOf(downloadingDeals).Kind() {
-	case reflect.Slice:
-		s := reflect.ValueOf(downloadingDeals)
-
-		for i := 0; i < s.Len(); i++ {
-			fmt.Println(s.Index(i))
-
-			deal :=s.Index(i).String()
-			dealId := utils.GetFieldStrFromJson(deal, "id")
-			currentStatus := utils.GetFieldFromJson(deal, "status")
-			note:=utils.GetFieldStrFromJson(deal, "note")
+		for i := 0; i < len(downloadingDeals); i++ {
+			deal :=downloadingDeals[i].(OfflineDeal)
+			fmt.Println(deal)
+			currentStatus := deal.Status
+			note := deal.Note
 			response := aria2Client.DownloadFile(note,"")
 
 			var fileSize string
@@ -120,7 +125,7 @@ func checkDownloadStatus(aria2Client Aria2Client, swanClient *SwanClient, minerF
 						speedStr := utils.GetFieldFromJson(taskState, "downloadSpeed")
 						speed := speedStr.(int) / 1000
 
-						logs.GetLogger().Info("continue downloading deal id %s complete %s%% speed %s KiB", dealId, completePercent, speed)
+						logs.GetLogger().Info("continue downloading deal id %s complete %s%% speed %s KiB", deal.Id, completePercent, speed)
 					}
 
 					if isCompleted(taskState) {
@@ -138,31 +143,28 @@ func checkDownloadStatus(aria2Client Aria2Client, swanClient *SwanClient, minerF
 			}
 
 			if newStatus != currentStatus{
-				msg := fmt.Sprintf("deal id %s status %s -> %s", dealId, currentStatus, newStatus)
+				msg := fmt.Sprintf("deal id %s status %s -> %s", deal.Id, currentStatus, newStatus)
 				logs.GetLogger().Info(msg)
-				swanClient.UpdateOfflineDealDetails(newStatus,note,dealId, "", fileSize)
-
+				swanClient.UpdateOfflineDealDetails(newStatus,note,deal.Id, "", fileSize)
 			}
-		}
 	}
 }
 
-func startDownloading(maxDownloadingTaskNum int, aria2Client *Aria2Client, swanClient *SwanClient) {
+func (self *Aria2Service) startDownloading(maxDownloadingTaskNum int, aria2Client *Aria2Client, swanClient *SwanClient) {
 	for{
-		minerFid := config.GetConfig().Main.MinerFid
-		downloadingDeals := findDealsByStatus(DEAL_DOWNLOADING_STATUS, minerFid, swanClient)
+		downloadingDeals := self.findDealsByStatus(DEAL_DOWNLOADING_STATUS, swanClient)
 		countDownloadingDeals := len(downloadingDeals)
 		if maxDownloadingTaskNum > countDownloadingDeals {
 			newTaskNum := maxDownloadingTaskNum - countDownloadingDeals
 			i := 1
 			for i<=newTaskNum{
-				deal2Download := findNextDealReady2Download(minerFid,swanClient)
+				deal2Download := self.findNextDealReady2Download(swanClient)
 
 				if deal2Download==nil {
 					break
 				}
 
-				StartDownloadForDeal(*deal2Download, aria2Client, swanClient)
+				self.StartDownloadForDeal(*deal2Download, aria2Client, swanClient)
 				time.Sleep(1 * time.Second)
 			}
 
