@@ -1,8 +1,9 @@
-package dealAdmin
+package offlineDealAdmin
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jasonlvhit/gocron"
 	"log"
 	"net/url"
 	"strings"
@@ -11,6 +12,8 @@ import (
 	"swan-miner/logs"
 	"time"
 )
+
+const MAX_DOWNLOADING_TASKS = 10
 
 const DEAL_DOWNLOADING_STATUS = "Downloading"
 const DEAL_DOWNLOADED_STATUS = "Downloaded"
@@ -138,7 +141,7 @@ func (self *Aria2Service) StartDownloadForDeal(offlineDeal OfflineDeal, aria2Cli
 
 	gid := utils.GetFieldStrFromJson(response, "result")
 	response = aria2Client.GetDownloadStatus(gid)
-	if strings.Contains(response, "error"){
+	if strings.Contains(response, "\"error\""){
 		aria2StatusFail := Aria2StatusFail{}
 		json.Unmarshal([]byte(response),&aria2StatusFail)
 		code := aria2StatusFail.Error.Code
@@ -215,12 +218,12 @@ func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, sw
 	}
 }
 
-func (self *Aria2Service) startDownloading(maxDownloadingTaskNum int, aria2Client *utils.Aria2Client, swanClient *SwanClient) {
+func (self *Aria2Service) startDownloading(aria2Client *utils.Aria2Client, swanClient *SwanClient) {
 	for{
 		downloadingDeals := self.findDealsByStatus(DEAL_DOWNLOADING_STATUS, swanClient)
 		countDownloadingDeals := len(downloadingDeals)
-		if maxDownloadingTaskNum > countDownloadingDeals {
-			newTaskNum := maxDownloadingTaskNum - countDownloadingDeals
+		if MAX_DOWNLOADING_TASKS > countDownloadingDeals {
+			newTaskNum := MAX_DOWNLOADING_TASKS - countDownloadingDeals
 			i := 1
 			for i<=newTaskNum{
 				deal2Download := self.findNextDealReady2Download(swanClient)
@@ -236,6 +239,19 @@ func (self *Aria2Service) startDownloading(maxDownloadingTaskNum int, aria2Clien
 			time.Sleep(60 * time.Second)
 		}
 	}
+}
+
+func Downloader(){
+	aria2Client := utils.GetAria2Client()
+	swanClient := GetSwanClient()
+	aria2Service := GetAria2Service()
+
+	gocron.Every(1).Minute().Do(func (){
+		//fmt.Println(1)
+		aria2Service.CheckDownloadStatus(aria2Client,swanClient)
+	})
+
+	aria2Service.startDownloading(aria2Client, swanClient)
 }
 
 

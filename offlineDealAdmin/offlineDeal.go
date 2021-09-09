@@ -1,4 +1,4 @@
-package dealAdmin
+package offlineDealAdmin
 
 type OfflineDeal struct {
 	Id               string `json:"id"`

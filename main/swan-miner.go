@@ -9,8 +9,8 @@ import (
 	"swan-miner/common/constants"
 	"swan-miner/common/utils"
 	"swan-miner/config"
-	"swan-miner/dealAdmin"
 	"swan-miner/logs"
+	"swan-miner/offlineDealAdmin"
 	"swan-miner/routers/commonRouters"
 	"time"
 )
@@ -20,24 +20,25 @@ func main() {
 
 	config.InitConfig("")
 
+	//offlineDealAdmin.AdminOfflineDeal()
 	//testRestApiAccessor()
 
-	swanClient := dealAdmin.GetSwanClient()
+	swanClient := offlineDealAdmin.GetSwanClient()
 
 	//fmt.Println(swanClient)
 
 	mainConf := config.GetConfig().Main
 	swanClient.GetOfflineDeals(mainConf.MinerFid,"Waiting", "10")
-	swanClient.UpdateOfflineDealDetails("Completed","test note","2455","","")
+	swanClient.UpdateOfflineDealStatus("Completed","test note","2455")
 
 	aria2Client := utils.GetAria2Client()
-	offlineDeal := &dealAdmin.OfflineDeal{
+	offlineDeal := &offlineDealAdmin.OfflineDeal{
 		Id: "163",
 		UserId: string(163),
 		SourceFileUrl: "https://file-examples-com.github.io/uploads/2020/03/file_example_WEBP_500kB.webp",
 	}
 
-	aria2Service := dealAdmin.GetAria2Service()
+	aria2Service := offlineDealAdmin.GetAria2Service()
 	aria2Service.StartDownloadForDeal(*offlineDeal, aria2Client, swanClient)
 	aria2Client.GetDownloadStatus("f80d913a4dff40651")
 	//

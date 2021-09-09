@@ -1,4 +1,4 @@
-package dealAdmin
+package offlineDealAdmin
 
 import (
 	"fmt"
@@ -61,14 +61,14 @@ func Importer() {
 			if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR{
 				note := "Deal on chain status is error before importing."
 				logger.Info(note)
-				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, deal.Id, "","")
+				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, note, deal.Id)
 				continue
 			}
 
 			if onChainStatus == ONCHAIN_DEAL_STATUS_ACTIVE {
 				note := "Deal on chain status is active before importing."
 				logger.Info(note)
-				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_ACTIVE, note, deal.Id, "","")
+				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_ACTIVE, note, deal.Id)
 				continue
 			}
 
@@ -80,13 +80,13 @@ func Importer() {
 			if onChainStatus == ONCHAIN_DEAL_STATUS_NOTFOUND {
 				note := "Deal on chain status not found."
 				logger.Info(note)
-				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, deal.Id, "","")
+				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, note, deal.Id)
 				continue
 			}
 
 			if onChainStatus != ONCHAIN_DEAL_STATUS_WAITTING {
 				logger.Info("Deal is already imported, please check.")
-				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FILE_IMPORTED, onChainStatus, deal.Id, "","")
+				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FILE_IMPORTED, onChainStatus, deal.Id)
 				continue
 			}
 
@@ -104,26 +104,26 @@ func Importer() {
 			if deal.StartEpoch - currentEpoch < expectedSealingTime{
 				note := "Deal will start too soon, expired. Do not import this deal."
 				logger.Info(note)
-				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, deal.Id, "","")
+				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, note, deal.Id)
 				continue
 			}
 
 			command := "lotus-miner storage-deals import-data " + deal.Id + " " + deal.FilePath
 			logger.Info("Command: "+command)
 			note := ""
-			swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FILE_IMPORTING, note, deal.Id, "","")
+			swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FILE_IMPORTING, note, deal.Id)
 
 			result,_ = utils.ExecOsCmd(command,"")
 
 			//There should be no output if everything goes well
 			if result != ""{
-				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, result, deal.Id, "","")
+				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, result, deal.Id)
 				msg = fmt.Sprintf("Import deal failed. CID: %s. Error message: %s", deal.Id, result)
 				logger.Error()
 				continue
 			}
 
-			swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FILE_IMPORTED, "note", deal.Id, "","")
+			swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FILE_IMPORTED, "note", deal.Id)
 			msg = fmt.Sprintf("Deal CID %s imported.", deal.DealCid)
 			logger.Info("Sleeping...")
 			time.Sleep(importInterval * time.Second)

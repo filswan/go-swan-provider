@@ -1,4 +1,4 @@
-package dealAdmin
+package offlineDealAdmin
 
 import (
 	"fmt"
@@ -69,7 +69,7 @@ func Scanner() {
 
 			if len(result) == 0 {
 				note := "Failed to find deal on chain."
-				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, deal.Id, "","")
+				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, note, deal.Id)
 				logger.Info(note + " Deal ID: " + deal.Id)
 				continue
 			}
@@ -79,14 +79,14 @@ func Scanner() {
 			onChainStatus := result //some value get from result
 			if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 				onChainMessage = result // some value get from result
-				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, onChainMessage, deal.Id, "","")
+				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, onChainMessage, deal.Id)
 				msg := fmt.Sprintf("Setting deal %s status as ImportFailed", deal.DealCid)
 				logger.Info(msg)
 			}
 
 			if onChainStatus ==ONCHAIN_DEAL_STATUS_ACTIVE{
 				note := "Deal has been completed"
-				swanClient.UpdateOfflineDealDetails(ONCHAIN_DEAL_STATUS_ACTIVE, note, deal.Id, "","")
+				swanClient.UpdateOfflineDealStatus(ONCHAIN_DEAL_STATUS_ACTIVE, note, deal.Id)
 				msg := fmt.Sprintf("Setting deal %s status as Active", deal.DealCid)
 				logger.Info(msg)
 			}
@@ -95,7 +95,7 @@ func Scanner() {
 				currentEpoch := getCurrentEpoch()
 				if currentEpoch != -1 && currentEpoch > deal.StartEpoch {
 					note := "Sector is proved and active, while deal on chain status is StorageDealAwaitingPreCommit. Set deal status as ImportFailed."
-					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, deal.Id, "","")
+					swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, note, deal.Id)
 					msg := fmt.Sprintf("Setting deal %s status as ImportFailed due to on chain status bug.", deal.DealCid)
 					logger.Info(msg)
 				}

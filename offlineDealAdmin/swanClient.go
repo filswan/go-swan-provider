@@ -1,4 +1,4 @@
-package dealAdmin
+package offlineDealAdmin
 
 import (
 	"encoding/json"
@@ -84,6 +84,18 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]Offli
 	}*/
 
 	return deals
+}
+
+func (self *SwanClient) UpdateOfflineDealStatus(status, note, dealId string)  {
+	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + dealId
+	dealDetail := DealDetail{
+		Status: status,
+		Note: note,
+	}
+	fmt.Println(utils.ToJson(dealDetail))
+	response := utils.HttpPut(url,self.Token,dealDetail)
+	fmt.Println(url)
+	fmt.Println(response)
 }
 
 func (self *SwanClient) UpdateOfflineDealDetails(status, note, dealId string, filePath string, fileSize string)  {

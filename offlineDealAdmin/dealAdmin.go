@@ -1,5 +1,4 @@
-package dealAdmin
-
+package offlineDealAdmin
 
 const DEAL_STATUS_FAILED = "ImportFailed"
 
@@ -10,7 +9,7 @@ const DEAL_STATUS_ACTIVE = "DealActive"
 const ONCHAIN_DEAL_STATUS_ERROR = "StorageDealError"
 const ONCHAIN_DEAL_STATUS_ACTIVE = "StorageDealActive"
 
-func dealAdmin()  {
+func AdminOfflineDeal()  {
 	go Downloader()
 	go Importer()
 	go Scanner()
