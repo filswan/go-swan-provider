@@ -30,11 +30,11 @@ func NewOfflineDealMessage(messageType, messageBody, offlineDealCid string) (*Of
 }
 
 func getCurrentEpoch() int {
-	result,ok := utils.ExecOsCmd("lotus-miner", "proving info")
+	result,err := utils.ExecOsCmd("lotus-miner", "proving info")
 	currentEpoch := 1 //something get from result
 
 	fmt.Println(result)
-	if !ok {
+	if len(err) != 0 {
 		logs.GetLogger().Error("Failed to get current epoch. Please check if miner is running properly.")
 		return -1
 	}
@@ -56,31 +56,36 @@ func Scanner() {
 			continue
 		}
 
-		for _,deal := range deals {
+		for _, deal := range deals {
 			//fmt.Println(deal)
 			msg := fmt.Sprintf("ID: %s. Deal CID: %s. Deal Status: %s.", deal.Id, deal.DealCid, deal.Status)
 			logger.Info(msg)
 			cmd :="lotus-miner storage-deals list -v | grep " + deal.DealCid
-			result,_ := utils.ExecOsCmd(cmd, "")
-			if result == ""{
+			result, err := utils.ExecOsCmd(cmd, "")
+			if len(err)>0{
+				logger.Error(err)
+				continue
+			}
+
+			if len(result) == 0 {
 				note := "Failed to find deal on chain."
 				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, deal.Id, "","")
-				msg := fmt.Sprintf("Deal details: %s", result)
-				logger.Info(msg)
+				logger.Info(note + " Deal ID: " + deal.Id)
+				continue
 			}
 
 			onChainMessage := ""
 			//dealStatusIndex := utils.GetFieldStrFromJson(result, "StorageDeal")
 			onChainStatus := result //some value get from result
 			if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-				onChainMessage= result // some value get from result
+				onChainMessage = result // some value get from result
 				swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, onChainMessage, deal.Id, "","")
 				msg := fmt.Sprintf("Setting deal %s status as ImportFailed", deal.DealCid)
 				logger.Info(msg)
 			}
 
 			if onChainStatus ==ONCHAIN_DEAL_STATUS_ACTIVE{
-				note:="Deal has been completed"
+				note := "Deal has been completed"
 				swanClient.UpdateOfflineDealDetails(ONCHAIN_DEAL_STATUS_ACTIVE, note, deal.Id, "","")
 				msg := fmt.Sprintf("Setting deal %s status as Active", deal.DealCid)
 				logger.Info(msg)
@@ -93,16 +98,16 @@ func Scanner() {
 					swanClient.UpdateOfflineDealDetails(DEAL_STATUS_FAILED, note, deal.Id, "","")
 					msg := fmt.Sprintf("Setting deal %s status as ImportFailed due to on chain status bug.", deal.DealCid)
 					logger.Info(msg)
-					message:= fmt.Sprintf("{\"on_chain_status\": %s,\"on_chain_message\": %s}", onChainStatus, onChainMessage)
-					msg = fmt.Sprintf("On chain offline_deal message created. Message Body: %s.", message)
-					logger.Info(msg)
-					continue
 				}
 			}
 
-			logger.Info("Sleeping...")
-			time.Sleep(confMain.ScanInterval * time.Second)
-	}
+			message:= fmt.Sprintf("{\"on_chain_status\": %s,\"on_chain_message\": %s}", onChainStatus, onChainMessage)
+			msg = fmt.Sprintf("On chain offline_deal message created. Message Body: %s.", message)
+			logger.Info(msg)
+		}
+
+		logger.Info("Sleeping...")
+		time.Sleep(confMain.ScanInterval * time.Second)
 	}
 }
 

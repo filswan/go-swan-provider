@@ -28,18 +28,10 @@ func ExecOsCmd2Screen(cmdName string, args string) (string ,bool){
 	return "", false
 }
 
-func ExecOsCmd(cmdName string, args string) (string, bool){
+func ExecOsCmd(cmdName string, args string) (string, string){
 	cmd := exec.Command(cmdName, args)
 	out, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(err)
-		return "", false
-	}
-
-	result := string(out)
-	fmt.Printf(result)
-
-	return result, true
+	return string(out), err.Error()
 }
 
 func ExecOsCmd1(cmdName string, args string) (string, bool){

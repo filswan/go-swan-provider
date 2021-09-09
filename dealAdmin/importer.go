@@ -90,10 +90,10 @@ func Importer() {
 				continue
 			}
 
-			result,ok := utils.ExecOsCmd("lotus-miner", " proving info")
+			result, err := utils.ExecOsCmd("lotus-miner", " proving info")
 			currentEpoch := 1 //something get from result
 
-			if !ok { //when exception occurs for the above os command
+			if len(err) != 0 { //when exception occurs for the above os command
 				logger.Error("Failed to get current epoch. Please check if miner is running properly.")
 				time.Sleep(importInterval * time.Second)
 				break
