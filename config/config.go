@@ -4,6 +4,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"log"
 	"strings"
+	"time"
 )
 
 type Configuration struct {
@@ -47,7 +48,7 @@ type main struct {
 	ApiUrl              string
 	MinerFid            string
 	ExpectedSealingTime int
-	ImportInterval      int
+	ImportInterval      time.Duration
 	ScanInterval        int
 	ApiKey              string
 	AccessToken         string
