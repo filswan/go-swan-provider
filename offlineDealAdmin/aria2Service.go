@@ -9,6 +9,7 @@ import (
 	"swan-miner/common/utils"
 	"swan-miner/config"
 	"swan-miner/logs"
+	"swan-miner/models"
 	"time"
 )
 
@@ -103,7 +104,7 @@ func isCompleted(taskState Aria2StatusResult) (bool){
 	return false
 }
 
-func  (self *Aria2Service) findNextDealReady2Download(swanClient *SwanClient) (*OfflineDeal) {
+func  (self *Aria2Service) findNextDealReady2Download(swanClient *utils.SwanClient) (*models.OfflineDeal) {
 	deals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_CREATED_STATUS, "1")
 	if len(deals) == 0 {
 		deals = swanClient.GetOfflineDeals(self.MinerFid, DEAL_WAITING_STATUS, "1")
@@ -117,12 +118,12 @@ func  (self *Aria2Service) findNextDealReady2Download(swanClient *SwanClient) (*
 	return nil
 }
 
-func (self *Aria2Service) findDealsByStatus(status string, swanClient *SwanClient) ([]OfflineDeal){
+func (self *Aria2Service) findDealsByStatus(status string, swanClient *utils.SwanClient) ([]models.OfflineDeal){
 	deals := swanClient.GetOfflineDeals(self.MinerFid, status, "50")
 	return deals
 }
 
-func (self *Aria2Service) StartDownloadForDeal(offlineDeal OfflineDeal, aria2Client *utils.Aria2Client, swanClient *SwanClient) {
+func (self *Aria2Service) StartDownloadForDeal(offlineDeal models.OfflineDeal, aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
 	logs.GetLogger().Info("start downloading deal id ", offlineDeal.Id)
 	url, err := url.Parse(offlineDeal.SourceFileUrl)
 	if err != nil {
@@ -162,7 +163,7 @@ func (self *Aria2Service) StartDownloadForDeal(offlineDeal OfflineDeal, aria2Cli
 	swanClient.UpdateOfflineDealDetails(DEAL_DOWNLOADING_STATUS, gid, offlineDeal.Id, filePath, fileSize)
 }
 
-func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, swanClient *SwanClient) {
+func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
 	downloadingDeals := self.findDealsByStatus(DEAL_DOWNLOADING_STATUS, swanClient)
 
 	for i := 0; i < len(downloadingDeals); i++ {
@@ -217,7 +218,7 @@ func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, sw
 	}
 }
 
-func (self *Aria2Service) startDownloading(aria2Client *utils.Aria2Client, swanClient *SwanClient) {
+func (self *Aria2Service) startDownloading(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
 	for{
 		downloadingDeals := self.findDealsByStatus(DEAL_DOWNLOADING_STATUS, swanClient)
 		countDownloadingDeals := len(downloadingDeals)
@@ -242,7 +243,7 @@ func (self *Aria2Service) startDownloading(aria2Client *utils.Aria2Client, swanC
 
 func Downloader(){
 	aria2Client := utils.GetAria2Client()
-	swanClient := GetSwanClient()
+	swanClient := utils.GetSwanClient()
 	aria2Service := GetAria2Service()
 
 	aria2Service.startDownloading(aria2Client, swanClient)

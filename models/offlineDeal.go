@@ -1,4 +1,4 @@
-package offlineDealAdmin
+package models
 
 type OfflineDeal struct {
 	Id               string `json:"id"`

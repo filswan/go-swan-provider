@@ -33,7 +33,7 @@ func Scanner() {
 	confMain := config.GetConfig().Main
 	logger := logs.GetLogger()
 
-	swanClient := GetSwanClient()
+	swanClient := utils.GetSwanClient()
 	for {
 		deals := swanClient.GetOfflineDeals(confMain.MinerFid, DEAL_STATUS_FILE_IMPORTED, SCAN_NUMBER)
 

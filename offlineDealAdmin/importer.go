@@ -23,7 +23,7 @@ func Importer() {
 	expectedSealingTime := confMain.ExpectedSealingTime
 	minerFid := confMain.MinerFid
 
-	swanClient := GetSwanClient()
+	swanClient := utils.GetSwanClient()
 
 	logger := logs.GetLogger()
 

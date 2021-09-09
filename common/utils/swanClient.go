@@ -1,10 +1,10 @@
-package offlineDealAdmin
+package utils
 
 import (
 	"encoding/json"
 	"fmt"
-	"swan-miner/common/utils"
 	"swan-miner/config"
+	"swan-miner/models"
 )
 
 type TokenAccessInfo struct {
@@ -26,12 +26,12 @@ type DealDetail struct {
 }
 
 type OfflineDealResponse struct {
-	Data   OfflineDealData   `json:"data"`
-	Status string            `json:"status"`
+	Data   OfflineDealData `json:"data"`
+	Status string          `json:"status"`
 }
 
 type OfflineDealData struct {
-	Deal  []OfflineDeal `json:"deal""`
+	Deal  []models.OfflineDeal `json:"deal""`
 }
 
 func GetSwanClient() (*SwanClient){
@@ -40,10 +40,10 @@ func GetSwanClient() (*SwanClient){
 	uri := mainConf.ApiUrl+"/user/api_keys/jwt"
 	data := TokenAccessInfo{ApiKey: mainConf.ApiKey, AccessToken: mainConf.AccessToken} //
 	//dataJson := fmt.Sprintf(`{\"apikey\":\"%s\",\"access_token\":\"%s\"}`, mainConf.ApiKey, mainConf.AccessToken)//ToJson(data)
-	response := utils.HttpPostNoToken(uri,data)
+	response := HttpPostNoToken(uri,data)
 	//fmt.Println(response)
 
-	jwtToken := utils.GetFieldMapFromJson(response,"data")
+	jwtToken := GetFieldMapFromJson(response,"data")
 	jwt:= jwtToken["jwt"].(string)
 	//fmt.Println(jwt)
 
@@ -67,10 +67,10 @@ func GetSwanClient() (*SwanClient){
 }
 */
 
-func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]OfflineDeal){
+func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]models.OfflineDeal){
 	url := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + limit + "&offset=0"
 	//fmt.Println(url)
-	response := utils.HttpGet(url, self.Token, "")
+	response := HttpGet(url, self.Token, "")
 	//fmt.Println(response)
 	offlineDealResponse := OfflineDealResponse{}
 	json.Unmarshal([]byte(response),&offlineDealResponse)
@@ -92,8 +92,8 @@ func (self *SwanClient) UpdateOfflineDealStatus(status, note, dealId string)  {
 		Status: status,
 		Note: note,
 	}
-	fmt.Println(utils.ToJson(dealDetail))
-	response := utils.HttpPut(url,self.Token,dealDetail)
+	fmt.Println(ToJson(dealDetail))
+	response := HttpPut(url,self.Token,dealDetail)
 	fmt.Println(url)
 	fmt.Println(response)
 }
@@ -106,8 +106,8 @@ func (self *SwanClient) UpdateOfflineDealDetails(status, note, dealId string, fi
 		FilePath: filePath,
 		FileSize: fileSize,
 	}
-	fmt.Println(utils.ToJson(dealDetail))
-	response := utils.HttpPut(url,self.Token,dealDetail)
+	fmt.Println(ToJson(dealDetail))
+	response := HttpPut(url,self.Token,dealDetail)
 	fmt.Println(url)
 	fmt.Println(response)
 }
