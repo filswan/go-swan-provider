@@ -39,6 +39,7 @@ func main() {
 
 	aria2Service := dealAdmin.GetAria2Service()
 	aria2Service.StartDownloadForDeal(*offlineDeal, aria2Client, swanClient)
+	aria2Client.GetDownloadStatus("f80d913a4dff40651")
 	//
 	//createServer()
 }

@@ -16,16 +16,16 @@ const ACTIVE = "aria2.tellActive"
 const STATUS = "aria2.tellStatus"
 
 type Aria2Client struct {
-	Host string
-	port int
-	token string
+	Host      string
+	port      int
+	token     string
 	serverUrl string
 }
 
 type Payload struct {
-	JsonRpc string   `json:"jsonrpc"`
-	Id      string   `json:"id"`
-	Method  string   `json:"method"`
+	JsonRpc string        `json:"jsonrpc"`
+	Id      string        `json:"id"`
+	Method  string        `json:"method"`
 	Params  []interface{} `json:"params"`
 }
 
@@ -52,7 +52,7 @@ func (self *Aria2Client) GenPayload(method string, uri string , options interfac
 
 	payload := Payload{
 		JsonRpc: "2.0",
-		Id: IDPREFIX,
+		Id: uri,
 		Method: method,
 		Params: params,
 	}
@@ -63,7 +63,7 @@ func (self *Aria2Client) GenPayload(method string, uri string , options interfac
 func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) {
 	payloads := self.GenPayload(ADD_URI, uri, options)
 	result := utils.HttpPostNoToken(self.serverUrl,payloads)
-	fmt.Println(result)
+	//fmt.Println(result)
 	if strings.Contains(result,"error"){
 		errorInfo := utils.GetFieldMapFromJson(result, "error")
 		errorCode := errorInfo["code"]
@@ -76,9 +76,29 @@ func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) 
 	}
 }
 
-/*func (self *Aria2Client) Download(uri string, options interface{}) (string) {
-	result := self.Download(ADD_URI, uri, options)
+func (self *Aria2Client) GenPayloadForStatus(gid string) (interface{}){
+	var params []interface{}
+	params = append(params, "token:"+self.token)
+/*	var urls [] string
+	urls = append(urls, uri)*/
+	params = append(params, gid)
+
+	payload := Payload{
+		JsonRpc: "2.0",
+		//Id: uri,
+		Method: STATUS,
+		Params: params,
+	}
+
+	return payload
+}
+
+
+func (self *Aria2Client) GetDownloadStatus(gid string) (string) {
+	payload := self.GenPayloadForStatus(gid)
+	result := utils.HttpPostNoToken(self.serverUrl,payload)
+	fmt.Println(result)
 	return result
-}*/
+}
 
 

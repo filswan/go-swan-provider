@@ -8,6 +8,7 @@ type OfflineDeal struct {
 	Note             string `json:"note"`
 	MinerId          string `json:"miner_id"`
 	StartEpoch       string `json:"start_epoch"`
+	FilePath         string `json:"file_path"`
 	FileSize         string `json:"file_size"`
 	DealCid          string `json:"deal_cid"`
 }
