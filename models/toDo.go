@@ -1,4 +1,4 @@
-package utils
+package models
 
 type Todo struct {
 	UserID    int    `json:"userId"`

@@ -10,6 +10,7 @@ import (
 	"swan-miner/common/utils"
 	"swan-miner/config"
 	"swan-miner/logs"
+	"swan-miner/models"
 	"swan-miner/offlineDealAdmin"
 	"swan-miner/routers/commonRouters"
 	"time"
@@ -50,7 +51,7 @@ func main() {
 func testRestApiAccessor(){
 	response := utils.HttpGet("https://jsonplaceholder.typicode.com/todos/1", "", "")
 	fmt.Println(response)
-	todo := utils.Todo{1, 2, "lorem ipsum dolor sit amet", true}
+	todo := models.Todo{1, 2, "lorem ipsum dolor sit amet", true}
 	response = utils.HttpPostNoToken("https://jsonplaceholder.typicode.com/todos", todo)
 	fmt.Println(response)
 
