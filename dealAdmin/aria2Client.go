@@ -62,7 +62,7 @@ func (self *Aria2Client) GenPayload(method string, uri string , options interfac
 
 func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) {
 	payloads := self.GenPayload(ADD_URI, uri, options)
-	result := utils.Post(self.serverUrl,payloads)
+	result := utils.HttpPostNoToken(self.serverUrl,payloads)
 	fmt.Println(result)
 	if strings.Contains(result,"error"){
 		errorInfo := utils.GetFieldMapFromJson(result, "error")

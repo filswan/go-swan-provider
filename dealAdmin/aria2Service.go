@@ -66,14 +66,14 @@ func  (self *Aria2Service) findNextDealReady2Download(swanClient *SwanClient) (*
 	}
 
 	if len(deals)>0{
-		offlineDeal := deals[0].(OfflineDeal)
+		offlineDeal := deals[0]
 		return &offlineDeal
 	}
 
 	return nil
 }
 
-func (self *Aria2Service) findDealsByStatus(status string, swanClient *SwanClient) ([]interface{}){
+func (self *Aria2Service) findDealsByStatus(status string, swanClient *SwanClient) ([]OfflineDeal){
 	deals := swanClient.GetOfflineDeals(self.MinerFid, status, "50")
 	return deals
 }
@@ -102,7 +102,7 @@ func (self *Aria2Service) CheckDownloadStatus(aria2Client Aria2Client, swanClien
 	downloadingDeals := self.findDealsByStatus(DEAL_DOWNLOADING_STATUS, swanClient)
 
 		for i := 0; i < len(downloadingDeals); i++ {
-			deal :=downloadingDeals[i].(OfflineDeal)
+			deal :=downloadingDeals[i]
 			fmt.Println(deal)
 			currentStatus := deal.Status
 			note := deal.Note

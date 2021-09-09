@@ -24,7 +24,7 @@ func main() {
 
 	swanClient := dealAdmin.GetSwanClient()
 
-	fmt.Println(swanClient)
+	//fmt.Println(swanClient)
 
 	mainConf := config.GetConfig().Main
 	swanClient.GetOfflineDeals(mainConf.MinerFid,"Waiting", "10")
@@ -44,19 +44,19 @@ func main() {
 }
 
 func testRestApiAccessor(){
-	response := utils.Get("https://jsonplaceholder.typicode.com/todos/1", "", "")
+	response := utils.HttpGet("https://jsonplaceholder.typicode.com/todos/1", "", "")
 	fmt.Println(response)
 	todo := utils.Todo{1, 2, "lorem ipsum dolor sit amet", true}
-	response = utils.Post("https://jsonplaceholder.typicode.com/todos", todo)
+	response = utils.HttpPostNoToken("https://jsonplaceholder.typicode.com/todos", todo)
 	fmt.Println(response)
 
-	response = utils.Put("https://jsonplaceholder.typicode.com/todos/1", "",todo)
+	response = utils.HttpPut("https://jsonplaceholder.typicode.com/todos/1", "",todo)
 	fmt.Println(response)
 
 	title := utils.GetFieldFromJson(response,"title")
 	fmt.Println("title",title)
 
-	response = utils.Delete("https://jsonplaceholder.typicode.com/todos/1", "",todo)
+	response = utils.HttpDelete("https://jsonplaceholder.typicode.com/todos/1", "",todo)
 	fmt.Println(response)
 }
 

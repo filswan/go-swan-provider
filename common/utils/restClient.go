@@ -36,7 +36,7 @@ const contentType = "application/json; charset=utf-8"
 	return result
 }*/
 
-func Post(uri string, jsonRequest interface{}) string {
+/*func Post(uri string, jsonRequest interface{}) string {
 	fmt.Println("Performing Http Post...", uri, contentType, jsonRequest)
 	jsonReq, err := json.Marshal(jsonRequest)
 	response, err := http.Post(uri, contentType, bytes.NewBuffer(jsonReq))
@@ -52,21 +52,34 @@ func Post(uri string, jsonRequest interface{}) string {
 	//fmt.Println(responseStr)
 
 	return responseStr
+}*/
+
+func HttpPostNoToken(uri string, jsonRequest interface{}) string {
+	response := httpRequest(http.MethodPost, uri, "" , jsonRequest)
+
+	return response
 }
 
-func Get(uri, tokenString  string, jsonRequest interface{}) string {
+func Post(uri, tokenString  string, jsonRequest interface{}) string {
+	response := httpRequest(http.MethodPost, uri, tokenString , jsonRequest)
+
+	return response
+}
+
+
+func HttpGet(uri, tokenString  string, jsonRequest interface{}) string {
 	response := httpRequest(http.MethodGet, uri, tokenString , jsonRequest)
 
 	return response
 }
 
-func Put(uri, tokenString  string, jsonRequest interface{}) string {
+func HttpPut(uri, tokenString  string, jsonRequest interface{}) string {
 	response := httpRequest(http.MethodPut, uri, tokenString , jsonRequest)
 
 	return response
 }
 
-func Delete(uri, tokenString  string, jsonRequest interface{}) string {
+func HttpDelete(uri, tokenString  string, jsonRequest interface{}) string {
 	response := httpRequest(http.MethodDelete, uri, tokenString , jsonRequest)
 
 	return response
@@ -75,7 +88,7 @@ func Delete(uri, tokenString  string, jsonRequest interface{}) string {
 func httpRequest(httpMethod, uri, tokenString string, jsonRequest interface{}) string {
 	//fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
 	jsonReq, err := json.Marshal(jsonRequest)
-	fmt.Println(string(jsonReq))
+	//fmt.Println(string(jsonReq))
 	request, err := http.NewRequest(httpMethod, uri, bytes.NewBuffer(jsonReq))
 	request.Header.Set("Content-Type", contentType)
 	if len(tokenString)>0{
