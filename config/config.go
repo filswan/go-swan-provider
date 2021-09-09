@@ -49,7 +49,7 @@ type main struct {
 	MinerFid            string
 	ExpectedSealingTime int
 	ImportInterval      time.Duration
-	ScanInterval        int
+	ScanInterval        time.Duration
 	ApiKey              string
 	AccessToken         string
 }
