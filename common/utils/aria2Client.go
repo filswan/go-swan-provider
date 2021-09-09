@@ -1,9 +1,8 @@
-package dealAdmin
+package utils
 
 import (
 	"fmt"
 	"strings"
-	"swan-miner/common/utils"
 	"swan-miner/config"
 	"swan-miner/logs"
 )
@@ -62,10 +61,10 @@ func (self *Aria2Client) GenPayload(method string, uri string , options interfac
 
 func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) {
 	payloads := self.GenPayload(ADD_URI, uri, options)
-	result := utils.HttpPostNoToken(self.serverUrl,payloads)
+	result := HttpPostNoToken(self.serverUrl,payloads)
 	//fmt.Println(result)
 	if strings.Contains(result,"error"){
-		errorInfo := utils.GetFieldMapFromJson(result, "error")
+		errorInfo := GetFieldMapFromJson(result, "error")
 		errorCode := errorInfo["code"]
 		errorMsg := errorInfo["message"]
 		msg := fmt.Sprintf("ERROR: %s, %s",errorCode, errorMsg)
@@ -96,7 +95,7 @@ func (self *Aria2Client) GenPayloadForStatus(gid string) (interface{}){
 
 func (self *Aria2Client) GetDownloadStatus(gid string) (string) {
 	payload := self.GenPayloadForStatus(gid)
-	result := utils.HttpPostNoToken(self.serverUrl,payload)
+	result := HttpPostNoToken(self.serverUrl,payload)
 	fmt.Println(result)
 	return result
 }

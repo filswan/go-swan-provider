@@ -86,7 +86,7 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]Offli
 	return deals
 }
 
-func (self *SwanClient) UpdateOfflineDealDetails(status,note,dealId string, filePath string, fileSize string)  {
+func (self *SwanClient) UpdateOfflineDealDetails(status, note, dealId string, filePath string, fileSize string)  {
 	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + dealId
 	dealDetail := DealDetail{
 		Status: status,
@@ -94,6 +94,7 @@ func (self *SwanClient) UpdateOfflineDealDetails(status,note,dealId string, file
 		FilePath: filePath,
 		FileSize: fileSize,
 	}
+	fmt.Println(utils.ToJson(dealDetail))
 	response := utils.HttpPut(url,self.Token,dealDetail)
 	fmt.Println(url)
 	fmt.Println(response)

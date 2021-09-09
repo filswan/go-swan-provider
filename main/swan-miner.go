@@ -30,7 +30,7 @@ func main() {
 	swanClient.GetOfflineDeals(mainConf.MinerFid,"Waiting", "10")
 	swanClient.UpdateOfflineDealDetails("Completed","test note","2455","","")
 
-	aria2Client := dealAdmin.GetAria2Client()
+	aria2Client := utils.GetAria2Client()
 	offlineDeal := &dealAdmin.OfflineDeal{
 		Id: "163",
 		UserId: string(163),
