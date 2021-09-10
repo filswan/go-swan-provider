@@ -48,49 +48,43 @@ func Scanner() {
 			//fmt.Println(deal)
 			msg := fmt.Sprintf("ID: %s. Deal CID: %s. Deal Status: %s.", deal.Id, deal.DealCid, deal.Status)
 			logger.Info(msg)
-			cmd :="lotus-miner storage-deals list -v | grep " + deal.DealCid
-			result, err := utils.ExecOsCmd(cmd, "")
-			if len(err)>0{
-				logger.Error(err)
-				continue
+
+			onChainStatus := utils.GetDealOnChainStatus(deal.DealCid)
+
+			if len(onChainStatus) == 0 {
+				logger.Info("Sleeping...")
+				time.Sleep(confMain.ScanInterval * time.Second)
+				break
 			}
 
-			if len(result) == 0 {
-				note := "Failed to find deal on chain."
-				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, note, deal.Id)
-				logger.Info(note + " Deal ID: " + deal.Id)
-				continue
-			}
+			msg = fmt.Sprintf("Deal on chain status: %s.", onChainStatus)
+			logger.Info(msg)
 
 			onChainMessage := ""
-			//dealStatusIndex := utils.GetFieldStrFromJson(result, "StorageDeal")
-			onChainStatus := result //some value get from result
 			if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-				onChainMessage = result // some value get from result
 				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, onChainMessage, deal.Id)
-				msg := fmt.Sprintf("Setting deal %s status as ImportFailed", deal.DealCid)
+				msg := fmt.Sprintf("Setting deal %s status as %s", deal.DealCid, DEAL_STATUS_FAILED)
 				logger.Info(msg)
 			}
 
 			if onChainStatus ==ONCHAIN_DEAL_STATUS_ACTIVE{
 				note := "Deal has been completed"
-				swanClient.UpdateOfflineDealStatus(ONCHAIN_DEAL_STATUS_ACTIVE, note, deal.Id)
-				msg := fmt.Sprintf("Setting deal %s status as Active", deal.DealCid)
+				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_ACTIVE, note, deal.Id)
+				msg := fmt.Sprintf("Setting deal %s status as %s", deal.DealCid, DEAL_STATUS_ACTIVE)
 				logger.Info(msg)
 			}
 
 			if onChainStatus == ONCHAIN_DEAL_STATUS_AWAITING {
 				currentEpoch := utils.GetCurrentEpoch()
 				if currentEpoch != -1 && currentEpoch > deal.StartEpoch {
-					note := "Sector is proved and active, while deal on chain status is StorageDealAwaitingPreCommit. Set deal status as ImportFailed."
+					note := fmt.Sprintf("Sector is proved and active, while deal on chain status is %s. Set deal status as %s.", ONCHAIN_DEAL_STATUS_AWAITING, DEAL_STATUS_FAILED)
 					swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, note, deal.Id)
 					msg := fmt.Sprintf("Setting deal %s status as ImportFailed due to on chain status bug.", deal.DealCid)
 					logger.Info(msg)
 				}
 			}
 
-			message:= fmt.Sprintf("{\"on_chain_status\": %s,\"on_chain_message\": %s}", onChainStatus, onChainMessage)
-			msg = fmt.Sprintf("On chain offline_deal message created. Message Body: %s.", message)
+			msg = fmt.Sprintf("On chain offline_deal message created. Message Body: on_chain_status:%s, on_chain_message:%s.", onChainStatus, onChainMessage)
 			logger.Info(msg)
 		}
 

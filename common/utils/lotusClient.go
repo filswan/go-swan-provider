@@ -7,16 +7,18 @@ import (
 )
 
 func GetDealOnChainStatus(dealCid string) (string){
+	logger := logs.GetLogger()
 	cmd := "lotus-miner storage-deals list -v | grep " + dealCid
 	result, err := ExecOsCmd(cmd, "")
 
 	if len(err) > 0 {
-		logs.GetLogger().Error(err)
+		logger.Error(err)
 		return ""
 	}
 
 	if len(result) == 0 {
-		logs.GetLogger().Error("Deal does not exist on chain. DealCid:"+dealCid)
+		logger.Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
+		logger.Error("Deal does not exist on chain. DealCid:"+dealCid)
 		return ""
 	}
 

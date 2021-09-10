@@ -28,7 +28,7 @@ func Importer() {
 	logger := logs.GetLogger()
 
 	for {
-		deals := swanClient.GetOfflineDeals(minerFid,DEAL_STATUS_READY, IMPORT_NUMNBER)
+		deals := swanClient.GetOfflineDeals(minerFid, DEAL_STATUS_READY, IMPORT_NUMNBER)
 		if deals == nil || len(deals) == 0 {
 			logger.Info("No pending offline deals found.")
 			logger.Info("Sleeping...")
@@ -45,7 +45,6 @@ func Importer() {
 			onChainStatus := utils.GetDealOnChainStatus(deal.DealCid)
 
 			if len(onChainStatus) == 0 {
-				logger.Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
 				logger.Info("Sleeping...")
 				time.Sleep(importInterval * time.Second)
 				break
