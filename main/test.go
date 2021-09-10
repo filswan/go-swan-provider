@@ -31,8 +31,10 @@ func testSwanClient() {
 	//fmt.Println(swanClient)
 
 	mainConf := config.GetConfig().Main
-	swanClient.GetOfflineDeals(mainConf.MinerFid,"Waiting", "10")
-	swanClient.UpdateOfflineDealStatus("Completed","test note","2455")
+	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"Waiting", "10")
+	fmt.Println(deals)
+	response := swanClient.UpdateOfflineDealStatus("Completed","test note","2455")
+	fmt.Println(response)
 }
 
 func testAriaClient() {
@@ -53,3 +55,28 @@ func testAriaClient() {
 func testLotusClient() {
 
 }
+
+func testOsCmdClient()  {
+	result, err := utils.ExecOsCmd("ls -l")
+	fmt.Println(result, err)
+
+	result, err = utils.ExecOsCmd("pwd")
+	fmt.Println(result, err)
+
+	result, err = utils.ExecOsCmd("ls -l | grep x")
+	fmt.Println(result, err)
+}
+
+
+
+func testOsCmdClient1()  {
+	/*result, err := */utils.ExecOsCmd2Screen("ls -l")
+	//fmt.Println(result, err)
+
+	/*result, err = */utils.ExecOsCmd2Screen("pwd")
+	//fmt.Println(result, err)
+
+	/*result, err = */utils.ExecOsCmd2Screen("ls -l | grep x")
+	//fmt.Println(result, err)
+}
+

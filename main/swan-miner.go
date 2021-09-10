@@ -14,13 +14,15 @@ import (
 )
 
 func main() {
-	LoadEnv()
+	//LoadEnv()
 
-	config.InitConfig("")
+	//config.InitConfig()
 
+	//testOsCmdClient1()
+	testSwanClient()
 	//offlineDealAdmin.AdminOfflineDeal()
 	//offlineDealAdmin.Downloader()
-	//createServer()
+	createServer()
 }
 
 func createServer() {

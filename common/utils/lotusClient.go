@@ -9,7 +9,7 @@ import (
 func GetDealOnChainStatus(dealCid string) (string){
 	logger := logs.GetLogger()
 	cmd := "lotus-miner storage-deals list -v | grep " + dealCid
-	result, err := ExecOsCmd(cmd, "")
+	result, err := ExecOsCmd(cmd)
 
 	if len(err) > 0 {
 		logger.Error(err)
@@ -35,7 +35,7 @@ func GetDealOnChainStatus(dealCid string) (string){
 
 func GetCurrentEpoch() (int) {
 	cmd := "lotus-miner proving info | grep 'Current Epoch'"
-	result, err := ExecOsCmd(cmd, "")
+	result, err := ExecOsCmd(cmd)
 
 	if len(err) > 0 {
 		logs.GetLogger().Error(err)
@@ -61,7 +61,7 @@ func LotusImportData(dealCid string, filepath string) (string) {
 	cmd := "lotus-miner storage-deals import-data " + dealCid + " " + filepath
 	logs.GetLogger().Info(cmd)
 
-	result, err := ExecOsCmd(cmd,"")
+	result, err := ExecOsCmd(cmd)
 
 	if len(err) > 0 {
 		logs.GetLogger().Error(err)

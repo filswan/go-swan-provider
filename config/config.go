@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/BurntSushi/toml"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -56,10 +55,10 @@ type main struct {
 
 var config *Configuration
 
-func InitConfig(configFile string) {
-	if strings.Trim(configFile, " ") == "" {
-		configFile = "./config/config.toml"
-	}
+func init() {
+	//if strings.Trim(configFile, " ") == "" {
+	configFile := "./config/config.toml"
+	//}
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
 		log.Fatal("error:", err)
 	} else {
@@ -70,9 +69,9 @@ func InitConfig(configFile string) {
 }
 
 func GetConfig() Configuration {
-	if config == nil {
+/*	if config == nil {
 		InitConfig("")
-	}
+	}*/
 	return *config
 }
 
