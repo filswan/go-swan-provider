@@ -61,7 +61,7 @@ func (self *Aria2Client) GenPayload(method string, uri string , options interfac
 
 func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) {
 	payloads := self.GenPayload(ADD_URI, uri, options)
-	result := HttpPostNoToken(self.serverUrl,payloads)
+	result := HttpPostJsonParamNoToken(self.serverUrl,payloads)
 	//fmt.Println(result)
 	if strings.Contains(result,"error"){
 		errorInfo := GetFieldMapFromJson(result, "error")
@@ -95,7 +95,7 @@ func (self *Aria2Client) GenPayloadForStatus(gid string) (interface{}){
 
 func (self *Aria2Client) GetDownloadStatus(gid string) (string) {
 	payload := self.GenPayloadForStatus(gid)
-	result := HttpPostNoToken(self.serverUrl,payload)
+	result := HttpPostJsonParamNoToken(self.serverUrl,payload)
 	fmt.Println(result)
 	return result
 }

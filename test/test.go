@@ -10,19 +10,19 @@ import (
 )
 
 func TestRestApiAccessor() {
-	response := utils.HttpGet("https://jsonplaceholder.typicode.com/todos/1", "", "")
+	response := utils.HttpGetJsonParam("https://jsonplaceholder.typicode.com/todos/1", "", "")
 	fmt.Println(response)
 	todo := models.Todo{1, 2, "lorem ipsum dolor sit amet", true}
-	response = utils.HttpPostNoToken("https://jsonplaceholder.typicode.com/todos", todo)
+	response = utils.HttpPostJsonParamNoToken("https://jsonplaceholder.typicode.com/todos", todo)
 	fmt.Println(response)
 
-	response = utils.HttpPut("https://jsonplaceholder.typicode.com/todos/1", "",todo)
+	response = utils.HttpPutJsonParam("https://jsonplaceholder.typicode.com/todos/1", "",todo)
 	fmt.Println(response)
 
 	title := utils.GetFieldFromJson(response,"title")
 	fmt.Println("title",title)
 
-	response = utils.HttpDelete("https://jsonplaceholder.typicode.com/todos/1", "",todo)
+	response = utils.HttpDeleteJsonParam("https://jsonplaceholder.typicode.com/todos/1", "",todo)
 	fmt.Println(response)
 }
 
@@ -34,7 +34,8 @@ func TestSwanClient() {
 	mainConf := config.GetConfig().Main
 	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"ReadyForImport", "10")
 	fmt.Println(deals)
-	response := swanClient.UpdateOfflineDealStatus("Completed","test note",2455)
+	response := swanClient.UpdateOfflineDealStatus("Downloaded","test note",2455)
+	response = swanClient.UpdateOfflineDealDetails("Completed","test note",2455,"/test/test","0003222")
 	fmt.Println(response)
 }
 

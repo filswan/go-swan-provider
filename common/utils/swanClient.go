@@ -3,7 +3,9 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strconv"
+	"strings"
 	"swan-miner/config"
 	"swan-miner/models"
 )
@@ -41,7 +43,7 @@ func GetSwanClient() (*SwanClient){
 	uri := mainConf.ApiUrl+"/user/api_keys/jwt"
 	data := TokenAccessInfo{ApiKey: mainConf.ApiKey, AccessToken: mainConf.AccessToken} //
 	//dataJson := fmt.Sprintf(`{\"apikey\":\"%s\",\"access_token\":\"%s\"}`, mainConf.ApiKey, mainConf.AccessToken)//ToJson(data)
-	response := HttpPostNoToken(uri,data)
+	response := HttpPostJsonParamNoToken(uri,data)
 	//fmt.Println(response)
 
 	jwtToken := GetFieldMapFromJson(response,"data")
@@ -71,7 +73,7 @@ func GetSwanClient() (*SwanClient){
 func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]models.OfflineDeal){
 	url := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + limit + "&offset=0"
 	//fmt.Println(url)
-	response := HttpGet(url, self.Token, "")
+	response := HttpGetJsonParam(url, self.Token, "")
 	//fmt.Println(response)
 	offlineDealResponse := OfflineDealResponse{}
 	json.Unmarshal([]byte(response),&offlineDealResponse)
@@ -88,30 +90,47 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]model
 }
 
 func (self *SwanClient) UpdateOfflineDealStatus(status, note string, dealId int) (string) {
-	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
-	dealDetail := DealDetail{
-		Status: status,
-		Note: note,
+	apiUrl := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
+	form := url.Values{}
+	if len(status)>0 {
+		form.Add("status", status)
 	}
-	fmt.Println(ToJson(dealDetail))
-	response := HttpPut(url,self.Token,dealDetail)
-	fmt.Println(url)
+
+	if len(note)>0{
+		form.Add("note", note)
+	}
+
+	response := HttpPutFormParam(apiUrl,self.Token, strings.NewReader(form.Encode()))
+	fmt.Println(apiUrl)
 	fmt.Println(response)
 	return response
 }
 
-func (self *SwanClient) UpdateOfflineDealDetails(status, note string, dealId int, filePath string, fileSize string)  {
-	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
-	dealDetail := DealDetail{
-		Status: status,
-		Note: note,
-		FilePath: filePath,
-		FileSize: fileSize,
+func (self *SwanClient) UpdateOfflineDealDetails(status, note string, dealId int, filePath string, fileSize string) (string) {
+	apiUrl := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
+
+	form := url.Values{}
+	if len(status)>0 {
+		form.Add("status", status)
 	}
-	fmt.Println(ToJson(dealDetail))
-	response := HttpPut(url,self.Token,dealDetail)
-	fmt.Println(url)
+
+	if len(note)>0{
+		form.Add("note", note)
+	}
+
+	if len(filePath)>0 {
+		form.Add("file_path", filePath)
+	}
+
+	if len(note)>0{
+		form.Add("file_size", fileSize)
+	}
+
+	response := HttpPutFormParam(apiUrl, self.Token,strings.NewReader(form.Encode()))
+	fmt.Println(apiUrl)
 	fmt.Println(response)
+
+	return response
 }
 
 

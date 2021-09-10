@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
+	"swan-miner/common"
+	"swan-miner/logs"
 )
-
-const contentType = "application/json; charset=utf-8"
 
 /*func Get(uri string) string {
 	fmt.Println("Performing Http Get..." + uri)
@@ -54,54 +53,99 @@ const contentType = "application/json; charset=utf-8"
 	return responseStr
 }*/
 
-func HttpPostNoToken(uri string, jsonRequest interface{}) string {
-	response := httpRequest(http.MethodPost, uri, "" , jsonRequest)
+func HttpPostJsonParamNoToken(uri string, jsonRequest interface{}) string {
+	response := httpRequestJsonParam(http.MethodPost, uri, "" , jsonRequest)
 
 	return response
 }
 
-func Post(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequest(http.MethodPost, uri, tokenString , jsonRequest)
+func HttpPostJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
+	response := httpRequestJsonParam(http.MethodPost, uri, tokenString , jsonRequest)
 
 	return response
 }
 
-
-func HttpGet(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequest(http.MethodGet, uri, tokenString , jsonRequest)
-
-	return response
-}
-
-func HttpPut(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequest(http.MethodPut, uri, tokenString , jsonRequest)
+func HttpGetJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
+	response := httpRequestJsonParam(http.MethodGet, uri, tokenString , jsonRequest)
 
 	return response
 }
 
-func HttpDelete(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequest(http.MethodDelete, uri, tokenString , jsonRequest)
+func HttpPutJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
+	response := httpRequestJsonParam(http.MethodPut, uri, tokenString , jsonRequest)
 
 	return response
 }
 
-func httpRequest(httpMethod, uri, tokenString string, jsonRequest interface{}) string {
+func HttpPutFormParam(uri, tokenString  string, params io.Reader) string {
+	response := httpRequestFormParam(http.MethodPut, uri, tokenString , params)
+
+	return response
+}
+
+func HttpDeleteJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
+	response := httpRequestJsonParam(http.MethodDelete, uri, tokenString , jsonRequest)
+
+	return response
+}
+
+func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{}) (string) {
 	//fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
-	jsonReq, err := json.Marshal(jsonRequest)
+	jsonReq, err := json.Marshal(params)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
 	//fmt.Println(string(jsonReq))
 	request, err := http.NewRequest(httpMethod, uri, bytes.NewBuffer(jsonReq))
-	request.Header.Set("Content-Type", contentType)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
+	request.Header.Set("Content-Type", common.HTTP_CONTENT_TYPE_JSON)
+
 	if len(tokenString)>0{
 		request.Header.Set("Authorization","Bearer "+tokenString)
 	}
 
 	client := &http.Client{}
 	response, err := client.Do(request)
+	defer response.Body.Close()
+
 	if err != nil {
-		log.Fatalln(err)
+		logs.GetLogger().Error(err)
+		return ""
+	}
+	responseBody, _ := ioutil.ReadAll(response.Body)
+
+	// Convert response body to string
+	responseString := string(responseBody)
+	//fmt.Println(responseString)
+
+	return responseString
+}
+
+func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader) (string) {
+	//fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
+	request, err := http.NewRequest(httpMethod, uri, params)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
+	request.Header.Set("Content-Type", common.HTTP_CONTENT_TYPE_FORM)
+
+	if len(tokenString)>0{
+		request.Header.Set("Authorization","Bearer "+tokenString)
 	}
 
+	client := &http.Client{}
+	response, err := client.Do(request)
 	defer response.Body.Close()
+
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
 	// Convert response body to string
