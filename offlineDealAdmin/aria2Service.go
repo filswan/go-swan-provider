@@ -124,7 +124,7 @@ func (self *Aria2Service) findDealsByStatus(status string, swanClient *utils.Swa
 	return deals
 }
 
-func (self *Aria2Service) StartDownloadForDeal(offlineDeal models.OfflineDeal, aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
+func (self *Aria2Service) StartDownloadForDeal(offlineDeal *models.OfflineDeal, aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
 	logs.GetLogger().Info("start downloading deal id ", offlineDeal.Id)
 	url, err := url.Parse(offlineDeal.SourceFileUrl)
 	if err != nil {
@@ -135,7 +135,7 @@ func (self *Aria2Service) StartDownloadForDeal(offlineDeal models.OfflineDeal, a
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
 	option := DownloadOption{
 		Out: filename,
-		Dir: self.OutDir +"/"+ offlineDeal.UserId + "/" + timeStr,
+		Dir: self.OutDir +"/"+ string(offlineDeal.UserId) + "/" + timeStr,
 	}
 	response := aria2Client.DownloadFile(offlineDeal.SourceFileUrl, option)
 	fmt.Println(response)
@@ -219,7 +219,7 @@ func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, sw
 	}
 }
 
-func (self *Aria2Service) startDownloading(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
+func (self *Aria2Service) StartDownloading(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
 	for{
 		downloadingDeals := self.findDealsByStatus(DEAL_DOWNLOADING_STATUS, swanClient)
 		countDownloadingDeals := len(downloadingDeals)
@@ -233,7 +233,7 @@ func (self *Aria2Service) startDownloading(aria2Client *utils.Aria2Client, swanC
 					break
 				}
 
-				self.StartDownloadForDeal(*deal2Download, aria2Client, swanClient)
+				self.StartDownloadForDeal(deal2Download, aria2Client, swanClient)
 				time.Sleep(1 * time.Second)
 			}
 
@@ -252,7 +252,7 @@ func Downloader(){
 		aria2Service.CheckDownloadStatus(aria2Client, swanClient)
 	})
 
-	aria2Service.startDownloading(aria2Client, swanClient)
+	aria2Service.StartDownloading(aria2Client, swanClient)
 }
 
 

@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -10,8 +9,8 @@ import (
 	"swan-miner/common/constants"
 	"swan-miner/config"
 	"swan-miner/logs"
-	"swan-miner/offlineDealAdmin"
 	"swan-miner/routers/commonRouters"
+	"swan-miner/test"
 	"time"
 )
 
@@ -21,10 +20,11 @@ func main() {
 	//config.InitConfig()
 
 	//testOsCmdClient()
-	//testSwanClient()
-	offlineDealAdmin.AdminOfflineDeal()
+	//test.TestSwanClient()
+	test.TestDownloader()
+	//offlineDealAdmin.AdminOfflineDeal()
 	//offlineDealAdmin.Downloader()
-	createServer()
+	//createServer()
 }
 
 func createServer() {

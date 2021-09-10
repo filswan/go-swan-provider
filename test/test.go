@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"swan-miner/offlineDealAdmin"
 )
 
-func testRestApiAccessor() {
+func TestRestApiAccessor() {
 	response := utils.HttpGet("https://jsonplaceholder.typicode.com/todos/1", "", "")
 	fmt.Println(response)
 	todo := models.Todo{1, 2, "lorem ipsum dolor sit amet", true}
@@ -26,38 +26,41 @@ func testRestApiAccessor() {
 	fmt.Println(response)
 }
 
-func testSwanClient() {
+func TestSwanClient() {
 	swanClient := utils.GetSwanClient()
 
 	//fmt.Println(swanClient)
 
 	mainConf := config.GetConfig().Main
-	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"Waiting", "10")
+	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"ReadyForImport", "10")
 	fmt.Println(deals)
-	response := swanClient.UpdateOfflineDealStatus("Completed","test note","2455")
+	response := swanClient.UpdateOfflineDealStatus("Completed","test note",2455)
 	fmt.Println(response)
 }
 
-func testAriaClient() {
+func TestAriaClient() {
 	swanClient := utils.GetSwanClient()
 
 	aria2Client := utils.GetAria2Client()
 	offlineDeal := &models.OfflineDeal{
-		Id: "163",
-		UserId: string(163),
+		Id: 163,
+		UserId: 163,
 		SourceFileUrl: "https://file-examples-com.github.io/uploads/2020/03/file_example_WEBP_500kB.webp",
 	}
 
 	aria2Service := offlineDealAdmin.GetAria2Service()
-	aria2Service.StartDownloadForDeal(*offlineDeal, aria2Client, swanClient)
+	aria2Service.StartDownloadForDeal(offlineDeal, aria2Client, swanClient)
 	aria2Client.GetDownloadStatus("f80d913a4dff40651")
 }
 
-func testLotusClient() {
-
+func TestDownloader() {
+	aria2Client := utils.GetAria2Client()
+	swanClient := utils.GetSwanClient()
+	aria2Service := offlineDealAdmin.GetAria2Service()
+	aria2Service.StartDownloading(aria2Client, swanClient)
 }
 
-func testOsCmdClient()  {
+func TestOsCmdClient()  {
 	result, err := utils.ExecOsCmd("ls -l")
 	fmt.Println(result, err)
 
@@ -74,7 +77,7 @@ func testOsCmdClient()  {
 
 
 
-func testOsCmdClient1()  {
+func TestOsCmdClient1()  {
 	/*result, err := */utils.ExecOsCmd2Screen("ls -l")
 	//fmt.Println(result, err)
 
