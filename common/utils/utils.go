@@ -81,6 +81,10 @@ func GetDir(root string, dirs ...string) (string) {
 	path := root
 
 	for _, dir := range dirs {
+		if dir == "" {
+			continue
+		}
+
 		if strings.HasSuffix(path,"/") {
 			path = path + dir
 		}else{

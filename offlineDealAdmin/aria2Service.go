@@ -131,7 +131,12 @@ func (self *Aria2Service) StartDownloadForDeal(offlineDeal *models.OfflineDeal, 
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	filename := url.Path
+	if strings.HasPrefix(url.RawQuery, "filename=") {
+		filename = strings.TrimLeft(url.RawQuery, "filename=")
+		filename = utils.GetDir(url.Path, filename)
+	}
 	today := time.Now()
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
 	option := DownloadOption{
@@ -230,7 +235,7 @@ func (self *Aria2Service) StartDownloading(aria2Client *utils.Aria2Client, swanC
 			for i<=newTaskNum{
 				deal2Download := self.findNextDealReady2Download(swanClient)
 
-				if deal2Download==nil {
+				if deal2Download == nil {
 					break
 				}
 
