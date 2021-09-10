@@ -49,7 +49,7 @@ func Scanner() {
 			msg := fmt.Sprintf("ID: %s. Deal CID: %s. Deal Status: %s.", deal.Id, deal.DealCid, deal.Status)
 			logger.Info(msg)
 
-			onChainStatus := utils.GetDealOnChainStatus(deal.DealCid)
+			onChainStatus, onChainMessage := utils.GetDealOnChainStatus(deal.DealCid)
 
 			if len(onChainStatus) == 0 {
 				logger.Info("Sleeping...")
@@ -60,7 +60,6 @@ func Scanner() {
 			msg = fmt.Sprintf("Deal on chain status: %s.", onChainStatus)
 			logger.Info(msg)
 
-			onChainMessage := ""
 			if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, onChainMessage, deal.Id)
 				msg := fmt.Sprintf("Setting deal %s status as %s", deal.DealCid, DEAL_STATUS_FAILED)

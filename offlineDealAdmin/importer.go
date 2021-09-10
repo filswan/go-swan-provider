@@ -42,7 +42,7 @@ func Importer() {
 			msg := fmt.Sprintf("Deal CID: %s. File Path: %s", deal.DealCid, deal.FilePath)
 			logger.Error(msg)
 
-			onChainStatus := utils.GetDealOnChainStatus(deal.DealCid)
+			onChainStatus, _ := utils.GetDealOnChainStatus(deal.DealCid)
 
 			if len(onChainStatus) == 0 {
 				logger.Info("Sleeping...")

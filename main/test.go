@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"swan-miner/common/utils"
 	"swan-miner/config"
 	"swan-miner/models"
@@ -63,8 +64,12 @@ func testOsCmdClient()  {
 	result, err = utils.ExecOsCmd("pwd")
 	fmt.Println(result, err)
 
-	result, err = utils.ExecOsCmd("ls -l | grep x")
+	result, err = utils.ExecOsCmd("ls -l | grep common")
 	fmt.Println(result, err)
+	words := strings.Fields(result)
+	for _, word := range words {
+		fmt.Println(word)
+	}
 }
 
 

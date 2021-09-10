@@ -9,6 +9,7 @@ import (
 	"swan-miner/common/constants"
 	"swan-miner/config"
 	"swan-miner/logs"
+	"swan-miner/offlineDealAdmin"
 	"swan-miner/routers/commonRouters"
 	"time"
 )
@@ -18,9 +19,9 @@ func main() {
 
 	//config.InitConfig()
 
-	//testOsCmdClient1()
-	testSwanClient()
-	//offlineDealAdmin.AdminOfflineDeal()
+	//testOsCmdClient()
+	//testSwanClient()
+	offlineDealAdmin.AdminOfflineDeal()
 	//offlineDealAdmin.Downloader()
 	createServer()
 }
