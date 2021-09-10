@@ -20,8 +20,9 @@ func main() {
 	//config.InitConfig()
 
 	//testOsCmdClient()
-	test.TestSwanClient()
-	//test.TestDownloader()
+	//test.TestSwanClient()
+	test.TestDownloader()
+	//test.TestRestApiClient()
 	//offlineDealAdmin.AdminOfflineDeal()
 	//offlineDealAdmin.Downloader()
 	//createServer()

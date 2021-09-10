@@ -61,14 +61,14 @@ func Scanner() {
 			logger.Info(msg)
 
 			if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, onChainMessage, deal.Id)
+				swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_FAILED, onChainMessage)
 				msg := fmt.Sprintf("Setting deal %s status as %s", deal.DealCid, DEAL_STATUS_FAILED)
 				logger.Info(msg)
 			}
 
 			if onChainStatus ==ONCHAIN_DEAL_STATUS_ACTIVE{
 				note := "Deal has been completed"
-				swanClient.UpdateOfflineDealStatus(DEAL_STATUS_ACTIVE, note, deal.Id)
+				swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_ACTIVE, note)
 				msg := fmt.Sprintf("Setting deal %s status as %s", deal.DealCid, DEAL_STATUS_ACTIVE)
 				logger.Info(msg)
 			}
@@ -77,7 +77,7 @@ func Scanner() {
 				currentEpoch := utils.GetCurrentEpoch()
 				if currentEpoch != -1 && currentEpoch > deal.StartEpoch {
 					note := fmt.Sprintf("Sector is proved and active, while deal on chain status is %s. Set deal status as %s.", ONCHAIN_DEAL_STATUS_AWAITING, DEAL_STATUS_FAILED)
-					swanClient.UpdateOfflineDealStatus(DEAL_STATUS_FAILED, note, deal.Id)
+					swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_FAILED, note)
 					msg := fmt.Sprintf("Setting deal %s status as ImportFailed due to on chain status bug.", deal.DealCid)
 					logger.Info(msg)
 				}

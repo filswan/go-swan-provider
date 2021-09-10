@@ -9,7 +9,7 @@ import (
 	"swan-miner/offlineDealAdmin"
 )
 
-func TestRestApiAccessor() {
+func TestRestApiClient() {
 	response := utils.HttpGetJsonParam("https://jsonplaceholder.typicode.com/todos/1", "", "")
 	fmt.Println(response)
 	todo := models.Todo{1, 2, "lorem ipsum dolor sit amet", true}
@@ -34,8 +34,8 @@ func TestSwanClient() {
 	mainConf := config.GetConfig().Main
 	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"ReadyForImport", "10")
 	fmt.Println(deals)
-	response := swanClient.UpdateOfflineDealStatus("Downloaded","test note",2455)
-	response = swanClient.UpdateOfflineDealDetails("Completed","test note",2455,"/test/test","0003222")
+	response := swanClient.UpdateOfflineDealStatus(2455, "Downloaded","test note")
+	response = swanClient.UpdateOfflineDealDetails(2455,"Completed","test note","/test/test","0003222")
 	fmt.Println(response)
 }
 
