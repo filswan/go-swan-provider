@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"swan-miner/config"
 	"swan-miner/models"
 )
@@ -87,7 +88,7 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]model
 }
 
 func (self *SwanClient) UpdateOfflineDealStatus(status, note string, dealId int) (string) {
-	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + string(dealId)
+	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
 	dealDetail := DealDetail{
 		Status: status,
 		Note: note,
@@ -100,7 +101,7 @@ func (self *SwanClient) UpdateOfflineDealStatus(status, note string, dealId int)
 }
 
 func (self *SwanClient) UpdateOfflineDealDetails(status, note string, dealId int, filePath string, fileSize string)  {
-	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + string(dealId)
+	url := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
 	dealDetail := DealDetail{
 		Status: status,
 		Note: note,

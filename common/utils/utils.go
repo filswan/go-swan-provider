@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"os"
+	"strings"
 	"swan-miner/logs"
 	"time"
 )
@@ -74,4 +75,18 @@ func ToJson(obj interface{}) (string){
 	jsonBytes, _ := json.Marshal(obj)
 	jsonString := string(jsonBytes)
 	return jsonString
+}
+
+func GetDir(root string, dirs ...string) (string) {
+	path := root
+
+	for _, dir := range dirs {
+		if strings.HasSuffix(path,"/") {
+			path = path + dir
+		}else{
+			path = path + "/" + dir
+		}
+	}
+
+	return path
 }

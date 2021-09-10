@@ -6,6 +6,7 @@ import (
 	"github.com/jasonlvhit/gocron"
 	"log"
 	"net/url"
+	"strconv"
 	"strings"
 	"swan-miner/common/utils"
 	"swan-miner/config"
@@ -135,7 +136,7 @@ func (self *Aria2Service) StartDownloadForDeal(offlineDeal *models.OfflineDeal, 
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
 	option := DownloadOption{
 		Out: filename,
-		Dir: self.OutDir +"/"+ string(offlineDeal.UserId) + "/" + timeStr,
+		Dir: utils.GetDir(self.OutDir, strconv.Itoa(offlineDeal.UserId), timeStr),
 	}
 	response := aria2Client.DownloadFile(offlineDeal.SourceFileUrl, option)
 	fmt.Println(response)
@@ -155,7 +156,7 @@ func (self *Aria2Service) StartDownloadForDeal(offlineDeal *models.OfflineDeal, 
 	aria2StatusSuccess := Aria2StatusSuccess{}
 	json.Unmarshal([]byte(response),&aria2StatusSuccess)
 
-	if len(aria2StatusSuccess.Result.Files)!=1{
+	if len(aria2StatusSuccess.Result.Files) !=1 {
 		logs.GetLogger().Error("wrong file amount")
 		return
 	}
