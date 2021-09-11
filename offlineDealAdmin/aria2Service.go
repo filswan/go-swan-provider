@@ -139,23 +139,23 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 	case ARIA2_TASK_STATUS_ACTIVE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		if deal.Status != DEAL_STATUS_DOWNLOADING {
-			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_STATUS_DOWNLOADING, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
+			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADING, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
 		}
 		msg := fmt.Sprintf("Deal downloading, id: %d, file size: %d, complete: %d%%, speed: %dKiB", deal.Id, fileSize, completePercent, downloadSpeed)
 		logger.Info(msg)
 	case ARIA2_TASK_STATUS_COMPLETE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		if fileSizeDownloaded >= 0 {
-			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_STATUS_DOWNLOADED, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
+			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADED, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
 		} else {
 			note := fmt.Sprintf("File %s not found on", filePath)
-			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, utils.GetStrFromInt64(fileSize))
+			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, utils.GetStrFromInt64(fileSize))
 			logger.Error(note)
 		}
 	default:
 		note := fmt.Sprintf("download failed, cause: %s", result.ErrorMessage)
 		if note != deal.Note{
-			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, utils.GetStrFromInt64(fileSize))
+			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, utils.GetStrFromInt64(fileSize))
 		}
 		logger.Error(note + " dealId:" + strconv.Itoa(deal.Id))
 	}
@@ -170,7 +170,7 @@ func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, sw
 		if len(gid) <= 0 {
 			note := "download gid not found in offline_deals.note"
 			if note != deal.Note{
-				swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, deal.FilePath, deal.FileSize)
+				swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, deal.FilePath, deal.FileSize)
 			}
 			continue
 		}
