@@ -59,7 +59,7 @@ func TestDownloader() {
 	swanClient := utils.GetSwanClient()
 	aria2Service := offlineDealAdmin.GetAria2Service()
 	aria2Service.StartDownloading(aria2Client, swanClient)
-	//aria2Service.CheckDownloadStatus(aria2Client, swanClient)
+	aria2Service.CheckDownloadStatus(aria2Client, swanClient)
 }
 
 func TestOsCmdClient()  {

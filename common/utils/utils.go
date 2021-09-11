@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"os"
+	"strconv"
 	"strings"
 	"swan-miner/logs"
 	"time"
@@ -115,4 +116,19 @@ func RemoveFile(filePath, fileName string) {
 	if err != nil {
 		 logs.GetLogger().Error(err.Error())
 	}
+}
+
+func GetFileSize(fileFullPath string) (int64) {
+	fi, err := os.Stat(fileFullPath)
+	if err != nil {
+		return -1
+	}
+	// get the size
+	size := fi.Size()
+
+	return size
+}
+
+func GetStrFromInt64(num int64) (string) {
+	return strconv.FormatInt(num, 10)
 }

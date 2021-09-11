@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jasonlvhit/gocron"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -41,14 +40,14 @@ type Aria2Service struct {
 }
 
 type Aria2GetStatusSuccess struct {
-	Id 		string            `json:"id"`
-	JsonRpc string            `json:"jsonrpc"`
+	Id 		string             `json:"id"`
+	JsonRpc string             `json:"jsonrpc"`
 	Result 	*Aria2StatusResult `json:"result"`
 }
 
 type Aria2GetStatusFail struct {
-	Id 		string            `json:"id"`
-	JsonRpc string            `json:"jsonrpc"`
+	Id 		string             `json:"id"`
+	JsonRpc string             `json:"jsonrpc"`
 	Error 	*Aria2StatusError  `json:"error"`
 }
 
@@ -63,7 +62,7 @@ type Aria2StatusResult struct {
 	Connections     string                  `json:"connections"`
 	Dir             string                  `json:"dir"`
 	DownloadSpeed   int                     `json:"downloadSpeed"`
-	ErrorCode       string                  `json:"errorCode"`
+	ErrorCode       int                     `json:"errorCode"`
 	ErrorMessage    string                  `json:"errorMessage"`
 	Gid             string                  `json:"gid"`
 	NumPieces       string                  `json:"numPieces"`
@@ -76,9 +75,9 @@ type Aria2StatusResult struct {
 }
 
 type Aria2StatusResultFile struct {
-	CompletedLength int                        `json:"completedLength"`
+	CompletedLength int64                      `json:"completedLength"`
 	Index           string                     `json:"index"`
-	Length          int                        `json:"length"`
+	Length          int64                      `json:"length"`
 	Path            string                     `json:"path"`
 	Selected        string                     `json:"selected"`
 	Uris            []Aria2StatusResultFileUri `json:"uris"`
@@ -96,18 +95,6 @@ func GetAria2Service() (*Aria2Service){
 	}
 
 	return aria2Service
-}
-
-func isCompleted(taskState *Aria2StatusResult) (bool){
-	if taskState.ErrorCode != "0" || taskState.TotalLength == 0{
-		return false
-	}
-
-	if taskState.Status == ARIA2_TASK_COMPLETE_STATUS && taskState.CompletedLength == taskState.TotalLength{
-		return true
-	}
-
-	return false
 }
 
 func  (self *Aria2Service) findNextDealReady2Download(swanClient *utils.SwanClient) (*models.OfflineDeal) {
@@ -133,16 +120,16 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 		json.Unmarshal([]byte(response), &aria2GetStatusFail)
 		code := aria2GetStatusFail.Error.Code
 		message := aria2GetStatusFail.Error.Message
-		msg := fmt.Sprintf("Get status for %s, code:%s, message:%s", gid, code, message)
+		msg := fmt.Sprintf("Get status for %s, code:%d, message:%s", gid, code, message)
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_DOWNLOAD_FAILED_STATUS, msg)
 		logger.Error(msg)
 		return
 	}
 
 	if len(aria2GetStatusSuccess.Result.Files) != 1 {
-		note := "wrong file amount"
+		note := "Wrong file amount"
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_DOWNLOAD_FAILED_STATUS, note)
-		logs.GetLogger().Error(note)
+		logger.Error(note)
 		return
 	}
 
@@ -154,7 +141,7 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 	filePath := file.Path
 	fileSize := file.Length
 	completedLen := file.CompletedLength // utils.GetFieldStrFromJson(taskState, "completedLength")
-	var completePercent = 0
+	var completePercent int64 = 0
 	if fileSize > 0 {
 		completePercent = completedLen / fileSize * 100
 	}
@@ -162,20 +149,28 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 
 	switch status {
 	case ARIA2_TASK_ERROR_STATUS:
-		note := fmt.Sprintf("Deal status for %s, code:%s, message:%s, status:%s", gid, code, message, status)
+		note := fmt.Sprintf("Deal status for %s, code:%d, message:%s, status:%s", gid, code, message, status)
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_DOWNLOAD_FAILED_STATUS, note)
 		logger.Error(note)
 	case ARIA2_TASK_ACTIVE_STATUS:
 		if deal.Status != DEAL_DOWNLOADING_STATUS {
-			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_DOWNLOADING_STATUS, gid, filePath, strconv.Itoa(fileSize))
+			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_DOWNLOADING_STATUS, gid, filePath, utils.GetStrFromInt64(fileSize))
 		}
-		logger.Info("Deal downloading, id: %s, complete: %s%%, speed: %sKiB", deal.Id, completePercent, downloadSpeed)
+		msg := fmt.Sprintf("Deal downloading, id: %d, file size: %d, complete: %d%%, speed: %dKiB", deal.Id, fileSize, completePercent, downloadSpeed)
+		logger.Info(msg)
 	case ARIA2_TASK_COMPLETE_STATUS:
-		swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_DOWNLOADED_STATUS, gid, filePath, strconv.Itoa(fileSize))
+		fileSizeDownloaded := utils.GetFileSize(filePath)
+		if fileSizeDownloaded >= 0 {
+			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_DOWNLOADED_STATUS, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
+		} else {
+			note := fmt.Sprintf("File %s not found on", filePath)
+			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_DOWNLOAD_FAILED_STATUS, note, filePath, utils.GetStrFromInt64(fileSize))
+			logger.Error(note)
+		}
 	default:
 		note := fmt.Sprintf("download failed, cause: %s", result.ErrorMessage)
 		if note != deal.Note{
-			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_DOWNLOAD_FAILED_STATUS, note, filePath, strconv.Itoa(fileSize))
+			swanClient.UpdateOfflineDealDetails(deal.Id, DEAL_DOWNLOAD_FAILED_STATUS, note, filePath, utils.GetStrFromInt64(fileSize))
 		}
 		logger.Error(note + " dealId:" + strconv.Itoa(deal.Id))
 	}
@@ -205,10 +200,14 @@ func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, sw
 }
 
 func (self *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
-	logs.GetLogger().Info("start downloading deal id ", deal.Id)
+	logger.Info("start downloading deal id ", deal.Id)
 	url, err := url.Parse(deal.SourceFileUrl)
 	if err != nil {
-		log.Fatal(err)
+		msg := fmt.Sprintf("parse source file url error:%s", err)
+		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_DOWNLOAD_FAILED_STATUS, msg)
+		msg = fmt.Sprintf("Deal id:%d, %s", deal.Id, msg)
+		logger.Error(msg)
+		return
 	}
 
 	filename := url.Path
