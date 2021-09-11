@@ -25,10 +25,10 @@ func main() {
 	//test.TestRestApiClient()
 	//offlineDealAdmin.AdminOfflineDeal()
 	//offlineDealAdmin.Downloader()
-	//createServer()
+	createHttpServer()
 }
 
-func createServer() {
+func createHttpServer() {
 	r := gin.Default()
 	r.Use(cors.Middleware(cors.Config{
 		Origins:         "*",

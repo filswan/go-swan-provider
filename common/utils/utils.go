@@ -2,7 +2,7 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"math/big"
 	"os"
@@ -46,7 +46,7 @@ func GetFieldFromJson(jsonStr string, fieldName string) (interface{}){
 	json.Unmarshal([]byte(jsonStr), &result)
 	fieldVal := result[fieldName].(interface{})
 
-	fmt.Println(fieldName,fieldVal)
+	//fmt.Println(fieldName,fieldVal)
 
 	return fieldVal
 }
@@ -93,4 +93,26 @@ func GetDir(root string, dirs ...string) (string) {
 	}
 
 	return path
+}
+
+func IsFileExists(filePath, fileName string) (bool) {
+	fileFullPath := GetDir(filePath, fileName)
+	_, err := os.Stat(fileFullPath)
+	if err == nil {
+		return true
+	}
+
+	if errors.Is(err, os.ErrNotExist) {
+		return false
+	}
+
+	return false
+}
+
+func RemoveFile(filePath, fileName string) {
+	fileFullPath := GetDir(filePath, fileName)
+	err := os.Remove(fileFullPath)
+	if err != nil {
+		 logs.GetLogger().Error(err.Error())
+	}
 }

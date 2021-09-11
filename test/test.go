@@ -32,7 +32,7 @@ func TestSwanClient() {
 	//fmt.Println(swanClient)
 
 	mainConf := config.GetConfig().Main
-	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"ReadyForImport", "10")
+	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"Downloading", "10")
 	fmt.Println(deals)
 	response := swanClient.UpdateOfflineDealStatus(2455, "Downloaded","test note")
 	response = swanClient.UpdateOfflineDealDetails(2455,"Completed","test note","/test/test","0003222")
@@ -50,7 +50,7 @@ func TestAriaClient() {
 	}
 
 	aria2Service := offlineDealAdmin.GetAria2Service()
-	aria2Service.StartDownloadForDeal(offlineDeal, aria2Client, swanClient)
+	aria2Service.StartDownload4Deal(offlineDeal, aria2Client, swanClient)
 	aria2Client.GetDownloadStatus("f80d913a4dff40651")
 }
 
@@ -59,6 +59,7 @@ func TestDownloader() {
 	swanClient := utils.GetSwanClient()
 	aria2Service := offlineDealAdmin.GetAria2Service()
 	aria2Service.StartDownloading(aria2Client, swanClient)
+	//aria2Service.CheckDownloadStatus(aria2Client, swanClient)
 }
 
 func TestOsCmdClient()  {
