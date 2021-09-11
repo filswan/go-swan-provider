@@ -132,3 +132,13 @@ func GetFileSize(fileFullPath string) (int64) {
 func GetStrFromInt64(num int64) (string) {
 	return strconv.FormatInt(num, 10)
 }
+
+func GetInt64FromStr(numStr string) int64 {
+	num, err := strconv.ParseInt(numStr, 10, 64)
+	if err != nil {
+		logger.Error(err.Error())
+		return -1
+	}
+
+	return num
+}

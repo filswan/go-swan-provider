@@ -10,7 +10,6 @@ import (
 	"swan-miner/config"
 	"swan-miner/logs"
 	"swan-miner/routers/commonRouters"
-	"swan-miner/test"
 	"time"
 )
 
@@ -19,9 +18,9 @@ func main() {
 
 	//config.InitConfig()
 
-	//testOsCmdClient()
+	//test.TestOsCmdClient1()
 	//test.TestSwanClient()
-	test.TestDownloader()
+	//test.TestDownloader()
 	//test.TestRestApiClient()
 	//offlineDealAdmin.AdminOfflineDeal()
 	//offlineDealAdmin.Downloader()

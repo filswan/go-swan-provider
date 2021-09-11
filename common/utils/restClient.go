@@ -9,48 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"swan-miner/logs"
 )
-
-/*func Get(uri string) string {
-	fmt.Println("Performing Http Get..." + uri)
-	response, err := http.Get(uri)
-
-	if err != nil {
-		fmt.Print(err.Error())
-		log.Fatalln(err)
-	}
-
-	defer response.Body.Close()
-
-	responseBody, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	result := string(responseBody)
-	//fmt.Println(result)
-
-	return result
-}*/
-
-/*func Post(uri string, jsonRequest interface{}) string {
-	fmt.Println("Performing Http Post...", uri, contentType, jsonRequest)
-	jsonReq, err := json.Marshal(jsonRequest)
-	response, err := http.Post(uri, contentType, bytes.NewBuffer(jsonReq))
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	defer response.Body.Close()
-	responseBody, _ := ioutil.ReadAll(response.Body)
-
-	// Convert response body to string
-	responseStr := string(responseBody)
-	//fmt.Println(responseStr)
-
-	return responseStr
-}*/
 
 func HttpPostJsonParamNoToken(uri string, jsonRequest interface{}) string {
 	response := httpRequestJsonParam(http.MethodPost, uri, "" , jsonRequest)
@@ -92,13 +51,13 @@ func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{
 	//fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
 	jsonReq, err := json.Marshal(params)
 	if err != nil {
-		logs.GetLogger().Error(err)
+		logger.Error(err)
 		return ""
 	}
 	//fmt.Println(string(jsonReq))
 	request, err := http.NewRequest(httpMethod, uri, bytes.NewBuffer(jsonReq))
 	if err != nil {
-		logs.GetLogger().Error(err)
+		logger.Error(err)
 		return ""
 	}
 	request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_JSON)
@@ -112,7 +71,7 @@ func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{
 	defer response.Body.Close()
 
 	if err != nil {
-		logs.GetLogger().Error(err)
+		logger.Error(err)
 		return ""
 	}
 	responseBody, _ := ioutil.ReadAll(response.Body)
@@ -128,7 +87,7 @@ func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader)
 	//fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
 	request, err := http.NewRequest(httpMethod, uri, params)
 	if err != nil {
-		logs.GetLogger().Error(err)
+		logger.Error(err)
 		return ""
 	}
 	request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_FORM)
@@ -142,7 +101,7 @@ func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader)
 	defer response.Body.Close()
 
 	if err != nil {
-		logs.GetLogger().Error(err)
+		logger.Error(err)
 		return ""
 	}
 	responseBody, _ := ioutil.ReadAll(response.Body)

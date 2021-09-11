@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"swan-miner/config"
-	"swan-miner/logs"
 )
 
 const IDPREFIX = "nbfs"
@@ -68,7 +67,7 @@ func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) 
 		errorCode := errorInfo["code"]
 		errorMsg := errorInfo["message"]
 		msg := fmt.Sprintf("ERROR: %s, %s",errorCode, errorMsg)
-		logs.GetLogger().Error(msg)
+		logger.Error(msg)
 		return ""
 	}else{
 		return result
@@ -78,13 +77,10 @@ func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) 
 func (self *Aria2Client) GenPayloadForStatus(gid string) (interface{}){
 	var params []interface{}
 	params = append(params, "token:"+self.token)
-/*	var urls [] string
-	urls = append(urls, uri)*/
 	params = append(params, gid)
 
 	payload := Payload{
 		JsonRpc: "2.0",
-		//Id: uri,
 		Method: STATUS,
 		Params: params,
 	}
@@ -95,7 +91,7 @@ func (self *Aria2Client) GenPayloadForStatus(gid string) (interface{}){
 
 func (self *Aria2Client) GetDownloadStatus(gid string) (string) {
 	payload := self.GenPayloadForStatus(gid)
-	result := HttpPostJsonParamNoToken(self.serverUrl,payload)
+	result := HttpPostJsonParamNoToken(self.serverUrl, payload)
 	fmt.Println(result)
 	return result
 }

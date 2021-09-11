@@ -77,13 +77,13 @@ func Importer() {
 
 			currentEpoch := utils.GetCurrentEpoch()
 
-			if currentEpoch < 0 { //when exception occurs for the above os command
+			if currentEpoch < 0 {
 				logger.Error("Failed to get current epoch. Please check if miner is running properly.")
 				time.Sleep(importInterval * time.Second)
 				break
 			}
 
-			msg = fmt.Sprintf("Current epoch: %s. Deal starting epoch: %d", currentEpoch, deal.StartEpoch)
+			msg = fmt.Sprintf("Current epoch: %d. Deal starting epoch: %d", currentEpoch, deal.StartEpoch)
 
 			if deal.StartEpoch - currentEpoch < expectedSealingTime {
 				note := "Deal will start too soon, expired. Do not import this deal."
