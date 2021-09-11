@@ -82,7 +82,7 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 	return deals
 }
 
-func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status, note string, fileInfo ...string) (string) {
+func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...interface{}) (string) {
 	apiUrl := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
 
 	form := url.Values{}
@@ -90,16 +90,16 @@ func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status, note string,
 		form.Add("status", status)
 	}
 
-	if len(note) > 0 {
-		form.Add("note", note)
+	if len(statusInfo) > 0 {
+		form.Add("note", statusInfo[0].(string))
 	}
 
-	if len(fileInfo) > 0 {
-		form.Add("file_path", fileInfo[0])
+	if len(statusInfo) > 1 {
+		form.Add("file_path", statusInfo[1].(string))
 	}
 
-	if len(fileInfo) > 1 {
-		form.Add("file_size", fileInfo[1])
+	if len(statusInfo) > 2 {
+		form.Add("file_size", statusInfo[2].(string))
 	}
 
 	response := HttpPutFormParam(apiUrl, self.Token, strings.NewReader(form.Encode()))

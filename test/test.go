@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/jasonlvhit/gocron"
 	"strings"
 	"swan-miner/common/utils"
 	"swan-miner/config"
@@ -35,7 +36,7 @@ func TestSwanClient() {
 	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"Downloading", "10")
 	fmt.Println(deals)
 	response := swanClient.UpdateOfflineDealStatus(2455, "Downloaded","test note")
-	response = swanClient.UpdateOfflineDealDetails(2455,"Completed","test note","/test/test","0003222")
+	response = swanClient.UpdateOfflineDealStatus(2455,"Completed","test note","/test/test","0003222")
 	fmt.Println(response)
 }
 
@@ -90,3 +91,15 @@ func TestOsCmdClient1()  {
 	//fmt.Println(result, err)
 }
 
+func TestFullSteps(){
+	swanClient := utils.GetSwanClient()
+	aria2Client := utils.GetAria2Client()
+	aria2Service := offlineDealAdmin.GetAria2Service()
+	gocron.Every(1).Minute().Do(func (){
+		//fmt.Println(1)
+		aria2Service.CheckDownloadStatus(aria2Client, swanClient)
+	})
+	aria2Service.StartDownloading(aria2Client, swanClient)
+
+	offlineDealAdmin.Importer()
+}
