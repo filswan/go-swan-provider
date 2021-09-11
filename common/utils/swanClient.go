@@ -69,8 +69,13 @@ func GetSwanClient() (*SwanClient){
 }
 */
 
-func (self *SwanClient) GetOfflineDeals(minerFid, status, limit string) ([]models.OfflineDeal){
-	url := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + limit + "&offset=0"
+func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) ([]models.OfflineDeal){
+	rowLimit := strconv.Itoa(GET_OFFLINEDEAL_LIMIT_DEFAULT)
+	if limit != nil && len(limit) >0 {
+		rowLimit = limit[0]
+	}
+
+	url := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
 	//fmt.Println(url)
 	response := HttpGetJsonParam(url, self.Token, "")
 	//fmt.Println(response)

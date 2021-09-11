@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"swan-miner/common"
 	"swan-miner/logs"
 )
 
@@ -102,7 +101,7 @@ func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{
 		logs.GetLogger().Error(err)
 		return ""
 	}
-	request.Header.Set("Content-Type", common.HTTP_CONTENT_TYPE_JSON)
+	request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_JSON)
 
 	if len(tokenString)>0{
 		request.Header.Set("Authorization","Bearer "+tokenString)
@@ -132,7 +131,7 @@ func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader)
 		logs.GetLogger().Error(err)
 		return ""
 	}
-	request.Header.Set("Content-Type", common.HTTP_CONTENT_TYPE_FORM)
+	request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_FORM)
 
 	if len(tokenString)>0{
 		request.Header.Set("Authorization","Bearer "+tokenString)
