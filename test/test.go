@@ -59,7 +59,7 @@ func TestDownloader() {
 	aria2Client := utils.GetAria2Client()
 	swanClient := utils.GetSwanClient()
 	aria2Service := offlineDealAdmin.GetAria2Service()
-	aria2Service.StartDownloading(aria2Client, swanClient)
+	aria2Service.StartDownload(aria2Client, swanClient)
 	aria2Service.CheckDownloadStatus(aria2Client, swanClient)
 }
 
@@ -99,7 +99,7 @@ func TestFullSteps(){
 		//fmt.Println(1)
 		aria2Service.CheckDownloadStatus(aria2Client, swanClient)
 	})
-	aria2Service.StartDownloading(aria2Client, swanClient)
+	go aria2Service.StartDownload(aria2Client, swanClient)
 
-	offlineDealAdmin.Importer()
+	go offlineDealAdmin.Importer()
 }
