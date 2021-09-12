@@ -1,7 +1,6 @@
 package offlineDealAdmin
 
 import (
-	"github.com/jasonlvhit/gocron"
 	"swan-miner/common/utils"
 	"swan-miner/logs"
 	"time"
@@ -46,34 +45,38 @@ func AdminOfflineDeal()  {
 	aria2Service := GetAria2Service()
 	lotusService := GetLotusService()
 
-	gocron.Every(1).Minute().Do(func (){
-		//fmt.Println(1)
-		aria2Service.CheckDownloadStatus(aria2Client, swanClient)
-	})
-
 	go func() {
 		for {
-			logger.Info("StartDownload...")
-			aria2Service.StartDownload(aria2Client, swanClient)
-			logger.Info("Sleeping...")
-			time.Sleep(60 * time.Second)
+			logger.Info("CheckDownloadStatus begin...")
+			aria2Service.CheckDownloadStatus(aria2Client, swanClient)
+			logger.Info("CheckDownloadStatus end... Sleeping...")
+			time.Sleep(time.Minute)
 		}
 	}()
 
 	go func() {
 		for {
-			logger.Info("StartImport...")
+			logger.Info("StartDownload begin...")
+			aria2Service.StartDownload(aria2Client, swanClient)
+			logger.Info("StartDownload end... Sleeping...")
+			time.Sleep(time.Minute)
+		}
+	}()
+
+	go func() {
+		for {
+			logger.Info("StartImport begin...")
 			lotusService.StartImport(swanClient)
-			logger.Info("Sleeping...")
+			logger.Info("StartImport end... Sleeping...")
 			time.Sleep(lotusService.ImportIntervalSecond)
 		}
 	}()
 
 	go func() {
 		for {
-			logger.Info("StartScan...")
+			logger.Info("StartScan begin...")
 			lotusService.StartScan(swanClient)
-			logger.Info("Sleeping...")
+			logger.Info("StartScan end... Sleeping...")
 			time.Sleep(lotusService.ImportIntervalSecond)
 		}
 	}()
