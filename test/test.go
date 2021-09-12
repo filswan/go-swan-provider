@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"github.com/jasonlvhit/gocron"
 	"strings"
 	"swan-miner/common/utils"
 	"swan-miner/config"
@@ -89,17 +88,4 @@ func TestOsCmdClient1()  {
 
 	/*result, err = */utils.ExecOsCmd2Screen("ls -l | grep x")
 	//fmt.Println(result, err)
-}
-
-func TestFullSteps(){
-	swanClient := utils.GetSwanClient()
-	aria2Client := utils.GetAria2Client()
-	aria2Service := offlineDealAdmin.GetAria2Service()
-	gocron.Every(1).Minute().Do(func (){
-		//fmt.Println(1)
-		aria2Service.CheckDownloadStatus(aria2Client, swanClient)
-	})
-	go aria2Service.StartDownload(aria2Client, swanClient)
-
-	go offlineDealAdmin.Importer()
 }

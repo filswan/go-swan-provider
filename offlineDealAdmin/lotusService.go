@@ -27,26 +27,6 @@ func GetLotusService()(*LotusService){
 	return lotusService
 }
 
-func LotusImporter() {
-	lotusService := GetLotusService()
-	swanClient := utils.GetSwanClient()
-	go func() {
-		for {
-			lotusService.StartImport(swanClient)
-			logger.Info("Sleeping...")
-			time.Sleep(lotusService.ImportIntervalSecond)
-		}
-	}()
-
-	go func() {
-		for {
-			lotusService.StartScan(swanClient)
-			logger.Info("Sleeping...")
-			time.Sleep(lotusService.ImportIntervalSecond)
-		}
-	}()
-}
-
 func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 	deals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_STATUS_IMPORT_READY, LOTUS_IMPORT_NUMNBER)
 	if deals == nil || len(deals) == 0 {

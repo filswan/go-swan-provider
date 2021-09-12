@@ -3,7 +3,6 @@ package offlineDealAdmin
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jasonlvhit/gocron"
 	"net/url"
 	"strconv"
 	"strings"
@@ -162,7 +161,6 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 }
 
 func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
-	logger.Info("Start checking download status.")
 	downloadingDeals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_STATUS_DOWNLOADING)
 
 	for _, deal := range downloadingDeals {
@@ -216,7 +214,6 @@ func (self *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Clie
 }
 
 func (self *Aria2Service) StartDownload(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
-	logger.Info("Start download.")
 	downloadingDeals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_STATUS_DOWNLOADING)
 	countDownloadingDeals := len(downloadingDeals)
 	if countDownloadingDeals >= ARIA2_MAX_DOWNLOADING_TASKS {
@@ -234,22 +231,4 @@ func (self *Aria2Service) StartDownload(aria2Client *utils.Aria2Client, swanClie
 		time.Sleep(1 * time.Second)
 	}
 }
-
-func Downloader(){
-	aria2Client := utils.GetAria2Client()
-	swanClient := utils.GetSwanClient()
-	aria2Service := GetAria2Service()
-
-	gocron.Every(1).Minute().Do(func (){
-		//fmt.Println(1)
-		aria2Service.CheckDownloadStatus(aria2Client, swanClient)
-	})
-
-	for {
-		aria2Service.StartDownload(aria2Client, swanClient)
-		logger.Info("Sleeping...")
-		time.Sleep(60 * time.Second)
-	}
-}
-
 
