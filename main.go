@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	cors "github.com/itsjamie/gin-cors"
 	"github.com/joho/godotenv"
@@ -47,5 +46,6 @@ func LoadEnv() {
 	if err != nil {
 		logs.GetLogger().Error(err)
 	}
-	fmt.Println("name: ", os.Getenv("privateKey"))
+
+	logs.GetLogger().Info("name: ", os.Getenv("privateKey"))
 }

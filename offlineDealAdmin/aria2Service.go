@@ -174,7 +174,6 @@ func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, sw
 	downloadingDeals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_STATUS_DOWNLOADING)
 
 	for _, deal := range downloadingDeals {
-		//fmt.Println(deal)
 		gid := deal.Note
 		if len(gid) <= 0 {
 			note := "Download gid not found in offline_deals.note"
@@ -217,7 +216,7 @@ func (self *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Clie
 	}
 
 	response := aria2Client.DownloadFile(deal.SourceFileUrl, option)
-	fmt.Println(response)
+	logs.GetLogger().Info(response)
 
 	gid := utils.GetFieldStrFromJson(response, "result")
 	self.CheckDownloadStatus4Deal(aria2Client, swanClient, deal, gid)

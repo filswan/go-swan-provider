@@ -1,10 +1,10 @@
 package test
 
 import (
-	"fmt"
 	"strings"
 	"swan-miner/common/utils"
 	"swan-miner/config"
+	"swan-miner/logs"
 	"swan-miner/models"
 	"swan-miner/offlineDealAdmin"
 )
@@ -18,32 +18,31 @@ type Todo struct {
 
 func TestRestApiClient() {
 	response := utils.HttpGetJsonParam("https://jsonplaceholder.typicode.com/todos/1", "", "")
-	fmt.Println(response)
+	logs.GetLogger().Info(response)
+
 	todo := Todo{1, 2, "lorem ipsum dolor sit amet", true}
 	response = utils.HttpPostJsonParamNoToken("https://jsonplaceholder.typicode.com/todos", todo)
-	fmt.Println(response)
+	logs.GetLogger().Info(response)
 
 	response = utils.HttpPutJsonParam("https://jsonplaceholder.typicode.com/todos/1", "",todo)
-	fmt.Println(response)
+	logs.GetLogger().Info(response)
 
 	title := utils.GetFieldFromJson(response,"title")
-	fmt.Println("title",title)
+	logs.GetLogger().Info(title)
 
 	response = utils.HttpDeleteJsonParam("https://jsonplaceholder.typicode.com/todos/1", "",todo)
-	fmt.Println(response)
+	logs.GetLogger().Info(response)
 }
 
 func TestSwanClient() {
 	swanClient := utils.GetSwanClient()
-
-	//fmt.Println(swanClient)
-
 	mainConf := config.GetConfig().Main
 	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"Downloading", "10")
-	fmt.Println(deals)
+	logs.GetLogger().Info(deals)
+
 	response := swanClient.UpdateOfflineDealStatus(2455, "Downloaded","test note")
 	response = swanClient.UpdateOfflineDealStatus(2455,"Completed","test note","/test/test","0003222")
-	fmt.Println(response)
+	logs.GetLogger().Info(response)
 }
 
 func TestAriaClient() {
@@ -71,28 +70,27 @@ func TestDownloader() {
 
 func TestOsCmdClient()  {
 	result, err := utils.ExecOsCmd("ls -l")
-	fmt.Println(result, err)
+	logs.GetLogger().Info(result, err)
 
 	result, err = utils.ExecOsCmd("pwd")
-	fmt.Println(result, err)
+	logs.GetLogger().Info(result, err)
 
 	result, err = utils.ExecOsCmd("ls -l | grep common")
-	fmt.Println(result, err)
+	logs.GetLogger().Info(result, err)
+
 	words := strings.Fields(result)
 	for _, word := range words {
-		fmt.Println(word)
+		logs.GetLogger().Info(word)
 	}
 }
 
-
-
 func TestOsCmdClient1()  {
 	/*result, err := */utils.ExecOsCmd2Screen("ls -l")
-	//fmt.Println(result, err)
+	//logs.GetLogger().Info(result, err)
 
 	/*result, err = */utils.ExecOsCmd2Screen("pwd")
-	//fmt.Println(result, err)
+	//logs.GetLogger().Info(result, err)
 
 	/*result, err = */utils.ExecOsCmd2Screen("ls -l | grep x")
-	//fmt.Println(result, err)
+	//logs.GetLogger().Info(result, err)
 }

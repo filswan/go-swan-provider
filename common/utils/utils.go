@@ -43,21 +43,36 @@ func GetRewardPerBlock() *big.Int {
 
 func GetFieldFromJson(jsonStr string, fieldName string) (interface{}){
 	var result map[string]interface{}
-	json.Unmarshal([]byte(jsonStr), &result)
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
 	fieldVal := result[fieldName].(interface{})
 	return fieldVal
 }
 
 func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
 	var result map[string]interface{}
-	json.Unmarshal([]byte(jsonStr), &result)
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
 	fieldVal := result[fieldName].(interface{})
 	return fieldVal.(string)
 }
 
 func GetFieldMapFromJson(jsonStr string, fieldName string) (map[string]interface{}){
 	var result map[string]interface{}
-	json.Unmarshal([]byte(jsonStr), &result)
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
 	fieldVal := result[fieldName].(interface{})
 
 	return fieldVal.(map[string]interface{})
