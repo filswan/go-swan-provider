@@ -8,7 +8,7 @@ import (
 
 var logger *logrus.Logger
 
-func init() {
+func InitLogger() {
 	conf := config.GetConfig()
 
 	logger = logrus.New()
@@ -39,8 +39,8 @@ func init() {
 }
 
 func GetLogger() *logrus.Logger {
-/*	if logger == nil {
-		initLogger()
-	}*/
+	if logger == nil {
+		InitLogger()
+	}
 	return logger
 }

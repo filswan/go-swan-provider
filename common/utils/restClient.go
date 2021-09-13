@@ -3,7 +3,6 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -69,23 +68,22 @@ func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{
 	client := &http.Client{}
 	response, err := client.Do(request)
 
-	if response == nil {
-		err = errors.New("no response")
+	if err != nil {
 		logs.GetLogger().Error(err)
+		return ""
+	}
+
+	if response != nil && response.Body != nil {
+		defer response.Body.Close()
+	}
+
+	if response == nil {
+		logs.GetLogger().Error("no response")
 		return ""
 	}
 
 	if response.Body == nil {
-		err = errors.New("no response body")
-		logs.GetLogger().Error(err)
-		return ""
-	}
-
-	defer response.Body.Close()
-
-	if err != nil {
-		logs.GetLogger().Error(err)
-
+		logs.GetLogger().Error("no response body")
 		return ""
 	}
 
@@ -114,14 +112,12 @@ func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader)
 	response, err := client.Do(request)
 
 	if response == nil {
-		err = errors.New("no response")
-		logs.GetLogger().Error(err)
+		logs.GetLogger().Error("no response")
 		return ""
 	}
 
 	if response.Body == nil {
-		err = errors.New("no response body")
-		logs.GetLogger().Error(err)
+		logs.GetLogger().Error("no response body")
 		return ""
 	}
 

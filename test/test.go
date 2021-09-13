@@ -103,3 +103,8 @@ func TestSendHeartbeatRequest() {
 	response := swanClient.SendHeartbeatRequest(minerFid)
 	logs.GetLogger().Info(response)
 }
+
+func TestLotusClient() {
+	currentEpoch := utils.GetCurrentEpoch()
+	logs.GetLogger().Info("currentEpoch: ", currentEpoch)
+}

@@ -14,48 +14,48 @@ type Configuration struct {
 }
 
 type aria2 struct {
-	DiskCache                    int
-	FileAllocation               string
-	IsContinue                   bool
-	MaxTries                     int
-	RpcListenPort                int
-	MaxConcurrentDownloads       int
-	MaxConnectionPerServer       int
-	MinSplitSize                 string
-	Split                        int
-	DisableIpv6                  bool
-	AlwaysResume                 bool
-	KeepUnfinishedDownloadResult bool
-	InputFile                    string
-	SaveSession                  string
-	SaveSessionInterval          int
-	EnableRpc                    bool
-	Pause                        bool
-	RpcAllowOriginAll            bool
-	RpcListenAll                 bool
-	RpcSaveUploadMetadata        bool
-	RpcSecure                    bool
-	RpcSecret                    string
-	Aria2DownloadDir             string
-	Aria2Conf                    string
-	Aria2Host                    string
-	Aria2Port                    int
-	Aria2Secret                  string
+	DiskCache                    int         `toml:"disk-cache"`
+	FileAllocation               string      `toml:"file-allocation"`
+	IsContinue                   bool        `toml:"continue"`
+	MaxTries                     int         `toml:"max-tries"`
+	RpcListenPort                int         `toml:"rpc-listen-port"`
+	MaxConcurrentDownloads       int         `toml:"max-concurrent-downloads"`
+	MaxConnectionPerServer       int         `toml:"max-connection-per-server"`
+	MinSplitSize                 string      `toml:"min-split-size"`
+	Split                        int         `toml:"split"`
+	DisableIpv6                  bool        `toml:"disable-ipv6"`
+	AlwaysResume                 bool        `toml:"always-resume"`
+	KeepUnfinishedDownloadResult bool        `toml:"keep-unfinished-download-result"`
+	InputFile                    string      `toml:"input-file"`
+	SaveSession                  string      `toml:"save-session"`
+	SaveSessionInterval          int         `toml:"save-session-interval"`
+	EnableRpc                    bool        `toml:"enable-rpc"`
+	Pause                        bool        `toml:"pause"`
+	RpcAllowOriginAll            bool        `toml:"rpc-allow-origin-all"`
+	RpcListenAll                 bool        `toml:"rpc-listen-all"`
+	RpcSaveUploadMetadata        bool        `toml:"rpc-save-upload-metadata"`
+	RpcSecure                    bool        `toml:"rpc-secure"`
+	RpcSecret                    string      `toml:"rpc-secret"`
+	Aria2DownloadDir             string      `toml:"aria2_download_dir"`
+	Aria2Conf                    string      `toml:"aria2_conf"`
+	Aria2Host                    string      `toml:"aria2_host"`
+	Aria2Port                    int         `toml:"aria2_port"`
+	Aria2Secret                  string      `toml:"aria2_secret"`
 }
 
 type main struct {
-	ApiUrl              string
-	MinerFid            string
-	ExpectedSealingTime int
-	ImportInterval      time.Duration
-	ScanInterval        time.Duration
-	ApiKey              string
-	AccessToken         string
+	ApiUrl              string               `toml:"api_url"`
+	MinerFid            string               `toml:"miner_fid"`
+	ExpectedSealingTime int                  `toml:"expected_sealing_time"`
+	ImportInterval      time.Duration        `toml:"import_interval"`
+	ScanInterval        time.Duration        `toml:"scan_interval"`
+	ApiKey              string               `toml:"api_key"`
+	AccessToken         string               `toml:"access_token"`
 }
 
 var config *Configuration
 
-func init() {
+func InitConfig() {
 	//if strings.Trim(configFile, " ") == "" {
 	configFile := "./config/config.toml"
 	//}
@@ -69,9 +69,9 @@ func init() {
 }
 
 func GetConfig() Configuration {
-/*	if config == nil {
-		InitConfig("")
-	}*/
+	if config == nil {
+		InitConfig()
+	}
 	return *config
 }
 

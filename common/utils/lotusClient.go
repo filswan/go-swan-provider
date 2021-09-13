@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"regexp"
 	"strings"
 	"swan-miner/logs"
 )
@@ -45,6 +46,7 @@ func GetDealOnChainStatus(dealCid string) (string, string){
 
 func GetCurrentEpoch() (int) {
 	cmd := "lotus-miner proving info | grep 'Current Epoch'"
+	logs.GetLogger().Info(cmd)
 	result, err := ExecOsCmd(cmd)
 
 	if err != nil {
@@ -57,9 +59,17 @@ func GetCurrentEpoch() (int) {
 		return -1
 	}
 
-	words := strings.Fields(result)
-	currentEpoch := GetInt64FromStr(words[1])
+	logs.GetLogger().Info(result)
 
+	re := regexp.MustCompile("[0-9]+")
+	words := re.FindAllString(result, -1)
+	logs.GetLogger().Info("words:",words)
+	var currentEpoch int64 = -1
+	if words != nil && len(words) > 0 {
+		currentEpoch = GetInt64FromStr(words[0])
+	}
+
+	logs.GetLogger().Info("currentEpoch: ", currentEpoch)
 	return int(currentEpoch)
 }
 
