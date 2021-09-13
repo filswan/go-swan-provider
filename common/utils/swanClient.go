@@ -9,6 +9,8 @@ import (
 	"swan-miner/models"
 )
 
+const GET_OFFLINEDEAL_LIMIT_DEFAULT = 50
+
 type TokenAccessInfo struct {
 	ApiKey      string   `json:"apikey"`
 	AccessToken string   `json:"access_token"`
@@ -18,13 +20,6 @@ type SwanClient struct {
 	ApiUrl string
 	ApiKey string
 	Token  string
-}
-
-type DealDetail struct {
-	Status   string   `json:"status"`
-	Note     string   `json:"note"`
-	FilePath string   `json:"file_path"`
-	FileSize string   `json:"file_size"`
 }
 
 type OfflineDealResponse struct {
@@ -54,17 +49,6 @@ func GetSwanClient() (*SwanClient){
 	return swanClient
 }
 
-/*func (self *SwanClient) UpdateTaskByUuid(taskUuid, minerFid string, csvFile interface{}){
-	logs.GetLogger().Info("Updating Swan task.")
-	uri := config.GetConfig().Main.ApiUrl + "/uuid_tasks/" + taskUuid
-	tokenString :=""
-	payloadData := "{\"miner_fid\": "+minerFid+"}"
-
-	Put(uri,tokenString,payloadData)
-	logs.GetLogger().Info("Swan task updated.")
-}
-*/
-
 func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) ([]models.OfflineDeal){
 	rowLimit := strconv.Itoa(GET_OFFLINEDEAL_LIMIT_DEFAULT)
 	if limit != nil && len(limit) >0 {
@@ -72,9 +56,7 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 	}
 
 	url := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
-	//fmt.Println(url)
 	response := HttpGetJsonParam(url, self.Token, "")
-	//fmt.Println(response)
 	offlineDealResponse := OfflineDealResponse{}
 	json.Unmarshal([]byte(response),&offlineDealResponse)
 	deals:=offlineDealResponse.Data.Deal
@@ -103,8 +85,6 @@ func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statu
 	}
 
 	response := HttpPutFormParam(apiUrl, self.Token, strings.NewReader(form.Encode()))
-/*	fmt.Println(apiUrl)
-	fmt.Println(response)*/
 
 	return response
 }

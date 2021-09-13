@@ -3,13 +3,14 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"strings"
+	"swan-miner/logs"
 )
+
+const HTTP_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded"
+const HTTP_CONTENT_TYPE_JSON = "application/json; charset=utf-8"
 
 func HttpPostJsonParamNoToken(uri string, jsonRequest interface{}) string {
 	response := httpRequestJsonParam(http.MethodPost, uri, "" , jsonRequest)
@@ -48,16 +49,15 @@ func HttpDeleteJsonParam(uri, tokenString  string, jsonRequest interface{}) stri
 }
 
 func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{}) (string) {
-	//fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
 	jsonReq, err := json.Marshal(params)
 	if err != nil {
-		logger.Error(err)
+		logs.GetLogger().Error(err)
 		return ""
 	}
-	//fmt.Println(string(jsonReq))
+
 	request, err := http.NewRequest(httpMethod, uri, bytes.NewBuffer(jsonReq))
 	if err != nil {
-		logger.Error(err)
+		logs.GetLogger().Error(err)
 		return ""
 	}
 	request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_JSON)
@@ -71,23 +71,20 @@ func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{
 	defer response.Body.Close()
 
 	if err != nil {
-		logger.Error(err)
+		logs.GetLogger().Error(err)
 		return ""
 	}
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
-	// Convert response body to string
 	responseString := string(responseBody)
-	//fmt.Println(responseString)
 
 	return responseString
 }
 
 func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader) (string) {
-	//fmt.Println("Performing Http "+httpMethod+"...", uri, jsonRequest)
 	request, err := http.NewRequest(httpMethod, uri, params)
 	if err != nil {
-		logger.Error(err)
+		logs.GetLogger().Error(err)
 		return ""
 	}
 	request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_FORM)
@@ -101,55 +98,12 @@ func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader)
 	defer response.Body.Close()
 
 	if err != nil {
-		logger.Error(err)
+		logs.GetLogger().Error(err)
 		return ""
 	}
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
-	// Convert response body to string
 	responseString := string(responseBody)
-	//fmt.Println(responseString)
 
 	return responseString
 }
-
-func UploadFileByStream(uri, filepath, filename string) {
-	var fileReader io.Reader
-	var err error
-	fileFullPath := filepath+"/"+filename
-	fileReader, err = os.Open(fileFullPath)
-
-	boundary := "MyMultiPartBoundary12345"
-	token := "DEPLOY_GATE_TOKEN"
-	message := "Uploaded by Nebula"
-	releaseNote := "Built by Nebula"
-	fieldFormat := "--%s\r\nContent-Disposition: form-data; name=\"%s\"\r\n\r\n%s\r\n"
-	tokenPart := fmt.Sprintf(fieldFormat, boundary, "token", token)
-	messagePart := fmt.Sprintf(fieldFormat, boundary, "message", message)
-	releaseNotePart := fmt.Sprintf(fieldFormat, boundary, "release_note", releaseNote)
-	fileName := filename
-	fileHeader := "Content-type: application/octet-stream"
-	fileFormat := "--%s\r\nContent-Disposition: form-data; name=\"file\"; filename=\"%s\"\r\n%s\r\n\r\n"
-	filePart := fmt.Sprintf(fileFormat, boundary, fileName, fileHeader)
-	bodyTop := fmt.Sprintf("%s%s%s%s", tokenPart, messagePart, releaseNotePart, filePart)
-	bodyBottom := fmt.Sprintf("\r\n--%s--\r\n", boundary)
-	body := io.MultiReader(strings.NewReader(bodyTop), fileReader, strings.NewReader(bodyBottom))
-
-	contentType := fmt.Sprintf("multipart/form-data; boundary=%s", boundary)
-
-	response, err := http.Post(uri, contentType, body)
-	if err != nil {
-		fmt.Println(err)
-	}
-	if response!=nil{
-		content, err := ioutil.ReadAll(response.Body)
-		responseContent:=string(content)
-		fmt.Println(responseContent)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		response.Body.Close()
-	}
-}
-

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"swan-miner/common/utils"
 	"swan-miner/config"
+	"swan-miner/logs"
 	"time"
 )
 
@@ -30,54 +31,54 @@ func GetLotusService()(*LotusService){
 func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 	deals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_STATUS_IMPORT_READY, LOTUS_IMPORT_NUMNBER)
 	if deals == nil || len(deals) == 0 {
-		logger.Info("No pending offline deals found.")
-		logger.Info("Sleeping...")
+		logs.GetLogger().Info("No pending offline deals found.")
+		logs.GetLogger().Info("Sleeping...")
 		time.Sleep(self.ImportIntervalSecond)
 		return
 	}
 
 	for _, deal := range deals {
 		msg := fmt.Sprintf("Deal CID: %s. File Path: %s", deal.DealCid, deal.FilePath)
-		logger.Info(msg)
+		logs.GetLogger().Info(msg)
 
 		onChainStatus, _ := utils.GetDealOnChainStatus(deal.DealCid)
 
 		if len(onChainStatus) == 0 {
-			logger.Info("Sleeping...")
+			logs.GetLogger().Info("Sleeping...")
 			time.Sleep(self.ImportIntervalSecond)
 			break
 		}
 
-		logger.Info("Deal on chain status: ", onChainStatus)
+		logs.GetLogger().Info("Deal on chain status: ", onChainStatus)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 			note := "Deal on chain status is error before importing."
-			logger.Info(note)
+			logs.GetLogger().Info(note)
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 			continue
 		}
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_ACTIVE {
 			note := "Deal on chain status is active before importing."
-			logger.Info(note)
+			logs.GetLogger().Info(note)
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_ACTIVE, note)
 			continue
 		}
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_ACCEPT {
-			logger.Info("Deal on chain status is ", ONCHAIN_DEAL_STATUS_ACCEPT, ". Deal will be ready shortly.")
+			logs.GetLogger().Info("Deal on chain status is ", ONCHAIN_DEAL_STATUS_ACCEPT, ". Deal will be ready shortly.")
 			continue
 		}
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_NOTFOUND {
 			note := "Deal on chain status not found."
-			logger.Info(note)
+			logs.GetLogger().Info(note)
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 			continue
 		}
 
 		if onChainStatus != ONCHAIN_DEAL_STATUS_WAITTING {
-			logger.Info("Deal is already imported, please check.")
+			logs.GetLogger().Info("Deal is already imported, please check.")
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORTED, onChainStatus)
 			continue
 		}
@@ -85,14 +86,14 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 		currentEpoch := utils.GetCurrentEpoch()
 
 		if currentEpoch < 0 {
-			logger.Error("Failed to get current epoch. Please check if miner is running properly.")
+			logs.GetLogger().Error("Failed to get current epoch. Please check if miner is running properly.")
 			time.Sleep(self.ImportIntervalSecond)
 			break
 		}
 
 		if deal.StartEpoch-currentEpoch < self.ExpectedSealingTime {
 			note := "Deal will start too soon, expired. Do not import this deal."
-			logger.Info(note)
+			logs.GetLogger().Info(note)
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 			continue
 		}
@@ -105,13 +106,13 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 		if len(result) > 0 {
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, result)
 			msg = fmt.Sprintf("Import deal failed. CID: %s. Error message: %s", deal.Id, result)
-			logger.Error(msg)
+			logs.GetLogger().Error(msg)
 			continue
 		}
 
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORTED)
 		msg = fmt.Sprintf("Deal CID %s imported.", deal.DealCid)
-		logger.Info(msg)
+		logs.GetLogger().Info(msg)
 	}
 }
 
@@ -119,8 +120,8 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 	deals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_STATUS_IMPORTED, LOTUS_SCAN_NUMBER)
 
 	if len(deals) == 0 {
-		logger.Info("No ongoing offline deals found.")
-		logger.Info("Sleeping...")
+		logs.GetLogger().Info("No ongoing offline deals found.")
+		logs.GetLogger().Info("Sleeping...")
 		time.Sleep(self.ScanIntervalSecond)
 		return
 	}
@@ -128,29 +129,29 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 	for _, deal := range deals {
 		//fmt.Println(deal)
 		msg := fmt.Sprintf("ID: %s. Deal CID: %s. Deal Status: %s.", deal.Id, deal.DealCid, deal.Status)
-		logger.Info(msg)
+		logs.GetLogger().Info(msg)
 
 		onChainStatus, onChainMessage := utils.GetDealOnChainStatus(deal.DealCid)
 
 		if len(onChainStatus) == 0 {
-			logger.Info("Sleeping...")
+			logs.GetLogger().Info("Sleeping...")
 			time.Sleep(self.ScanIntervalSecond)
 			break
 		}
 
-		logger.Info("Deal on chain status: ", onChainStatus)
+		logs.GetLogger().Info("Deal on chain status: ", onChainStatus)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, onChainMessage)
 			msg = fmt.Sprintf("Setting deal %s status as %s", deal.DealCid, DEAL_STATUS_IMPORT_FAILED)
-			logger.Info(msg)
+			logs.GetLogger().Info(msg)
 		}
 
 		if onChainStatus ==ONCHAIN_DEAL_STATUS_ACTIVE{
 			note := "Deal has been completed"
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_ACTIVE, note)
 			msg = fmt.Sprintf("Setting deal %s status as %s", deal.DealCid, DEAL_STATUS_ACTIVE)
-			logger.Info(msg)
+			logs.GetLogger().Info(msg)
 		}
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_AWAITING {
@@ -159,12 +160,12 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 				note := fmt.Sprintf("Sector is proved and active, while deal on chain status is %s. Set deal status as %s.", ONCHAIN_DEAL_STATUS_AWAITING, DEAL_STATUS_IMPORT_FAILED)
 				swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 				msg = fmt.Sprintf("Setting deal %s status as ImportFailed due to on chain status bug.", deal.DealCid)
-				logger.Info(msg)
+				logs.GetLogger().Info(msg)
 			}
 		}
 
 		msg = fmt.Sprintf("On chain offline_deal message created. Message Body: on_chain_status:%s, on_chain_message:%s.", onChainStatus, onChainMessage)
-		logger.Info(msg)
+		logs.GetLogger().Info(msg)
 	}
 }
 

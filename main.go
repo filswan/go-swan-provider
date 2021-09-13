@@ -18,11 +18,6 @@ func main() {
 	//LoadEnv()
 
 	//config.InitConfig()
-
-	//test.TestOsCmdClient1()
-	//test.TestSwanClient()
-	//test.TestDownloader()
-	//test.TestRestApiClient()
 	offlineDealAdmin.AdminOfflineDeal()
 	createHttpServer()
 }

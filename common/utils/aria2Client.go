@@ -4,13 +4,10 @@ import (
 	"fmt"
 	"strings"
 	"swan-miner/config"
+	"swan-miner/logs"
 )
 
-const IDPREFIX = "nbfs"
 const ADD_URI = "aria2.addUri"
-const GET_VER = "aria2.getVersion"
-const STOPPED = "aria2.tellStopped"
-const ACTIVE = "aria2.tellActive"
 const STATUS = "aria2.tellStatus"
 
 type Aria2Client struct {
@@ -21,10 +18,10 @@ type Aria2Client struct {
 }
 
 type Payload struct {
-	JsonRpc string        `json:"jsonrpc"`
-	Id      string        `json:"id"`
-	Method  string        `json:"method"`
-	Params  []interface{} `json:"params"`
+	JsonRpc   string        `json:"jsonrpc"`
+	Id        string        `json:"id"`
+	Method    string        `json:"method"`
+	Params    []interface{} `json:"params"`
 }
 
 func GetAria2Client() (*Aria2Client){
@@ -61,13 +58,13 @@ func (self *Aria2Client) GenPayload(method string, uri string , options interfac
 func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) {
 	payloads := self.GenPayload(ADD_URI, uri, options)
 	result := HttpPostJsonParamNoToken(self.serverUrl,payloads)
-	//fmt.Println(result)
+
 	if strings.Contains(result,"error"){
 		errorInfo := GetFieldMapFromJson(result, "error")
 		errorCode := errorInfo["code"]
 		errorMsg := errorInfo["message"]
 		msg := fmt.Sprintf("ERROR: %s, %s",errorCode, errorMsg)
-		logger.Error(msg)
+		logs.GetLogger().Error(msg)
 		return ""
 	}else{
 		return result
@@ -92,7 +89,6 @@ func (self *Aria2Client) GenPayloadForStatus(gid string) (interface{}){
 func (self *Aria2Client) GetDownloadStatus(gid string) (string) {
 	payload := self.GenPayloadForStatus(gid)
 	result := HttpPostJsonParamNoToken(self.serverUrl, payload)
-	fmt.Println(result)
 	return result
 }
 

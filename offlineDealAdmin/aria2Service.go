@@ -8,6 +8,7 @@ import (
 	"strings"
 	"swan-miner/common/utils"
 	"swan-miner/config"
+	"swan-miner/logs"
 	"swan-miner/models"
 	"time"
 )
@@ -71,7 +72,7 @@ type Aria2StatusResultFileUri struct {
 	Uri    string `json:"uri"`
 }
 
-func GetAria2Service() (*Aria2Service){
+func GetAria2Service() *Aria2Service {
 	aria2Service := &Aria2Service{
 		MinerFid: config.GetConfig().Main.MinerFid,
 		OutDir: config.GetConfig().Aria2.Aria2DownloadDir,
@@ -80,7 +81,7 @@ func GetAria2Service() (*Aria2Service){
 	return aria2Service
 }
 
-func  (self *Aria2Service) findNextDealReady2Download(swanClient *utils.SwanClient) (*models.OfflineDeal) {
+func  (self *Aria2Service) findNextDealReady2Download(swanClient *utils.SwanClient) *models.OfflineDeal {
 	deals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_STATUS_CREATED, "1")
 	if len(deals) == 0 {
 		deals = swanClient.GetOfflineDeals(self.MinerFid, DEAL_STATUS_WAITING, "1")
@@ -97,22 +98,31 @@ func  (self *Aria2Service) findNextDealReady2Download(swanClient *utils.SwanClie
 func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient, deal *models.OfflineDeal, gid string) {
 	response := aria2Client.GetDownloadStatus(gid)
 	aria2GetStatusSuccess := Aria2GetStatusSuccess{}
-	json.Unmarshal([]byte(response), &aria2GetStatusSuccess)
+	err := json.Unmarshal([]byte(response), &aria2GetStatusSuccess)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+
 	if aria2GetStatusSuccess.Result == nil {
 		aria2GetStatusFail := Aria2GetStatusFail{}
-		json.Unmarshal([]byte(response), &aria2GetStatusFail)
+		err = json.Unmarshal([]byte(response), &aria2GetStatusFail)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		}
+
 		code := aria2GetStatusFail.Error.Code
 		message := aria2GetStatusFail.Error.Message
 		msg := fmt.Sprintf("Get status for %s, code:%d, message:%s", gid, code, message)
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, msg)
-		logger.Error(msg)
+		logs.GetLogger().Error(msg)
 		return
 	}
 
 	if len(aria2GetStatusSuccess.Result.Files) != 1 {
 		note := "Wrong file amount"
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-		logger.Error(note)
+		logs.GetLogger().Error(note)
 		return
 	}
 
@@ -134,14 +144,14 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 	case ARIA2_TASK_STATUS_ERROR:
 		note := fmt.Sprintf("Deal status for %s, code:%d, message:%s, status:%s", gid, code, message, status)
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-		logger.Error(note)
+		logs.GetLogger().Error(note)
 	case ARIA2_TASK_STATUS_ACTIVE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		if deal.Status != DEAL_STATUS_DOWNLOADING {
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADING, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
 		}
 		msg := fmt.Sprintf("Deal downloading, id: %d, file size: %d, complete: %d%%, speed: %dKiB", deal.Id, fileSize, completePercent, downloadSpeed)
-		logger.Info(msg)
+		logs.GetLogger().Info(msg)
 	case ARIA2_TASK_STATUS_COMPLETE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		if fileSizeDownloaded >= 0 {
@@ -149,14 +159,14 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 		} else {
 			note := fmt.Sprintf("File %s not found on", filePath)
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, utils.GetStrFromInt64(fileSize))
-			logger.Error(note)
+			logs.GetLogger().Error(note)
 		}
 	default:
 		note := fmt.Sprintf("Download failed, cause: %s", result.ErrorMessage)
 		if note != deal.Note{
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, utils.GetStrFromInt64(fileSize))
 		}
-		logger.Error(note, " dealId:", strconv.Itoa(deal.Id))
+		logs.GetLogger().Error(note, " dealId:", strconv.Itoa(deal.Id))
 	}
 }
 
@@ -179,20 +189,20 @@ func (self *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, sw
 }
 
 func (self *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
-	logger.Info("start downloading deal id ", deal.Id)
-	url, err := url.Parse(deal.SourceFileUrl)
+	logs.GetLogger().Info("start downloading deal id ", deal.Id)
+	urlInfo, err := url.Parse(deal.SourceFileUrl)
 	if err != nil {
 		msg := fmt.Sprintf("parse source file url error:%s", err)
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, msg)
 		msg = fmt.Sprintf("Deal id:%d, %s", deal.Id, msg)
-		logger.Error(msg)
+		logs.GetLogger().Error(msg)
 		return
 	}
 
-	filename := url.Path
-	if strings.HasPrefix(url.RawQuery, "filename=") {
-		filename = strings.TrimLeft(url.RawQuery, "filename=")
-		filename = utils.GetDir(url.Path, filename)
+	filename := urlInfo.Path
+	if strings.HasPrefix(urlInfo.RawQuery, "filename=") {
+		filename = strings.TrimLeft(urlInfo.RawQuery, "filename=")
+		filename = utils.GetDir(urlInfo.Path, filename)
 	}
 	today := time.Now()
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())

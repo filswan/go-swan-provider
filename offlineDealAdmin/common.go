@@ -33,8 +33,6 @@ const ARIA2_MAX_DOWNLOADING_TASKS = 10
 const LOTUS_IMPORT_NUMNBER = "20" //Max number of deals to be imported at a time
 const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
 
-var logger = logs.GetLogger()
-
 func AdminOfflineDeal()  {
 	aria2Client := utils.GetAria2Client()
 	swanClient := utils.GetSwanClient()
@@ -44,36 +42,36 @@ func AdminOfflineDeal()  {
 
 	go func() {
 		for {
-			logger.Info("CheckDownloadStatus begin...")
+			logs.GetLogger().Info("CheckDownloadStatus begin...")
 			aria2Service.CheckDownloadStatus(aria2Client, swanClient)
-			logger.Info("CheckDownloadStatus end... Sleeping...")
+			logs.GetLogger().Info("CheckDownloadStatus end... Sleeping...")
 			time.Sleep(time.Minute)
 		}
 	}()
 
 	go func() {
 		for {
-			logger.Info("StartDownload begin...")
+			logs.GetLogger().Info("StartDownload begin...")
 			aria2Service.StartDownload(aria2Client, swanClient)
-			logger.Info("StartDownload end... Sleeping...")
+			logs.GetLogger().Info("StartDownload end... Sleeping...")
 			time.Sleep(time.Minute)
 		}
 	}()
 
 	go func() {
 		for {
-			logger.Info("StartImport begin...")
+			logs.GetLogger().Info("StartImport begin...")
 			lotusService.StartImport(swanClient)
-			logger.Info("StartImport end... Sleeping...")
+			logs.GetLogger().Info("StartImport end... Sleeping...")
 			time.Sleep(lotusService.ImportIntervalSecond)
 		}
 	}()
 
 	go func() {
 		for {
-			logger.Info("StartScan begin...")
+			logs.GetLogger().Info("StartScan begin...")
 			lotusService.StartScan(swanClient)
-			logger.Info("StartScan end... Sleeping...")
+			logs.GetLogger().Info("StartScan end... Sleeping...")
 			time.Sleep(lotusService.ImportIntervalSecond)
 		}
 	}()

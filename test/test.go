@@ -9,10 +9,17 @@ import (
 	"swan-miner/offlineDealAdmin"
 )
 
+type Todo struct {
+	UserID    int    `json:"userId"`
+	ID        int    `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
+}
+
 func TestRestApiClient() {
 	response := utils.HttpGetJsonParam("https://jsonplaceholder.typicode.com/todos/1", "", "")
 	fmt.Println(response)
-	todo := models.Todo{1, 2, "lorem ipsum dolor sit amet", true}
+	todo := Todo{1, 2, "lorem ipsum dolor sit amet", true}
 	response = utils.HttpPostJsonParamNoToken("https://jsonplaceholder.typicode.com/todos", todo)
 	fmt.Println(response)
 

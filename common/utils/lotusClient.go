@@ -9,14 +9,14 @@ func GetDealOnChainStatus(dealCid string) (string, string){
 	cmd := "lotus-miner storage-deals list -v | grep " + dealCid
 	result, err := ExecOsCmd(cmd)
 
-	if len(err) > 0 {
-		logger.Error(err)
+	if err != nil {
+		logs.GetLogger().Error(err)
 		return "", ""
 	}
 
 	if len(result) == 0 {
-		logger.Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
-		logger.Error("Deal does not found on chain. DealCid:" + dealCid)
+		logs.GetLogger().Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
+		logs.GetLogger().Error("Deal does not found on chain. DealCid:" + dealCid)
 		return "", ""
 	}
 
@@ -46,13 +46,13 @@ func GetCurrentEpoch() (int) {
 	cmd := "lotus-miner proving info | grep 'Current Epoch'"
 	result, err := ExecOsCmd(cmd)
 
-	if len(err) > 0 {
-		logger.Error(err)
+	if err != nil {
+		logs.GetLogger().Error(err)
 		return -1
 	}
 
 	if len(result) == 0 {
-		logger.Error("Failed to get current epoch. Please check if miner is running properly.")
+		logs.GetLogger().Error("Failed to get current epoch. Please check if miner is running properly.")
 		return -1
 	}
 
@@ -64,11 +64,11 @@ func GetCurrentEpoch() (int) {
 
 func LotusImportData(dealCid string, filepath string) (string) {
 	cmd := "lotus-miner storage-deals import-data " + dealCid + " " + filepath
-	logger.Info(cmd)
+	logs.GetLogger().Info(cmd)
 
 	result, err := ExecOsCmd(cmd)
 
-	if len(err) > 0 {
+	if err != nil {
 		logs.GetLogger().Error(err)
 		return ""
 	}
