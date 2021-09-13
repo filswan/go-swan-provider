@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"math/big"
 	"os"
+	"strconv"
+	"strings"
 	"swan-miner/logs"
 	"time"
 )
@@ -36,4 +39,114 @@ func ReadContractAbiJsonFile(aptpath string) (string, error) {
 func GetRewardPerBlock() *big.Int {
 	rewardBig, _ := new(big.Int).SetString("35000000000000000000", 10) // the unit is wei
 	return rewardBig
+}
+
+func GetFieldFromJson(jsonStr string, fieldName string) (interface{}){
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	fieldVal := result[fieldName].(interface{})
+	return fieldVal
+}
+
+func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
+	fieldVal := result[fieldName].(interface{})
+	return fieldVal.(string)
+}
+
+func GetFieldMapFromJson(jsonStr string, fieldName string) (map[string]interface{}){
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	fieldVal := result[fieldName].(interface{})
+
+	return fieldVal.(map[string]interface{})
+}
+
+func ToJson(obj interface{}) (string){
+	jsonBytes, err := json.Marshal(obj)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
+	jsonString := string(jsonBytes)
+	return jsonString
+}
+
+func GetDir(root string, dirs ...string) (string) {
+	path := root
+
+	for _, dir := range dirs {
+		if dir == "" {
+			continue
+		}
+
+		if strings.HasSuffix(path,"/") {
+			path = path + dir
+		}else{
+			path = path + "/" + dir
+		}
+	}
+
+	return path
+}
+
+func IsFileExists(filePath, fileName string) (bool) {
+	fileFullPath := GetDir(filePath, fileName)
+	_, err := os.Stat(fileFullPath)
+
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return false
+	}
+
+	return true
+}
+
+func RemoveFile(filePath, fileName string) {
+	fileFullPath := GetDir(filePath, fileName)
+	err := os.Remove(fileFullPath)
+	if err != nil {
+		 logs.GetLogger().Error(err.Error())
+	}
+}
+
+func GetFileSize(fileFullPath string) (int64) {
+	fi, err := os.Stat(fileFullPath)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return -1
+	}
+
+	return fi.Size()
+}
+
+func GetStrFromInt64(num int64) (string) {
+	return strconv.FormatInt(num, 10)
+}
+
+func GetInt64FromStr(numStr string) int64 {
+	num, err := strconv.ParseInt(numStr, 10, 64)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return -1
+	}
+
+	return num
 }

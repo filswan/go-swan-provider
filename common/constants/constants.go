@@ -12,5 +12,4 @@ const (
 	HTTP_CODE_400_BAD_REQUEST           = "400" //http.StatusBadRequest
 	HTTP_CODE_401_UNAUTHORIZED          = "401" //http.StatusUnauthorized
 	HTTP_CODE_500_INTERNAL_SERVER_ERROR = "500" //http.StatusInternalServerError
-
 )

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	cors "github.com/itsjamie/gin-cors"
 	"github.com/joho/godotenv"
@@ -9,15 +8,19 @@ import (
 	"swan-miner/common/constants"
 	"swan-miner/config"
 	"swan-miner/logs"
+	"swan-miner/offlineDealAdmin"
 	"swan-miner/routers/commonRouters"
 	"time"
 )
 
 func main() {
-	LoadEnv()
+	//LoadEnv()
+	//config.InitConfig()
+	offlineDealAdmin.AdminOfflineDeal()
+	createHttpServer()
+}
 
-	config.InitConfig("")
-
+func createHttpServer() {
 	r := gin.Default()
 	r.Use(cors.Middleware(cors.Config{
 		Origins:         "*",
@@ -36,7 +39,6 @@ func main() {
 	if err != nil {
 		logs.GetLogger().Fatal(err)
 	}
-
 }
 
 func LoadEnv() {
@@ -44,5 +46,6 @@ func LoadEnv() {
 	if err != nil {
 		logs.GetLogger().Error(err)
 	}
-	fmt.Println("name: ", os.Getenv("privateKey"))
+
+	logs.GetLogger().Info("name: ", os.Getenv("privateKey"))
 }

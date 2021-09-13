@@ -128,3 +128,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.idea/go-swan-provider.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/runConfigurations.xml
+.idea/vcs.xml
+swan-miner
