@@ -133,9 +133,8 @@ func GetFileSize(fileFullPath string) (int64) {
 		logs.GetLogger().Error(err)
 		return -1
 	}
-	size := fi.Size()
 
-	return size
+	return fi.Size()
 }
 
 func GetStrFromInt64(num int64) (string) {
