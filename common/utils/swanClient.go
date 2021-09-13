@@ -32,7 +32,7 @@ type OfflineDealData struct {
 	Deal  []models.OfflineDeal `json:"deal""`
 }
 
-func GetSwanClient() (*SwanClient){
+func GetSwanClient() (*SwanClient) {
 	mainConf := config.GetConfig().Main
 	uri := mainConf.ApiUrl+"/user/api_keys/jwt"
 	data := TokenAccessInfo{ApiKey: mainConf.ApiKey, AccessToken: mainConf.AccessToken}
@@ -56,8 +56,8 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 		rowLimit = limit[0]
 	}
 
-	url := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
-	response := HttpGetJsonParam(url, self.Token, "")
+	urlStr := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
+	response := HttpGetJsonParam(urlStr, self.Token, "")
 	offlineDealResponse := OfflineDealResponse{}
 	err := json.Unmarshal([]byte(response),&offlineDealResponse)
 	if err != nil {
@@ -71,26 +71,34 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) (string) {
 	apiUrl := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
 
-	form := url.Values{}
+	params := url.Values{}
 	if len(status) > 0 {
-		form.Add("status", status)
+		params.Add("status", status)
 	}
 
 	if len(statusInfo) > 0 {
-		form.Add("note", statusInfo[0])
+		params.Add("note", statusInfo[0])
 	}
 
 	if len(statusInfo) > 1 {
-		form.Add("file_path", statusInfo[1])
+		params.Add("file_path", statusInfo[1])
 	}
 
 	if len(statusInfo) > 2 {
-		form.Add("file_size", statusInfo[2])
+		params.Add("file_size", statusInfo[2])
 	}
 
-	response := HttpPutFormParam(apiUrl, self.Token, strings.NewReader(form.Encode()))
+	response := HttpPutFormParam(apiUrl, self.Token, strings.NewReader(params.Encode()))
 
 	return response
 }
 
+func (self *SwanClient) SendHeartbeatRequest(minerFid string) string {
+	apiUrl := config.GetConfig().Main.ApiUrl + "/heartbeat"
+	params := url.Values{}
+	params.Add("miner_id", minerFid)
+
+	response := HttpPostFormParam(apiUrl, self.Token , strings.NewReader(params.Encode()))
+	return response
+}
 

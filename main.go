@@ -16,6 +16,7 @@ import (
 func main() {
 	//LoadEnv()
 	//config.InitConfig()
+	//test.TestSendHeartbeatRequest()
 	offlineDealAdmin.AdminOfflineDeal()
 	createHttpServer()
 }

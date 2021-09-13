@@ -94,3 +94,12 @@ func TestOsCmdClient1()  {
 	/*result, err = */utils.ExecOsCmd2Screen("ls -l | grep x")
 	//logs.GetLogger().Info(result, err)
 }
+
+func TestSendHeartbeatRequest() {
+	minerFid := config.GetConfig().Main.MinerFid
+
+	swanClient := utils.GetSwanClient()
+
+	response := swanClient.SendHeartbeatRequest(minerFid)
+	logs.GetLogger().Info(response)
+}

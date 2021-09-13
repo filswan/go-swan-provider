@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -14,37 +15,36 @@ const HTTP_CONTENT_TYPE_JSON = "application/json; charset=utf-8"
 
 func HttpPostJsonParamNoToken(uri string, jsonRequest interface{}) string {
 	response := httpRequestJsonParam(http.MethodPost, uri, "" , jsonRequest)
-
 	return response
 }
 
 func HttpPostJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
 	response := httpRequestJsonParam(http.MethodPost, uri, tokenString , jsonRequest)
+	return response
+}
 
+func HttpPostFormParam(uri, tokenString  string, params io.Reader) string {
+	response := httpRequestFormParam(http.MethodPost, uri, tokenString, params)
 	return response
 }
 
 func HttpGetJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
 	response := httpRequestJsonParam(http.MethodGet, uri, tokenString , jsonRequest)
-
 	return response
 }
 
 func HttpPutJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
 	response := httpRequestJsonParam(http.MethodPut, uri, tokenString , jsonRequest)
-
 	return response
 }
 
 func HttpPutFormParam(uri, tokenString  string, params io.Reader) string {
 	response := httpRequestFormParam(http.MethodPut, uri, tokenString , params)
-
 	return response
 }
 
 func HttpDeleteJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
 	response := httpRequestJsonParam(http.MethodDelete, uri, tokenString , jsonRequest)
-
 	return response
 }
 
@@ -68,10 +68,24 @@ func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{
 
 	client := &http.Client{}
 	response, err := client.Do(request)
+
+	if response == nil {
+		err = errors.New("no response")
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
+	if response.Body == nil {
+		err = errors.New("no response body")
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
 	defer response.Body.Close()
 
 	if err != nil {
 		logs.GetLogger().Error(err)
+
 		return ""
 	}
 
@@ -98,10 +112,24 @@ func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader)
 
 	client := &http.Client{}
 	response, err := client.Do(request)
+
+	if response == nil {
+		err = errors.New("no response")
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
+	if response.Body == nil {
+		err = errors.New("no response body")
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
 	defer response.Body.Close()
 
 	if err != nil {
 		logs.GetLogger().Error(err)
+
 		return ""
 	}
 
