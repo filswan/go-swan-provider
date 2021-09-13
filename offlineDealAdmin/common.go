@@ -33,9 +33,6 @@ const ARIA2_MAX_DOWNLOADING_TASKS = 10
 const LOTUS_IMPORT_NUMNBER = "20" //Max number of deals to be imported at a time
 const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
 
-const MESSAGE_TYPE_ON_CHAIN = "ON CHAIN"
-const MESSAGE_TYPE_SWAN = "SWAN"
-
 var logger = logs.GetLogger()
 
 func AdminOfflineDeal()  {
