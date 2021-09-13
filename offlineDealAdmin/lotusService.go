@@ -127,7 +127,6 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 	}
 
 	for _, deal := range deals {
-		//fmt.Println(deal)
 		msg := fmt.Sprintf("ID: %s. Deal CID: %s. Deal Status: %s.", deal.Id, deal.DealCid, deal.Status)
 		logs.GetLogger().Info(msg)
 

@@ -16,7 +16,6 @@ import (
 
 func main() {
 	//LoadEnv()
-
 	//config.InitConfig()
 	offlineDealAdmin.AdminOfflineDeal()
 	createHttpServer()

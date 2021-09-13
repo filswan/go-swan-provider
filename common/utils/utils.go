@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"math/big"
 	"os"
@@ -46,9 +45,6 @@ func GetFieldFromJson(jsonStr string, fieldName string) (interface{}){
 	var result map[string]interface{}
 	json.Unmarshal([]byte(jsonStr), &result)
 	fieldVal := result[fieldName].(interface{})
-
-	//fmt.Println(fieldName,fieldVal)
-
 	return fieldVal
 }
 
@@ -56,9 +52,6 @@ func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
 	var result map[string]interface{}
 	json.Unmarshal([]byte(jsonStr), &result)
 	fieldVal := result[fieldName].(interface{})
-
-	//fmt.Println(fieldName,fieldVal)
-
 	return fieldVal.(string)
 }
 
@@ -67,13 +60,16 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) (map[string]interface
 	json.Unmarshal([]byte(jsonStr), &result)
 	fieldVal := result[fieldName].(interface{})
 
-	//fmt.Println(fieldName,fieldVal)
-
 	return fieldVal.(map[string]interface{})
 }
 
 func ToJson(obj interface{}) (string){
-	jsonBytes, _ := json.Marshal(obj)
+	jsonBytes, err := json.Marshal(obj)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
+
 	jsonString := string(jsonBytes)
 	return jsonString
 }
@@ -99,15 +95,13 @@ func GetDir(root string, dirs ...string) (string) {
 func IsFileExists(filePath, fileName string) (bool) {
 	fileFullPath := GetDir(filePath, fileName)
 	_, err := os.Stat(fileFullPath)
-	if err == nil {
-		return true
-	}
 
-	if errors.Is(err, os.ErrNotExist) {
+	if err != nil {
+		logs.GetLogger().Error(err)
 		return false
 	}
 
-	return false
+	return true
 }
 
 func RemoveFile(filePath, fileName string) {
@@ -121,6 +115,7 @@ func RemoveFile(filePath, fileName string) {
 func GetFileSize(fileFullPath string) (int64) {
 	fi, err := os.Stat(fileFullPath)
 	if err != nil {
+		logs.GetLogger().Error(err)
 		return -1
 	}
 	size := fi.Size()

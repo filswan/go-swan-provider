@@ -74,11 +74,14 @@ func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{
 		logs.GetLogger().Error(err)
 		return ""
 	}
-	responseBody, _ := ioutil.ReadAll(response.Body)
 
-	responseString := string(responseBody)
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
 
-	return responseString
+	return string(responseBody)
 }
 
 func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader) (string) {
@@ -101,9 +104,12 @@ func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader)
 		logs.GetLogger().Error(err)
 		return ""
 	}
-	responseBody, _ := ioutil.ReadAll(response.Body)
 
-	responseString := string(responseBody)
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return ""
+	}
 
-	return responseString
+	return string(responseBody)
 }

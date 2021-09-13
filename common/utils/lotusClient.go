@@ -16,7 +16,7 @@ func GetDealOnChainStatus(dealCid string) (string, string){
 
 	if len(result) == 0 {
 		logs.GetLogger().Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
-		logs.GetLogger().Error("Deal does not found on chain. DealCid:" + dealCid)
+		logs.GetLogger().Error("Deal does not found on chain. DealCid:", dealCid)
 		return "", ""
 	}
 
@@ -39,6 +39,7 @@ func GetDealOnChainStatus(dealCid string) (string, string){
 		message = message + words[i] + " "
 	}
 
+	message = strings.TrimRight(message, " ")
 	return status, message
 }
 

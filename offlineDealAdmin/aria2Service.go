@@ -42,26 +42,26 @@ type Aria2StatusError struct {
 
 type Aria2StatusResult struct {
 	Bitfield        string                  `json:"bitfield"`
-	CompletedLength int                     `json:"completedLength"`
+	CompletedLength string                  `json:"completedLength"`
 	Connections     string                  `json:"connections"`
 	Dir             string                  `json:"dir"`
-	DownloadSpeed   int                     `json:"downloadSpeed"`
-	ErrorCode       int                     `json:"errorCode"`
+	DownloadSpeed   string                  `json:"downloadSpeed"`
+	ErrorCode       string                  `json:"errorCode"`
 	ErrorMessage    string                  `json:"errorMessage"`
 	Gid             string                  `json:"gid"`
 	NumPieces       string                  `json:"numPieces"`
 	PieceLength     string                  `json:"pieceLength"`
 	Status          string                  `json:"status"`
-	TotalLength     int                     `json:"totalLength"`
+	TotalLength     string                  `json:"totalLength"`
 	UploadLength    string                  `json:"uploadLength"`
 	UploadSpeed     string                  `json:"uploadSpeed"`
 	Files           []Aria2StatusResultFile `json:"files"`
 }
 
 type Aria2StatusResultFile struct {
-	CompletedLength int64                      `json:"completedLength"`
+	CompletedLength string                     `json:"completedLength"`
 	Index           string                     `json:"index"`
-	Length          int64                      `json:"length"`
+	Length          string                     `json:"length"`
 	Path            string                     `json:"path"`
 	Selected        string                     `json:"selected"`
 	Uris            []Aria2StatusResultFileUri `json:"uris"`
@@ -132,13 +132,13 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 	status := result.Status
 	file := aria2GetStatusSuccess.Result.Files[0]
 	filePath := file.Path
-	fileSize := file.Length
-	completedLen := file.CompletedLength
+	fileSize := utils.GetInt64FromStr(file.Length)
+	completedLen := utils.GetInt64FromStr(file.CompletedLength)
 	var completePercent int64 = 0
 	if fileSize > 0 {
 		completePercent = completedLen / fileSize * 100
 	}
-	downloadSpeed := result.DownloadSpeed/1000
+	downloadSpeed := utils.GetInt64FromStr(result.DownloadSpeed)/1000
 
 	switch status {
 	case ARIA2_TASK_STATUS_ERROR:
