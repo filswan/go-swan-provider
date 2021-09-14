@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"swan-miner/logs"
+	"swan-provider/logs"
 	"time"
 )
 
@@ -98,6 +98,9 @@ func GetDir(root string, dirs ...string) (string) {
 		}
 
 		if strings.HasSuffix(path,"/") {
+			if strings.HasPrefix(dir, "/"){
+				dir = strings.TrimLeft(dir, "/")
+			}
 			path = path + dir
 		}else{
 			path = path + "/" + dir
@@ -112,7 +115,7 @@ func IsFileExists(filePath, fileName string) (bool) {
 	_, err := os.Stat(fileFullPath)
 
 	if err != nil {
-		logs.GetLogger().Error(err)
+		logs.GetLogger().Info(err)
 		return false
 	}
 
@@ -130,7 +133,7 @@ func RemoveFile(filePath, fileName string) {
 func GetFileSize(fileFullPath string) (int64) {
 	fi, err := os.Stat(fileFullPath)
 	if err != nil {
-		logs.GetLogger().Error(err)
+		logs.GetLogger().Info(err)
 		return -1
 	}
 

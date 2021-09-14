@@ -6,10 +6,10 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"swan-miner/common/utils"
-	"swan-miner/config"
-	"swan-miner/logs"
-	"swan-miner/models"
+	"swan-provider/common/utils"
+	"swan-provider/config"
+	"swan-provider/logs"
+	"swan-provider/models"
 	"time"
 )
 

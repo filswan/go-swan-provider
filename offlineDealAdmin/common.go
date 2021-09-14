@@ -1,8 +1,8 @@
 package offlineDealAdmin
 
 import (
-	"swan-miner/common/utils"
-	"swan-miner/logs"
+	"swan-provider/common/utils"
+	"swan-provider/logs"
 	"time"
 )
 
@@ -33,46 +33,61 @@ const ARIA2_MAX_DOWNLOADING_TASKS = 10
 const LOTUS_IMPORT_NUMNBER = "20" //Max number of deals to be imported at a time
 const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
 
+var aria2Client = utils.GetAria2Client()
+var swanClient = utils.GetSwanClient()
+
+var aria2Service = GetAria2Service()
+var lotusService = GetLotusService()
+
 func AdminOfflineDeal()  {
-	aria2Client := utils.GetAria2Client()
-	swanClient := utils.GetSwanClient()
+	go swanSendHeartbeatRequest()
+	go aria2CheckDownloadStatus()
+	go aria2StartDownload()
+	go lotusStartImport()
+	go lotusStartScan()
+}
 
-	aria2Service := GetAria2Service()
-	lotusService := GetLotusService()
+func swanSendHeartbeatRequest() {
+	for {
+		logs.GetLogger().Info("Start...")
+		SendHeartbeatRequest(swanClient)
+		logs.GetLogger().Info("Sleeping...")
+		time.Sleep(time.Minute)
+	}
+}
 
-	go func() {
-		for {
-			logs.GetLogger().Info("CheckDownloadStatus begin...")
-			aria2Service.CheckDownloadStatus(aria2Client, swanClient)
-			logs.GetLogger().Info("CheckDownloadStatus end... Sleeping...")
-			time.Sleep(time.Minute)
-		}
-	}()
+func aria2CheckDownloadStatus() {
+	for {
+		logs.GetLogger().Info("Start...")
+		aria2Service.CheckDownloadStatus(aria2Client, swanClient)
+		logs.GetLogger().Info("Sleeping...")
+		time.Sleep(time.Minute)
+	}
+}
 
-	go func() {
-		for {
-			logs.GetLogger().Info("StartDownload begin...")
-			aria2Service.StartDownload(aria2Client, swanClient)
-			logs.GetLogger().Info("StartDownload end... Sleeping...")
-			time.Sleep(time.Minute)
-		}
-	}()
+func aria2StartDownload() {
+	for {
+		logs.GetLogger().Info("Start...")
+		aria2Service.StartDownload(aria2Client, swanClient)
+		logs.GetLogger().Info("Sleeping...")
+		time.Sleep(time.Minute)
+	}
+}
 
-	go func() {
-		for {
-			logs.GetLogger().Info("StartImport begin...")
-			lotusService.StartImport(swanClient)
-			logs.GetLogger().Info("StartImport end... Sleeping...")
-			time.Sleep(lotusService.ImportIntervalSecond)
-		}
-	}()
+func lotusStartImport() {
+	for {
+		logs.GetLogger().Info("Start...")
+		lotusService.StartImport(swanClient)
+		logs.GetLogger().Info("Sleeping...")
+		time.Sleep(lotusService.ImportIntervalSecond)
+	}
+}
 
-	go func() {
-		for {
-			logs.GetLogger().Info("StartScan begin...")
-			lotusService.StartScan(swanClient)
-			logs.GetLogger().Info("StartScan end... Sleeping...")
-			time.Sleep(lotusService.ImportIntervalSecond)
-		}
-	}()
+func lotusStartScan() {
+	for {
+		logs.GetLogger().Info("Start...")
+		lotusService.StartScan(swanClient)
+		logs.GetLogger().Info("Sleeping...")
+		time.Sleep(lotusService.ImportIntervalSecond)
+	}
 }

@@ -3,8 +3,8 @@ package commonRouters
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"swan-miner/common"
-	"swan-miner/common/constants"
+	"swan-provider/common"
+	"swan-provider/common/constants"
 )
 
 func HostManager(router *gin.RouterGroup) {

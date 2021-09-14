@@ -1,6 +1,6 @@
 package common
 
-import "swan-miner/common/constants"
+import "swan-provider/common/constants"
 
 type BasicResponse struct {
 	Status   string      `json:"status"`

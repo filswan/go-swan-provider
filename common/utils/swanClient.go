@@ -5,9 +5,9 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"swan-miner/config"
-	"swan-miner/logs"
-	"swan-miner/models"
+	"swan-provider/config"
+	"swan-provider/logs"
+	"swan-provider/models"
 )
 
 const GET_OFFLINEDEAL_LIMIT_DEFAULT = 50
@@ -32,18 +32,18 @@ type OfflineDealData struct {
 	Deal  []models.OfflineDeal `json:"deal""`
 }
 
-func GetSwanClient() (*SwanClient){
+func GetSwanClient() (*SwanClient) {
 	mainConf := config.GetConfig().Main
-	uri := mainConf.ApiUrl+"/user/api_keys/jwt"
-	data := TokenAccessInfo{ApiKey: mainConf.ApiKey, AccessToken: mainConf.AccessToken}
-	response := HttpPostJsonParamNoToken(uri, data)
+	uri := mainConf.SwanApiUrl +"/user/api_keys/jwt"
+	data := TokenAccessInfo{ApiKey: mainConf.SwanApiKey, AccessToken: mainConf.SwanAccessToken}
+	response := HttpPostNoToken(uri, data)
 
 	jwtToken := GetFieldMapFromJson(response,"data")
 	jwt:= jwtToken["jwt"].(string)
 
 	swanClient := &SwanClient{
-		ApiUrl: mainConf.ApiUrl,
-		ApiKey: mainConf.ApiKey,
+		ApiUrl: mainConf.SwanApiUrl,
+		ApiKey: mainConf.SwanApiKey,
 		Token: jwt,
 	}
 
@@ -56,8 +56,8 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 		rowLimit = limit[0]
 	}
 
-	url := config.GetConfig().Main.ApiUrl+ "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
-	response := HttpGetJsonParam(url, self.Token, "")
+	urlStr := config.GetConfig().Main.SwanApiUrl + "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
+	response := HttpGet(urlStr, self.Token, "")
 	offlineDealResponse := OfflineDealResponse{}
 	err := json.Unmarshal([]byte(response),&offlineDealResponse)
 	if err != nil {
@@ -69,28 +69,36 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 }
 
 func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) (string) {
-	apiUrl := config.GetConfig().Main.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
+	apiUrl := config.GetConfig().Main.SwanApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
 
-	form := url.Values{}
+	params := url.Values{}
 	if len(status) > 0 {
-		form.Add("status", status)
+		params.Add("status", status)
 	}
 
 	if len(statusInfo) > 0 {
-		form.Add("note", statusInfo[0])
+		params.Add("note", statusInfo[0])
 	}
 
 	if len(statusInfo) > 1 {
-		form.Add("file_path", statusInfo[1])
+		params.Add("file_path", statusInfo[1])
 	}
 
 	if len(statusInfo) > 2 {
-		form.Add("file_size", statusInfo[2])
+		params.Add("file_size", statusInfo[2])
 	}
 
-	response := HttpPutFormParam(apiUrl, self.Token, strings.NewReader(form.Encode()))
+	response := HttpPut(apiUrl, self.Token, strings.NewReader(params.Encode()))
 
 	return response
 }
 
+func (self *SwanClient) SendHeartbeatRequest(minerFid string) string {
+	apiUrl := config.GetConfig().Main.SwanApiUrl + "/heartbeat"
+	params := url.Values{}
+	params.Add("miner_id", minerFid)
+
+	response := HttpPost(apiUrl, self.Token , strings.NewReader(params.Encode()))
+	return response
+}
 

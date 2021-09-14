@@ -1,4 +1,4 @@
-module swan-miner
+module swan-provider
 
 go 1.17
 

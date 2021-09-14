@@ -2,8 +2,8 @@ package commonRouters
 
 import (
 	"runtime"
-	"swan-miner/common"
-	"swan-miner/models"
+	"swan-provider/common"
+	"swan-provider/models"
 )
 
 func getSwanMinerHostInfo() *models.HostInfo {

@@ -102,8 +102,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-config.toml
-.env
 .venv
 env/
 venv/
@@ -134,3 +132,6 @@ dmypy.json
 .idea/runConfigurations.xml
 .idea/vcs.xml
 swan-miner
+swan-provider
+.DS_Store
+swan-provider

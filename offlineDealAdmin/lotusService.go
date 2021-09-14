@@ -2,9 +2,9 @@ package offlineDealAdmin
 
 import (
 	"fmt"
-	"swan-miner/common/utils"
-	"swan-miner/config"
-	"swan-miner/logs"
+	"swan-provider/common/utils"
+	"swan-provider/config"
+	"swan-provider/logs"
 	"time"
 )
 
@@ -20,9 +20,9 @@ func GetLotusService()(*LotusService){
 
 	lotusService := &LotusService{
 		MinerFid: confMain.MinerFid,
-		ImportIntervalSecond: confMain.ImportInterval * time.Second,
+		ImportIntervalSecond: confMain.LotusImportInterval * time.Second,
 		ExpectedSealingTime: confMain.ExpectedSealingTime,
-		ScanIntervalSecond: confMain.ScanInterval * time.Second,
+		ScanIntervalSecond: confMain.LotusScanInterval * time.Second,
 	}
 
 	return lotusService
@@ -91,7 +91,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 			break
 		}
 
-		if deal.StartEpoch-currentEpoch < self.ExpectedSealingTime {
+		if deal.StartEpoch - currentEpoch < self.ExpectedSealingTime {
 			note := "Deal will start too soon, expired. Do not import this deal."
 			logs.GetLogger().Info(note)
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
@@ -127,7 +127,7 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 	}
 
 	for _, deal := range deals {
-		msg := fmt.Sprintf("ID: %s. Deal CID: %s. Deal Status: %s.", deal.Id, deal.DealCid, deal.Status)
+		msg := fmt.Sprintf("ID: %d. Deal CID: %s. Deal Status: %s.", deal.Id, deal.DealCid, deal.Status)
 		logs.GetLogger().Info(msg)
 
 		onChainStatus, onChainMessage := utils.GetDealOnChainStatus(deal.DealCid)

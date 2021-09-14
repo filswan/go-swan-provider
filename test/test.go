@@ -2,11 +2,11 @@ package test
 
 import (
 	"strings"
-	"swan-miner/common/utils"
-	"swan-miner/config"
-	"swan-miner/logs"
-	"swan-miner/models"
-	"swan-miner/offlineDealAdmin"
+	"swan-provider/common/utils"
+	"swan-provider/config"
+	"swan-provider/logs"
+	"swan-provider/models"
+	"swan-provider/offlineDealAdmin"
 )
 
 type Todo struct {
@@ -17,20 +17,20 @@ type Todo struct {
 }
 
 func TestRestApiClient() {
-	response := utils.HttpGetJsonParam("https://jsonplaceholder.typicode.com/todos/1", "", "")
+	response := utils.HttpGet("https://jsonplaceholder.typicode.com/todos/1", "", "")
 	logs.GetLogger().Info(response)
 
 	todo := Todo{1, 2, "lorem ipsum dolor sit amet", true}
-	response = utils.HttpPostJsonParamNoToken("https://jsonplaceholder.typicode.com/todos", todo)
+	response = utils.HttpPostNoToken("https://jsonplaceholder.typicode.com/todos", todo)
 	logs.GetLogger().Info(response)
 
-	response = utils.HttpPutJsonParam("https://jsonplaceholder.typicode.com/todos/1", "",todo)
+	response = utils.HttpPut("https://jsonplaceholder.typicode.com/todos/1", "",todo)
 	logs.GetLogger().Info(response)
 
 	title := utils.GetFieldFromJson(response,"title")
 	logs.GetLogger().Info(title)
 
-	response = utils.HttpDeleteJsonParam("https://jsonplaceholder.typicode.com/todos/1", "",todo)
+	response = utils.HttpDelete("https://jsonplaceholder.typicode.com/todos/1", "",todo)
 	logs.GetLogger().Info(response)
 }
 
@@ -93,4 +93,18 @@ func TestOsCmdClient1()  {
 
 	/*result, err = */utils.ExecOsCmd2Screen("ls -l | grep x")
 	//logs.GetLogger().Info(result, err)
+}
+
+func TestSendHeartbeatRequest() {
+	minerFid := config.GetConfig().Main.MinerFid
+
+	swanClient := utils.GetSwanClient()
+
+	response := swanClient.SendHeartbeatRequest(minerFid)
+	logs.GetLogger().Info(response)
+}
+
+func TestLotusClient() {
+	currentEpoch := utils.GetCurrentEpoch()
+	logs.GetLogger().Info("currentEpoch: ", currentEpoch)
 }
