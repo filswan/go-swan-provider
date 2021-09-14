@@ -7,10 +7,10 @@ import (
 )
 
 type Configuration struct {
-	Port  string
-	Dev   bool
-	Aria2 aria2
-	Main  main
+	Port  string        `toml:"port"`
+	Dev   bool          `toml:"dev"`
+	Aria2 aria2         `toml:"aria2"`
+	Main  main          `toml:"main"`
 }
 
 type aria2 struct {
@@ -44,13 +44,13 @@ type aria2 struct {
 }
 
 type main struct {
-	ApiUrl              string               `toml:"api_url"`
-	MinerFid            string               `toml:"miner_fid"`
-	ExpectedSealingTime int                  `toml:"expected_sealing_time"`
-	ImportInterval      time.Duration        `toml:"import_interval"`
-	ScanInterval        time.Duration        `toml:"scan_interval"`
-	ApiKey              string               `toml:"api_key"`
-	AccessToken         string               `toml:"access_token"`
+	SwanApiUrl          string        `toml:"api_url"`
+	SwanApiKey          string        `toml:"api_key"`
+	SwanAccessToken     string        `toml:"access_token"`
+	MinerFid            string        `toml:"miner_fid"`
+	ExpectedSealingTime int           `toml:"expected_sealing_time"`
+	LotusImportInterval time.Duration `toml:"import_interval"`
+	LotusScanInterval   time.Duration `toml:"scan_interval"`
 }
 
 var config *Configuration
@@ -78,11 +78,50 @@ func GetConfig() Configuration {
 func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	requiredFields := [][]string{
 		{"port"},
+
+		{"aria2"},
+		{"main"},
+
+		{"aria2", "disk-cache"},
+		{"aria2", "file-allocation"},
+		{"aria2", "continue"},
+		{"aria2", "max-tries"},
+		{"aria2", "rpc-listen-port"},
+		{"aria2", "max-concurrent-downloads"},
+		{"aria2", "max-connection-per-server"},
+		{"aria2", "min-split-size"},
+		{"aria2", "split"},
+		{"aria2", "disable-ipv6"},
+		{"aria2", "always-resume"},
+		{"aria2", "keep-unfinished-download-result"},
+		{"aria2", "input-file"},
+		{"aria2", "save-session"},
+		{"aria2", "save-session-interval"},
+		{"aria2", "enable-rpc"},
+		{"aria2", "pause"},
+		{"aria2", "rpc-allow-origin-all"},
+		{"aria2", "rpc-listen-all"},
+		{"aria2", "rpc-save-upload-metadata"},
+		{"aria2", "rpc-secure"},
+		{"aria2", "rpc-secret"},
+		{"aria2", "aria2_download_dir"},
+		{"aria2", "aria2_conf"},
+		{"aria2", "aria2_host"},
+		{"aria2", "aria2_port"},
+		{"aria2", "aria2_secret"},
+
+		{"main", "api_url"},
+		{"main", "miner_fid"},
+		{"main", "expected_sealing_time"},
+		{"main", "import_interval"},
+		{"main", "scan_interval"},
+		{"main", "api_key"},
+		{"main", "access_token"},
 	}
 
 	for _, v := range requiredFields {
 		if !metaData.IsDefined(v...) {
-			log.Fatal("required fields ", v)
+			log.Fatal("required conf fields ", v)
 		}
 	}
 

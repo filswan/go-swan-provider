@@ -20,9 +20,9 @@ func GetLotusService()(*LotusService){
 
 	lotusService := &LotusService{
 		MinerFid: confMain.MinerFid,
-		ImportIntervalSecond: confMain.ImportInterval * time.Second,
+		ImportIntervalSecond: confMain.LotusImportInterval * time.Second,
 		ExpectedSealingTime: confMain.ExpectedSealingTime,
-		ScanIntervalSecond: confMain.ScanInterval * time.Second,
+		ScanIntervalSecond: confMain.LotusScanInterval * time.Second,
 	}
 
 	return lotusService
@@ -91,7 +91,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 			break
 		}
 
-		if deal.StartEpoch-currentEpoch < self.ExpectedSealingTime {
+		if deal.StartEpoch - currentEpoch < self.ExpectedSealingTime {
 			note := "Deal will start too soon, expired. Do not import this deal."
 			logs.GetLogger().Info(note)
 			swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
