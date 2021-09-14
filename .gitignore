@@ -134,3 +134,4 @@ dmypy.json
 .idea/runConfigurations.xml
 .idea/vcs.xml
 swan-miner
+swan-provider
