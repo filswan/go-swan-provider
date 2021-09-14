@@ -5,9 +5,9 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"swan-miner/config"
-	"swan-miner/logs"
-	"swan-miner/models"
+	"swan-provider/config"
+	"swan-provider/logs"
+	"swan-provider/models"
 )
 
 const GET_OFFLINEDEAL_LIMIT_DEFAULT = 50

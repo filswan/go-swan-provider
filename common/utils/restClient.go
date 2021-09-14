@@ -6,7 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"swan-miner/logs"
+	"swan-provider/logs"
 )
 
 const HTTP_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded"

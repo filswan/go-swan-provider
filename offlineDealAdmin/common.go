@@ -1,8 +1,8 @@
 package offlineDealAdmin
 
 import (
-	"swan-miner/common/utils"
-	"swan-miner/logs"
+	"swan-provider/common/utils"
+	"swan-provider/logs"
 	"time"
 )
 

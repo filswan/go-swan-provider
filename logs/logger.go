@@ -1,9 +1,14 @@
 package logs
 
 import (
+	"fmt"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
-	"swan-miner/config"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
+	"swan-provider/config"
 )
 
 var logger *logrus.Logger
@@ -18,9 +23,20 @@ func InitLogger() {
 		logger.SetLevel(logrus.InfoLevel)
 	}
 
+	goPath := os.Getenv("GOPATH")
+	fmt.Println("goPath:"+goPath)
 	formatter := &logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05.000",
 		FullTimestamp:   true,
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			_, b, _, _ := runtime.Caller(0)
+			basePath := filepath.Dir(b)
+			fileRelativePathIndex := strings.LastIndex(basePath, "/") + 1
+			filename := f.File[fileRelativePathIndex:]
+			funcRelativePathIndex := strings.Index(f.Function, "/") + 1
+			funcName := f.Function[funcRelativePathIndex:]
+			return fmt.Sprintf("%s", funcName), fmt.Sprintf("%s:%d", filename, f.Line)
+		},
 	}
 	logger.SetReportCaller(true)
 	logger.SetFormatter(formatter)

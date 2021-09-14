@@ -3,8 +3,8 @@ package utils
 import (
 	"fmt"
 	"strings"
-	"swan-miner/config"
-	"swan-miner/logs"
+	"swan-provider/config"
+	"swan-provider/logs"
 )
 
 const ADD_URI = "aria2.addUri"

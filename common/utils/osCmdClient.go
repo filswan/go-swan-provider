@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"swan-miner/logs"
+	"swan-provider/logs"
 )
 
 const SHELL_TO_USE = "bash"

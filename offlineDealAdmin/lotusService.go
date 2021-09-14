@@ -2,9 +2,9 @@ package offlineDealAdmin
 
 import (
 	"fmt"
-	"swan-miner/common/utils"
-	"swan-miner/config"
-	"swan-miner/logs"
+	"swan-provider/common/utils"
+	"swan-provider/config"
+	"swan-provider/logs"
 	"time"
 )
 

@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"swan-miner/logs"
+	"swan-provider/logs"
 	"time"
 )
 

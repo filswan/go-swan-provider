@@ -5,11 +5,11 @@ import (
 	cors "github.com/itsjamie/gin-cors"
 	"github.com/joho/godotenv"
 	"os"
-	"swan-miner/common/constants"
-	"swan-miner/config"
-	"swan-miner/logs"
-	"swan-miner/offlineDealAdmin"
-	"swan-miner/routers/commonRouters"
+	"swan-provider/common/constants"
+	"swan-provider/config"
+	"swan-provider/logs"
+	"swan-provider/offlineDealAdmin"
+	"swan-provider/routers/commonRouters"
 	"time"
 )
 

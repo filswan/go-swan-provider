@@ -3,7 +3,7 @@ package utils
 import (
 	"regexp"
 	"strings"
-	"swan-miner/logs"
+	"swan-provider/logs"
 )
 
 func GetDealOnChainStatus(dealCid string) (string, string){

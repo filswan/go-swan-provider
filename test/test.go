@@ -2,11 +2,11 @@ package test
 
 import (
 	"strings"
-	"swan-miner/common/utils"
-	"swan-miner/config"
-	"swan-miner/logs"
-	"swan-miner/models"
-	"swan-miner/offlineDealAdmin"
+	"swan-provider/common/utils"
+	"swan-provider/config"
+	"swan-provider/logs"
+	"swan-provider/models"
+	"swan-provider/offlineDealAdmin"
 )
 
 type Todo struct {
