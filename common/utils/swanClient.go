@@ -36,7 +36,7 @@ func GetSwanClient() (*SwanClient) {
 	mainConf := config.GetConfig().Main
 	uri := mainConf.SwanApiUrl +"/user/api_keys/jwt"
 	data := TokenAccessInfo{ApiKey: mainConf.SwanApiKey, AccessToken: mainConf.SwanAccessToken}
-	response := HttpPostJsonParamNoToken(uri, data)
+	response := HttpPostNoToken(uri, data)
 
 	jwtToken := GetFieldMapFromJson(response,"data")
 	jwt:= jwtToken["jwt"].(string)
@@ -57,7 +57,7 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 	}
 
 	urlStr := config.GetConfig().Main.SwanApiUrl + "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
-	response := HttpGetJsonParam(urlStr, self.Token, "")
+	response := HttpGet(urlStr, self.Token, "")
 	offlineDealResponse := OfflineDealResponse{}
 	err := json.Unmarshal([]byte(response),&offlineDealResponse)
 	if err != nil {
@@ -88,7 +88,7 @@ func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statu
 		params.Add("file_size", statusInfo[2])
 	}
 
-	response := HttpPutFormParam(apiUrl, self.Token, strings.NewReader(params.Encode()))
+	response := HttpPut(apiUrl, self.Token, strings.NewReader(params.Encode()))
 
 	return response
 }
@@ -98,7 +98,7 @@ func (self *SwanClient) SendHeartbeatRequest(minerFid string) string {
 	params := url.Values{}
 	params.Add("miner_id", minerFid)
 
-	response := HttpPostFormParam(apiUrl, self.Token , strings.NewReader(params.Encode()))
+	response := HttpPost(apiUrl, self.Token , strings.NewReader(params.Encode()))
 	return response
 }
 

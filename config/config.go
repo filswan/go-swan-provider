@@ -76,8 +76,9 @@ func GetConfig() Configuration {
 }
 
 func requiredFieldsAreGiven(metaData toml.MetaData) bool {
-	requiredFields := [][]string{
+	requiredFields := [][]string {
 		{"port"},
+		{"dev"},
 
 		{"aria2"},
 		{"main"},

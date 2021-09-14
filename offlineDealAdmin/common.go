@@ -42,36 +42,45 @@ func AdminOfflineDeal()  {
 
 	go func() {
 		for {
-			logs.GetLogger().Info("CheckDownloadStatus begin...")
+			logs.GetLogger().Info("SendHeartbeatRequest")
+			SendHeartbeatRequest(swanClient)
+			logs.GetLogger().Info("Sleeping...")
+			time.Sleep(time.Minute)
+		}
+	}()
+
+	go func() {
+		for {
+			logs.GetLogger().Info("CheckDownloadStatus")
 			aria2Service.CheckDownloadStatus(aria2Client, swanClient)
-			logs.GetLogger().Info("CheckDownloadStatus end... Sleeping...")
+			logs.GetLogger().Info("Sleeping...")
 			time.Sleep(time.Minute)
 		}
 	}()
 
 	go func() {
 		for {
-			logs.GetLogger().Info("StartDownload begin...")
+			logs.GetLogger().Info("StartDownload")
 			aria2Service.StartDownload(aria2Client, swanClient)
-			logs.GetLogger().Info("StartDownload end... Sleeping...")
+			logs.GetLogger().Info("Sleeping...")
 			time.Sleep(time.Minute)
 		}
 	}()
 
 	go func() {
 		for {
-			logs.GetLogger().Info("StartImport begin...")
+			logs.GetLogger().Info("StartImport")
 			lotusService.StartImport(swanClient)
-			logs.GetLogger().Info("StartImport end... Sleeping...")
+			logs.GetLogger().Info("Sleeping...")
 			time.Sleep(lotusService.ImportIntervalSecond)
 		}
 	}()
 
 	go func() {
 		for {
-			logs.GetLogger().Info("StartScan begin...")
+			logs.GetLogger().Info("StartScan")
 			lotusService.StartScan(swanClient)
-			logs.GetLogger().Info("StartScan end... Sleeping...")
+			logs.GetLogger().Info("Sleeping...")
 			time.Sleep(lotusService.ImportIntervalSecond)
 		}
 	}()

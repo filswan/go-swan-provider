@@ -12,56 +12,59 @@ import (
 const HTTP_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded"
 const HTTP_CONTENT_TYPE_JSON = "application/json; charset=utf-8"
 
-func HttpPostJsonParamNoToken(uri string, jsonRequest interface{}) string {
-	response := httpRequestJsonParam(http.MethodPost, uri, "" , jsonRequest)
+func HttpPostNoToken(uri string, jsonRequest interface{}) string {
+	response := httpRequest(http.MethodPost, uri, "" , jsonRequest)
 	return response
 }
 
-func HttpPostJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequestJsonParam(http.MethodPost, uri, tokenString , jsonRequest)
+func HttpPost(uri, tokenString  string, params interface{}) string {
+	response := httpRequest(http.MethodPost, uri, tokenString, params)
 	return response
 }
 
-func HttpPostFormParam(uri, tokenString  string, params io.Reader) string {
-	response := httpRequestFormParam(http.MethodPost, uri, tokenString, params)
+func HttpGet(uri, tokenString  string, jsonRequest interface{}) string {
+	response := httpRequest(http.MethodGet, uri, tokenString , jsonRequest)
 	return response
 }
 
-func HttpGetJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequestJsonParam(http.MethodGet, uri, tokenString , jsonRequest)
+func HttpPut(uri, tokenString  string, params interface{}) string {
+	response := httpRequest(http.MethodPut, uri, tokenString , params)
 	return response
 }
 
-func HttpPutJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequestJsonParam(http.MethodPut, uri, tokenString , jsonRequest)
+func HttpDelete(uri, tokenString  string, jsonRequest interface{}) string {
+	response := httpRequest(http.MethodDelete, uri, tokenString , jsonRequest)
 	return response
 }
 
-func HttpPutFormParam(uri, tokenString  string, params io.Reader) string {
-	response := httpRequestFormParam(http.MethodPut, uri, tokenString , params)
-	return response
-}
+func httpRequest(httpMethod, uri, tokenString string, params interface{}) (string) {
+	var request *http.Request
+	var err error
 
-func HttpDeleteJsonParam(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequestJsonParam(http.MethodDelete, uri, tokenString , jsonRequest)
-	return response
-}
+	switch params.(type) {
+	case io.Reader:
+		request, err = http.NewRequest(httpMethod, uri, params.(io.Reader))
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return ""
+		}
+		request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_FORM)
+	default:
+		jsonReq, errJson := json.Marshal(params)
+		if errJson != nil {
+			logs.GetLogger().Error(errJson)
+			return ""
+		}
 
-func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{}) (string) {
-	jsonReq, err := json.Marshal(params)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return ""
+		request, err = http.NewRequest(httpMethod, uri, bytes.NewBuffer(jsonReq))
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return ""
+		}
+		request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_JSON)
 	}
 
-	request, err := http.NewRequest(httpMethod, uri, bytes.NewBuffer(jsonReq))
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return ""
-	}
-	request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_JSON)
-
-	if len(tokenString)>0{
+	if len(tokenString) > 0 {
 		request.Header.Set("Authorization","Bearer "+tokenString)
 	}
 
@@ -78,54 +81,12 @@ func httpRequestJsonParam(httpMethod, uri, tokenString string, params interface{
 	}
 
 	if response == nil {
-		logs.GetLogger().Error("no response")
+		logs.GetLogger().Error(uri, " no response")
 		return ""
 	}
 
 	if response.Body == nil {
-		logs.GetLogger().Error("no response body")
-		return ""
-	}
-
-	responseBody, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return ""
-	}
-
-	return string(responseBody)
-}
-
-func httpRequestFormParam(httpMethod, uri, tokenString string, params io.Reader) (string) {
-	request, err := http.NewRequest(httpMethod, uri, params)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return ""
-	}
-	request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_FORM)
-
-	if len(tokenString)>0{
-		request.Header.Set("Authorization","Bearer "+tokenString)
-	}
-
-	client := &http.Client{}
-	response, err := client.Do(request)
-
-	if response == nil {
-		logs.GetLogger().Error("no response")
-		return ""
-	}
-
-	if response.Body == nil {
-		logs.GetLogger().Error("no response body")
-		return ""
-	}
-
-	defer response.Body.Close()
-
-	if err != nil {
-		logs.GetLogger().Error(err)
-
+		logs.GetLogger().Error(uri, " no response body")
 		return ""
 	}
 

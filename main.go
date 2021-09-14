@@ -15,10 +15,11 @@ import (
 
 func main() {
 	//LoadEnv()
-	logs.InitLogger()
-	config.InitConfig()
+	//logs.InitLogger()
+	//config.InitConfig()
 	//test.TestSendHeartbeatRequest()
 	offlineDealAdmin.AdminOfflineDeal()
+	//test.TestRestApiClient()
 	//test.TestLotusClient()
 	createHttpServer()
 }
