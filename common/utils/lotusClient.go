@@ -11,12 +11,12 @@ func GetDealOnChainStatus(dealCid string) (string, string){
 	result, err := ExecOsCmd(cmd)
 
 	if err != nil {
+		logs.GetLogger().Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
 		logs.GetLogger().Error(err)
 		return "", ""
 	}
 
 	if len(result) == 0 {
-		logs.GetLogger().Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
 		logs.GetLogger().Error("Deal does not found on chain. DealCid:", dealCid)
 		return "", ""
 	}

@@ -33,7 +33,7 @@ func InitLogger() {
 			basePath := filepath.Dir(b)
 			fileRelativePathIndex := strings.LastIndex(basePath, "/") + 1
 			filename := f.File[fileRelativePathIndex:]
-			funcRelativePathIndex := strings.Index(f.Function, "/") + 1
+			funcRelativePathIndex := strings.LastIndex(f.Function, "/") + 1
 			funcName := f.Function[funcRelativePathIndex:]
 			return fmt.Sprintf("%s", funcName), fmt.Sprintf("%s:%d", filename, f.Line)
 		},
