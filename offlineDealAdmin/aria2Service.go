@@ -165,6 +165,7 @@ func (self *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Clie
 		note := "Error: no gid returned"
 		logs.GetLogger().Error(note)
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
+		return
 	}
 
 	self.CheckDownloadStatus4Deal(aria2Client, swanClient, deal, aria2Download.Gid)
@@ -177,7 +178,7 @@ func (self *Aria2Service) StartDownload(aria2Client *utils.Aria2Client, swanClie
 		return
 	}
 
-	for i := 1; i <= ARIA2_MAX_DOWNLOADING_TASKS- countDownloadingDeals; i++ {
+	for i := 1; i <= ARIA2_MAX_DOWNLOADING_TASKS - countDownloadingDeals; i++ {
 		deal2Download := self.findNextDealReady2Download(swanClient)
 
 		if deal2Download == nil {
