@@ -29,17 +29,6 @@ type Aria2GetStatusSuccess struct {
 	Result 	*Aria2StatusResult `json:"result"`
 }
 
-type Aria2GetStatusFail struct {
-	Id 		string             `json:"id"`
-	JsonRpc string             `json:"jsonrpc"`
-	Error 	*Aria2StatusError  `json:"error"`
-}
-
-type Aria2StatusError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-}
-
 type Aria2StatusResult struct {
 	Bitfield        string                  `json:"bitfield"`
 	CompletedLength string                  `json:"completedLength"`
@@ -105,7 +94,7 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 	}
 
 	if aria2GetStatusSuccess.Result == nil {
-		aria2GetStatusFail := Aria2GetStatusFail{}
+		aria2GetStatusFail := utils.Aria2GetStatusFail{}
 		err = json.Unmarshal([]byte(response), &aria2GetStatusFail)
 		if err != nil {
 			logs.GetLogger().Error(err)

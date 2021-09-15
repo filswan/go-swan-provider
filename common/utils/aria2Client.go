@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"swan-provider/config"
@@ -22,6 +23,17 @@ type Payload struct {
 	Id        string        `json:"id"`
 	Method    string        `json:"method"`
 	Params    []interface{} `json:"params"`
+}
+
+type Aria2GetStatusFail struct {
+	Id 		string             `json:"id"`
+	JsonRpc string             `json:"jsonrpc"`
+	Error 	*Aria2StatusError  `json:"error"`
+}
+
+type Aria2StatusError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 func GetAria2Client() (*Aria2Client){
@@ -57,17 +69,19 @@ func (self *Aria2Client) GenPayload(method string, uri string , options interfac
 
 func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) {
 	payloads := self.GenPayload(ADD_URI, uri, options)
-	result := HttpPostNoToken(self.serverUrl,payloads)
+	response := HttpPostNoToken(self.serverUrl,payloads)
+	if strings.Contains(response,"error"){
+		aria2GetStatusFail := Aria2GetStatusFail{}
+		err := json.Unmarshal([]byte(response), &aria2GetStatusFail)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		}
 
-	if strings.Contains(result,"error"){
-		errorInfo := GetFieldMapFromJson(result, "error")
-		errorCode := errorInfo["code"]
-		errorMsg := errorInfo["message"]
-		msg := fmt.Sprintf("ERROR: %s, %s",errorCode, errorMsg)
+		msg := fmt.Sprintf("Error: code(%d), %s",aria2GetStatusFail.Error.Code, aria2GetStatusFail.Error.Message)
 		logs.GetLogger().Error(msg)
 		return ""
 	}else{
-		return result
+		return response
 	}
 }
 
