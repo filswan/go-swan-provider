@@ -38,3 +38,4 @@ import_interval = 600           # 600 seconds or 10 minutes
 scan_interval = 600           # 600 seconds or 10 minutes
 api_key = "yr0wUW37PEm1ZUtes-0NVg"
 access_token = "878da9defc1841dd5ab9f4dcef1ec9af"
+api_heartbeat_interval = 600           # 600 seconds or 10 minutes

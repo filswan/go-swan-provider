@@ -44,13 +44,14 @@ type aria2 struct {
 }
 
 type main struct {
-	SwanApiUrl          string        `toml:"api_url"`
-	SwanApiKey          string        `toml:"api_key"`
-	SwanAccessToken     string        `toml:"access_token"`
-	MinerFid            string        `toml:"miner_fid"`
-	ExpectedSealingTime int           `toml:"expected_sealing_time"`
-	LotusImportInterval time.Duration `toml:"import_interval"`
-	LotusScanInterval   time.Duration `toml:"scan_interval"`
+	SwanApiUrl               string        `toml:"api_url"`
+	SwanApiKey               string        `toml:"api_key"`
+	SwanAccessToken          string        `toml:"access_token"`
+	SwanApiHeartbeatInterval time.Duration `toml:"api_heartbeat_interval"`
+	MinerFid                 string        `toml:"miner_fid"`
+	ExpectedSealingTime      int           `toml:"expected_sealing_time"`
+	LotusImportInterval      time.Duration `toml:"import_interval"`
+	LotusScanInterval        time.Duration `toml:"scan_interval"`
 }
 
 var config *Configuration
@@ -118,6 +119,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "scan_interval"},
 		{"main", "api_key"},
 		{"main", "access_token"},
+		{"main", "api_heartbeat_interval"},
 	}
 
 	for _, v := range requiredFields {

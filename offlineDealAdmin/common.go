@@ -36,6 +36,7 @@ const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
 var aria2Client = utils.GetAria2Client()
 var swanClient = utils.GetSwanClient()
 
+var swanService = GetSwanService()
 var aria2Service = GetAria2Service()
 var lotusService = GetLotusService()
 
@@ -50,9 +51,9 @@ func AdminOfflineDeal()  {
 func swanSendHeartbeatRequest() {
 	for {
 		logs.GetLogger().Info("Start...")
-		SendHeartbeatRequest(swanClient)
+		swanService.SendHeartbeatRequest(swanClient)
 		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(time.Minute)
+		time.Sleep(swanService.ApiHeartbeatInterval)
 	}
 }
 
