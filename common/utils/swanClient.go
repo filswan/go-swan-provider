@@ -32,7 +32,7 @@ type OfflineDealData struct {
 	Deal  []models.OfflineDeal `json:"deal""`
 }
 
-func GetSwanClient() (*SwanClient) {
+func GetSwanClient() *SwanClient {
 	mainConf := config.GetConfig().Main
 	uri := mainConf.SwanApiUrl +"/user/api_keys/jwt"
 	data := TokenAccessInfo{ApiKey: mainConf.SwanApiKey, AccessToken: mainConf.SwanAccessToken}
@@ -54,7 +54,7 @@ func GetSwanClient() (*SwanClient) {
 	return swanClient
 }
 
-func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) ([]models.OfflineDeal){
+func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeal {
 	rowLimit := strconv.Itoa(GET_OFFLINEDEAL_LIMIT_DEFAULT)
 	if limit != nil && len(limit) >0 {
 		rowLimit = limit[0]
@@ -72,7 +72,7 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 	return offlineDealResponse.Data.Deal
 }
 
-func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) (string) {
+func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) string {
 	apiUrl := config.GetConfig().Main.SwanApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
 
 	params := url.Values{}
