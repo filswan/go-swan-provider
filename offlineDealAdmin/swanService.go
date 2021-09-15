@@ -15,7 +15,7 @@ func GetSwanService() *SwanService {
 	mainConf := config.GetConfig().Main
 	swanService := &SwanService {
 		MinerFid: mainConf.MinerFid,
-		ApiHeartbeatInterval: mainConf.SwanApiHeartbeatInterval,
+		ApiHeartbeatInterval: mainConf.SwanApiHeartbeatInterval * time.Second,
 	}
 
 	return swanService

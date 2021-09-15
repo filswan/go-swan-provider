@@ -143,6 +143,9 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 	switch status {
 	case ARIA2_TASK_STATUS_ERROR:
 		note := fmt.Sprintf("Deal status for %s, code:%s, message:%s, status:%s", gid, code, message, status)
+		if !utils.IsFileExistsFullPath(self.OutDir){
+			note = fmt.Sprintf("%s.aria2 download directory:%s not exists", note, self.OutDir)
+		}
 		swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
 		logs.GetLogger().Error(note)
 	case ARIA2_TASK_STATUS_ACTIVE:

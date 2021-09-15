@@ -122,6 +122,17 @@ func IsFileExists(filePath, fileName string) (bool) {
 	return true
 }
 
+func IsFileExistsFullPath(fileFullPath string) (bool) {
+	_, err := os.Stat(fileFullPath)
+
+	if err != nil {
+		logs.GetLogger().Info(err)
+		return false
+	}
+
+	return true
+}
+
 func RemoveFile(filePath, fileName string) {
 	fileFullPath := GetDir(filePath, fileName)
 	err := os.Remove(fileFullPath)
