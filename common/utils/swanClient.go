@@ -39,6 +39,10 @@ func GetSwanClient() (*SwanClient) {
 	response := HttpPostNoToken(uri, data)
 
 	jwtToken := GetFieldMapFromJson(response,"data")
+	if jwtToken == nil {
+		logs.GetLogger().Error("Error: fail to get jwt")
+	}
+
 	jwt:= jwtToken["jwt"].(string)
 
 	swanClient := &SwanClient{
