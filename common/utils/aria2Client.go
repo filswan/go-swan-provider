@@ -36,6 +36,49 @@ type Aria2StatusError struct {
 	Message string `json:"message"`
 }
 
+type DownloadOption struct {
+	Out string   `json:"out"`
+	Dir string   `json:"dir"`
+}
+
+type Aria2GetStatusSuccess struct {
+	Id 		string             `json:"id"`
+	JsonRpc string             `json:"jsonrpc"`
+	Result 	*Aria2StatusResult `json:"result"`
+}
+
+type Aria2StatusResult struct {
+	Bitfield        string                  `json:"bitfield"`
+	CompletedLength string                  `json:"completedLength"`
+	Connections     string                  `json:"connections"`
+	Dir             string                  `json:"dir"`
+	DownloadSpeed   string                  `json:"downloadSpeed"`
+	ErrorCode       string                  `json:"errorCode"`
+	ErrorMessage    string                  `json:"errorMessage"`
+	Gid             string                  `json:"gid"`
+	NumPieces       string                  `json:"numPieces"`
+	PieceLength     string                  `json:"pieceLength"`
+	Status          string                  `json:"status"`
+	TotalLength     string                  `json:"totalLength"`
+	UploadLength    string                  `json:"uploadLength"`
+	UploadSpeed     string                  `json:"uploadSpeed"`
+	Files           []Aria2StatusResultFile `json:"files"`
+}
+
+type Aria2StatusResultFile struct {
+	CompletedLength string                     `json:"completedLength"`
+	Index           string                     `json:"index"`
+	Length          string                     `json:"length"`
+	Path            string                     `json:"path"`
+	Selected        string                     `json:"selected"`
+	Uris            []Aria2StatusResultFileUri `json:"uris"`
+}
+
+type Aria2StatusResultFileUri struct {
+	Status string `json:"status"`
+	Uri    string `json:"uri"`
+}
+
 func GetAria2Client() (*Aria2Client){
 	confAria2c := config.GetConfig().Aria2
 	aria2cClient := &Aria2Client{
@@ -49,7 +92,12 @@ func GetAria2Client() (*Aria2Client){
 	return aria2cClient
 }
 
-func (self *Aria2Client) GenPayload(method string, uri string , options interface{}) (interface{}){
+func (self *Aria2Client) GenPayload(method string, uri string, outDir, outFilename string) (interface{}){
+	options := DownloadOption{
+		Out: outFilename,
+		Dir: outDir,
+	}
+
 	var params []interface{}
 	params = append(params, "token:"+self.token)
 	var urls [] string
@@ -67,9 +115,14 @@ func (self *Aria2Client) GenPayload(method string, uri string , options interfac
 	return payload
 }
 
-func (self *Aria2Client) DownloadFile(uri string, options interface{}) (string) {
-	payloads := self.GenPayload(ADD_URI, uri, options)
-	response := HttpPostNoToken(self.serverUrl,payloads)
+func (self *Aria2Client) DownloadFile(uri string, outDir, outFilename string) (string) {
+	payloads := self.GenPayload(ADD_URI, uri, outDir, outFilename)
+
+	if IsFileExists(outDir, outFilename) {
+		RemoveFile(outDir, outFilename)
+	}
+
+	response := HttpPostNoToken(self.serverUrl, payloads)
 	if strings.Contains(response,"error"){
 		aria2GetStatusFail := Aria2GetStatusFail{}
 		err := json.Unmarshal([]byte(response), &aria2GetStatusFail)

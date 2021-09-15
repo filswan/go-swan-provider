@@ -13,52 +13,9 @@ import (
 	"time"
 )
 
-type DownloadOption struct {
-	Out string   `json:"out"`
-	Dir string   `json:"dir"`
-}
-
 type Aria2Service struct {
 	MinerFid string
 	OutDir   string
-}
-
-type Aria2GetStatusSuccess struct {
-	Id 		string             `json:"id"`
-	JsonRpc string             `json:"jsonrpc"`
-	Result 	*Aria2StatusResult `json:"result"`
-}
-
-type Aria2StatusResult struct {
-	Bitfield        string                  `json:"bitfield"`
-	CompletedLength string                  `json:"completedLength"`
-	Connections     string                  `json:"connections"`
-	Dir             string                  `json:"dir"`
-	DownloadSpeed   string                  `json:"downloadSpeed"`
-	ErrorCode       string                  `json:"errorCode"`
-	ErrorMessage    string                  `json:"errorMessage"`
-	Gid             string                  `json:"gid"`
-	NumPieces       string                  `json:"numPieces"`
-	PieceLength     string                  `json:"pieceLength"`
-	Status          string                  `json:"status"`
-	TotalLength     string                  `json:"totalLength"`
-	UploadLength    string                  `json:"uploadLength"`
-	UploadSpeed     string                  `json:"uploadSpeed"`
-	Files           []Aria2StatusResultFile `json:"files"`
-}
-
-type Aria2StatusResultFile struct {
-	CompletedLength string                     `json:"completedLength"`
-	Index           string                     `json:"index"`
-	Length          string                     `json:"length"`
-	Path            string                     `json:"path"`
-	Selected        string                     `json:"selected"`
-	Uris            []Aria2StatusResultFileUri `json:"uris"`
-}
-
-type Aria2StatusResultFileUri struct {
-	Status string `json:"status"`
-	Uri    string `json:"uri"`
 }
 
 func GetAria2Service() *Aria2Service {
@@ -86,7 +43,7 @@ func  (self *Aria2Service) findNextDealReady2Download(swanClient *utils.SwanClie
 
 func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient, deal *models.OfflineDeal, gid string) {
 	response := aria2Client.GetDownloadStatus(gid)
-	aria2GetStatusSuccess := Aria2GetStatusSuccess{}
+	aria2GetStatusSuccess := utils.Aria2GetStatusSuccess{}
 	err := json.Unmarshal([]byte(response), &aria2GetStatusSuccess)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -190,24 +147,16 @@ func (self *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Clie
 		return
 	}
 
-	filename := urlInfo.Path
+	outFilename := urlInfo.Path
 	if strings.HasPrefix(urlInfo.RawQuery, "filename=") {
-		filename = strings.TrimLeft(urlInfo.RawQuery, "filename=")
-		filename = utils.GetDir(urlInfo.Path, filename)
+		outFilename = strings.TrimLeft(urlInfo.RawQuery, "filename=")
+		outFilename = utils.GetDir(urlInfo.Path, outFilename)
 	}
 	today := time.Now()
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
 	outDir := utils.GetDir(self.OutDir, strconv.Itoa(deal.UserId), timeStr)
-	option := DownloadOption{
-		Out: filename,
-		Dir: outDir,
-	}
 
-	if utils.IsFileExists(outDir, filename) {
-		utils.RemoveFile(outDir, filename)
-	}
-
-	response := aria2Client.DownloadFile(deal.SourceFileUrl, option)
+	response := aria2Client.DownloadFile(deal.SourceFileUrl, outDir, outFilename)
 	logs.GetLogger().Info(response)
 
 	gid := utils.GetFieldStrFromJson(response, "result")
