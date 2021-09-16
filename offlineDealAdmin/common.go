@@ -42,6 +42,7 @@ var aria2Service = GetAria2Service()
 var lotusService = GetLotusService()
 
 func AdminOfflineDeal()  {
+	swanService.UpdateBidConf(swanClient)
 	go swanSendHeartbeatRequest()
 	go aria2CheckDownloadStatus()
 	go aria2StartDownload()
