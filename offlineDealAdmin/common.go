@@ -12,14 +12,15 @@ const ARIA2_TASK_STATUS_COMPLETE = "complete"
 
 const DEAL_STATUS_CREATED = "Created"
 const DEAL_STATUS_WAITING = "Waiting"
+
 const DEAL_STATUS_DOWNLOADING = "Downloading"
 const DEAL_STATUS_DOWNLOADED = "Downloaded"
 const DEAL_STATUS_DOWNLOAD_FAILED = "DownloadFailed"
 
 const DEAL_STATUS_IMPORT_READY = "ReadyForImport"
-const DEAL_STATUS_IMPORT_FAILED = "ImportFailed"
 const DEAL_STATUS_IMPORTING = "FileImporting"
 const DEAL_STATUS_IMPORTED = "FileImported"
+const DEAL_STATUS_IMPORT_FAILED = "ImportFailed"
 const DEAL_STATUS_ACTIVE = "DealActive"
 
 const ONCHAIN_DEAL_STATUS_ERROR = "StorageDealError"
