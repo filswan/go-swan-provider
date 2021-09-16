@@ -6,14 +6,15 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"swan-provider/logs"
 )
 
 const HTTP_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded"
 const HTTP_CONTENT_TYPE_JSON = "application/json; charset=utf-8"
 
-func HttpPostNoToken(uri string, jsonRequest interface{}) string {
-	response := httpRequest(http.MethodPost, uri, "" , jsonRequest)
+func HttpPostNoToken(uri string, params interface{}) string {
+	response := httpRequest(http.MethodPost, uri, "" , params)
 	return response
 }
 
@@ -22,8 +23,13 @@ func HttpPost(uri, tokenString  string, params interface{}) string {
 	return response
 }
 
-func HttpGet(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequest(http.MethodGet, uri, tokenString , jsonRequest)
+func HttpGetNoToken(uri string, params interface{}) string {
+	response := httpRequest(http.MethodGet, uri, "" , params)
+	return response
+}
+
+func HttpGet(uri, tokenString  string, params interface{}) string {
+	response := httpRequest(http.MethodGet, uri, tokenString , params)
 	return response
 }
 
@@ -32,12 +38,12 @@ func HttpPut(uri, tokenString  string, params interface{}) string {
 	return response
 }
 
-func HttpDelete(uri, tokenString  string, jsonRequest interface{}) string {
-	response := httpRequest(http.MethodDelete, uri, tokenString , jsonRequest)
+func HttpDelete(uri, tokenString  string, params interface{}) string {
+	response := httpRequest(http.MethodDelete, uri, tokenString , params)
 	return response
 }
 
-func httpRequest(httpMethod, uri, tokenString string, params interface{}) (string) {
+func httpRequest(httpMethod, uri, tokenString string, params interface{}) string {
 	var request *http.Request
 	var err error
 
@@ -64,7 +70,7 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) (strin
 		request.Header.Set("Content-Type", HTTP_CONTENT_TYPE_JSON)
 	}
 
-	if len(tokenString) > 0 {
+	if len(strings.Trim(tokenString," ")) > 0 {
 		request.Header.Set("Authorization","Bearer "+tokenString)
 	}
 

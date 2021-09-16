@@ -23,6 +23,12 @@ type SwanClient struct {
 	Token  string
 }
 
+type MinerResponse struct {
+	Success bool          `json:"success"`
+	Msg     string        `json:"msg"`
+	Data    models.Miner  `json:"data"`
+}
+
 type OfflineDealResponse struct {
 	Data   OfflineDealData `json:"data"`
 	Status string          `json:"status"`
@@ -54,11 +60,43 @@ func GetSwanClient() *SwanClient {
 	return swanClient
 }
 
-func (self *SwanClient) UpdateBidConf(minerFid string) string {
-	logs.GetLogger().Info("Begin updating bid configuration")
-	apiUrl := self.ApiUrl + "/miner/info/"
+func (self *SwanClient) GetMiner(minerFid string) *MinerResponse {
+	apiUrl := self.ApiUrl + "/miner/info/" + minerFid
+
+	response := HttpGetNoToken(apiUrl, "")
+	minerResponse := &MinerResponse{}
+	err := json.Unmarshal([]byte(response), minerResponse)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	return minerResponse
+}
+
+func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
+	minerResponse := self.GetMiner(minerFid)
+	if minerResponse == nil {
+		logs.GetLogger().Error("Error: Get miner information failed")
+		return
+	}
+
+	miner := minerResponse.Data
 
 	confBid := config.GetConfig().Bid
+	if miner.BidMode == confBid.BidMode &&
+		miner.StartEpoch == confBid.StartEpoch &&
+		miner.Price == confBid.Price &&
+		miner.VerifiedPrice == confBid.VerifiedPrice &&
+		miner.MinPieceSize == confBid.MinPieceSize &&
+		miner.MaxPieceSize == confBid.MaxPieceSize {
+		logs.GetLogger().Info("No changes in bid configuration")
+		return
+	}
+
+	logs.GetLogger().Info("Begin updating bid configuration")
+	apiUrl := self.ApiUrl + "/miner/info"
+
 	params := url.Values{}
 	params.Add("miner_fid", minerFid)
 	params.Add("bid_mode", strconv.Itoa(confBid.BidMode))
@@ -70,8 +108,19 @@ func (self *SwanClient) UpdateBidConf(minerFid string) string {
 
 	response := HttpPost(apiUrl, self.Token, strings.NewReader(params.Encode()))
 
-	logs.GetLogger().Info("Finished")
-	return response
+	minerResponse = &MinerResponse{}
+	err := json.Unmarshal([]byte(response), minerResponse)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+
+	if !minerResponse.Success {
+		logs.GetLogger().Error("Error: failed to update bid configuration.", minerResponse.Msg)
+		return
+	}
+
+	logs.GetLogger().Info("Bid configuration updated.")
 }
 
 func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeal {
@@ -83,7 +132,7 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 	urlStr := self.ApiUrl + "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
 	response := HttpGet(urlStr, self.Token, "")
 	offlineDealResponse := OfflineDealResponse{}
-	err := json.Unmarshal([]byte(response),&offlineDealResponse)
+	err := json.Unmarshal([]byte(response), &offlineDealResponse)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil
