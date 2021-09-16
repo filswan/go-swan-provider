@@ -78,6 +78,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 			if deal.StartEpoch - currentEpoch < self.ExpectedSealingTime {
 				note := "Deal will start too soon. Do not import this deal."
 				logs.GetLogger().Info(note)
+				note = "Deal expired."
 				swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 				return
 			}
