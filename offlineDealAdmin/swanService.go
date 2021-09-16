@@ -27,8 +27,7 @@ func (self *SwanService) SendHeartbeatRequest(swanClient *utils.SwanClient) {
 }
 
 func (self *SwanService) UpdateBidConf(swanClient *utils.SwanClient) {
-	response := swanClient.UpdateBidConf(self.MinerFid)
-	logs.GetLogger().Info(response)
+	swanClient.UpdateMinerBidConf(self.MinerFid)
 }
 
 

@@ -43,7 +43,7 @@ api_heartbeat_interval = 600    # 600 seconds or 10 minutes
 [bid]
 bid_mode = 1   #0:manual, 1:auto
 start_epoch = 276570  #current block height + 2880(1 day)
-price = 0.01
-verified_price = 0.05
+price = "0.01"
+verified_price = "0.05"
 min_piece_size = "8 Gib"
 max_piece_size = "32 Gib"

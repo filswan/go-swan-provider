@@ -58,8 +58,8 @@ type main struct {
 type bid struct {
 	BidMode        int     `toml:"bid_mode"`
 	StartEpoch     int     `toml:"start_epoch"`
-	Price          float64 `toml:"price"`
-	VerifiedPrice  float64 `toml:"verified_price"`
+	Price          string  `toml:"price"`
+	VerifiedPrice  string  `toml:"verified_price"`
 	MinPieceSize   string  `toml:"min_piece_size"`
 	MaxPieceSize   string  `toml:"max_piece_size"`
 }

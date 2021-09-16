@@ -40,7 +40,7 @@ type OfflineDealData struct {
 
 func GetSwanClient() *SwanClient {
 	mainConf := config.GetConfig().Main
-	uri := mainConf.SwanApiUrl +"/user/api_keys/jwt"
+	uri := mainConf.SwanApiUrl + "/user/api_keys/jwt"
 	data := TokenAccessInfo{ApiKey: mainConf.SwanApiKey, AccessToken: mainConf.SwanAccessToken}
 	response := HttpPostNoToken(uri, data)
 
@@ -51,7 +51,7 @@ func GetSwanClient() *SwanClient {
 
 	jwt:= jwtToken["jwt"].(string)
 
-	swanClient := &SwanClient{
+	swanClient := &SwanClient {
 		ApiUrl: mainConf.SwanApiUrl,
 		ApiKey: mainConf.SwanApiKey,
 		Token: jwt,
@@ -76,7 +76,7 @@ func (self *SwanClient) GetMiner(minerFid string) *MinerResponse {
 
 func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 	minerResponse := self.GetMiner(minerFid)
-	if minerResponse == nil {
+	if minerResponse == nil || !minerResponse.Success {
 		logs.GetLogger().Error("Error: Get miner information failed")
 		return
 	}
@@ -101,8 +101,8 @@ func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 	params.Add("miner_fid", minerFid)
 	params.Add("bid_mode", strconv.Itoa(confBid.BidMode))
 	params.Add("start_epoch", strconv.Itoa(confBid.StartEpoch))
-	params.Add("price", strconv.FormatFloat(confBid.Price, 'E', -1, 64))
-	params.Add("verified_price", strconv.FormatFloat(confBid.Price, 'E', -1, 64))
+	params.Add("price", confBid.Price)
+	params.Add("verified_price", confBid.VerifiedPrice)
 	params.Add("min_piece_size", confBid.MinPieceSize)
 	params.Add("max_piece_size", confBid.MaxPieceSize)
 
@@ -135,6 +135,11 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 	err := json.Unmarshal([]byte(response), &offlineDealResponse)
 	if err != nil {
 		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	if offlineDealResponse.Status != "success" {
+		logs.GetLogger().Error("Get offline deal with status ", status, " failed")
 		return nil
 	}
 
