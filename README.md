@@ -2,11 +2,11 @@
 
 # build executable bin file
 
-1. for linux
+## for linux
 
 GOOS=linux GOARCH=amd64 go build -v ./
 
-2. for mac
+## for mac
 
 env GOOS=darwin GOARCH=amd64 go build -v ./
 

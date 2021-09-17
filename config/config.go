@@ -11,6 +11,7 @@ type Configuration struct {
 	Dev   bool          `toml:"dev"`
 	Aria2 aria2         `toml:"aria2"`
 	Main  main          `toml:"main"`
+	Bid   bid           `toml:"bid"`
 }
 
 type aria2 struct {
@@ -44,13 +45,23 @@ type aria2 struct {
 }
 
 type main struct {
-	SwanApiUrl          string        `toml:"api_url"`
-	SwanApiKey          string        `toml:"api_key"`
-	SwanAccessToken     string        `toml:"access_token"`
-	MinerFid            string        `toml:"miner_fid"`
-	ExpectedSealingTime int           `toml:"expected_sealing_time"`
-	LotusImportInterval time.Duration `toml:"import_interval"`
-	LotusScanInterval   time.Duration `toml:"scan_interval"`
+	SwanApiUrl               string        `toml:"api_url"`
+	SwanApiKey               string        `toml:"api_key"`
+	SwanAccessToken          string        `toml:"access_token"`
+	SwanApiHeartbeatInterval time.Duration `toml:"api_heartbeat_interval"`
+	MinerFid                 string        `toml:"miner_fid"`
+	ExpectedSealingTime      int           `toml:"expected_sealing_time"`
+	LotusImportInterval      time.Duration `toml:"import_interval"`
+	LotusScanInterval        time.Duration `toml:"scan_interval"`
+}
+
+type bid struct {
+	BidMode        int     `toml:"bid_mode"`
+	StartEpoch     int     `toml:"start_epoch"`
+	Price          string  `toml:"price"`
+	VerifiedPrice  string  `toml:"verified_price"`
+	MinPieceSize   string  `toml:"min_piece_size"`
+	MaxPieceSize   string  `toml:"max_piece_size"`
 }
 
 var config *Configuration
@@ -82,6 +93,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 
 		{"aria2"},
 		{"main"},
+		{"bid"},
 
 		{"aria2", "disk-cache"},
 		{"aria2", "file-allocation"},
@@ -118,6 +130,14 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "scan_interval"},
 		{"main", "api_key"},
 		{"main", "access_token"},
+		{"main", "api_heartbeat_interval"},
+
+		{"bid", "bid_mode"},
+		{"bid", "start_epoch"},
+		{"bid", "price"},
+		{"bid", "verified_price"},
+		{"bid", "min_piece_size"},
+		{"bid", "max_piece_size"},
 	}
 
 	for _, v := range requiredFields {

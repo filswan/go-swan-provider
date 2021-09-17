@@ -15,12 +15,9 @@ import (
 
 func main() {
 	//LoadEnv()
-	//logs.InitLogger()
-	//config.InitConfig()
-	//test.TestSendHeartbeatRequest()
+	logs.InitLogger()
+	config.InitConfig()
 	offlineDealAdmin.AdminOfflineDeal()
-	//test.TestRestApiClient()
-	//test.TestLotusClient()
 	createHttpServer()
 }
 
@@ -38,7 +35,6 @@ func createHttpServer() {
 
 	v1 := r.Group("/api/v1")
 	commonRouters.HostManager(v1.Group(constants.URL_HOST_GET_COMMON))
-
 
 	err := r.Run(":" + config.GetConfig().Port)
 	if err != nil {
