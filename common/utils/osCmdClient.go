@@ -11,7 +11,6 @@ import (
 
 const SHELL_TO_USE = "bash"
 
-
 func ExecOsCmd2Screen(cmdStr string) (string ,error){
 	out, err := ExecOsCmdBase(cmdStr, true)
 	return out, err
