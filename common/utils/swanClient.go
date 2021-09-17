@@ -11,7 +11,7 @@ import (
 )
 
 const GET_OFFLINEDEAL_LIMIT_DEFAULT = 50
-const OFFLINEDEAL_SUCCESS = "SUCCESS"
+const RESPONSE_STATUS_SUCCESS = "SUCCESS"
 
 type TokenAccessInfo struct {
 	ApiKey      string   `json:"apikey"`
@@ -25,9 +25,9 @@ type SwanClient struct {
 }
 
 type MinerResponse struct {
-	Success bool          `json:"success"`
-	Msg     string        `json:"msg"`
-	Data    models.Miner  `json:"data"`
+	Status      string        `json:"status"`
+	Message     string        `json:"message"`
+	Data        models.Miner  `json:"data"`
 }
 
 type GetOfflineDealResponse struct {
@@ -87,7 +87,7 @@ func (self *SwanClient) GetMiner(minerFid string) *MinerResponse {
 
 func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 	minerResponse := self.GetMiner(minerFid)
-	if minerResponse == nil || !minerResponse.Success {
+	if minerResponse == nil || strings.ToUpper(minerResponse.Status) != RESPONSE_STATUS_SUCCESS {
 		logs.GetLogger().Error("Error: Get miner information failed")
 		return
 	}
@@ -126,8 +126,8 @@ func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 		return
 	}
 
-	if !minerResponse.Success {
-		logs.GetLogger().Error("Error: failed to update bid configuration.", minerResponse.Msg)
+	if strings.ToUpper(minerResponse.Status) != RESPONSE_STATUS_SUCCESS {
+		logs.GetLogger().Error("Error: failed to update bid configuration.", minerResponse.Message)
 		return
 	}
 
@@ -149,7 +149,7 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 		return nil
 	}
 
-	if strings.ToUpper(getOfflineDealResponse.Status) != OFFLINEDEAL_SUCCESS {
+	if strings.ToUpper(getOfflineDealResponse.Status) != RESPONSE_STATUS_SUCCESS {
 		logs.GetLogger().Error("Get offline deal with status ", status, " failed")
 		return nil
 	}
@@ -189,7 +189,7 @@ func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statu
 		return false
 	}
 
-	if strings.ToUpper(updateOfflineDealResponse.Status) != OFFLINEDEAL_SUCCESS {
+	if strings.ToUpper(updateOfflineDealResponse.Status) != RESPONSE_STATUS_SUCCESS {
 		logs.GetLogger().Error("Update offline deal with status ", status, " failed.", updateOfflineDealResponse.Data.Message)
 		return false
 	}
