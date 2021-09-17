@@ -37,7 +37,7 @@ type Aria2Status struct {
 }
 
 type Aria2Download struct {
-	Id 		string               `json:"id"`
+	Id      string               `json:"id"`
 	JsonRpc string               `json:"jsonrpc"`
 	Error 	*Aria2Error          `json:"error"`
 	Gid 	string               `json:"result"`
