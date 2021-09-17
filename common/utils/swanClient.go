@@ -190,7 +190,7 @@ func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statu
 	}
 
 	if strings.ToUpper(updateOfflineDealResponse.Status) != OFFLINEDEAL_SUCCESS {
-		logs.GetLogger().Error("Update offline deal with status ", status, " failed")
+		logs.GetLogger().Error("Update offline deal with status ", status, " failed.", updateOfflineDealResponse.Data.Message)
 		return false
 	}
 
