@@ -221,6 +221,7 @@ func (self *Aria2Service) StartDownload(aria2Client *utils.Aria2Client, swanClie
 		deal2Download := self.findNextDealReady2Download(swanClient)
 
 		if deal2Download == nil {
+			logs.GetLogger().Info("No offline deal to download")
 			break
 		}
 
