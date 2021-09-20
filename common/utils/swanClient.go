@@ -55,6 +55,12 @@ func GetSwanClient() *SwanClient {
 	data := TokenAccessInfo{ApiKey: mainConf.SwanApiKey, AccessToken: mainConf.SwanAccessToken}
 	response := HttpPostNoToken(uri, data)
 
+	if strings.Index(response, "fail") >= 0 {
+		message := GetFieldStrFromJson(response, "message")
+		status := GetFieldStrFromJson(response, "status")
+		logs.GetLogger().Fatal(status, ": ", message)
+	}
+
 	jwtToken := GetFieldMapFromJson(response,"data")
 	if jwtToken == nil {
 		logs.GetLogger().Fatal("Error: fail to connect swan api")
@@ -100,7 +106,8 @@ func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 		miner.Price == confBid.Price &&
 		miner.VerifiedPrice == confBid.VerifiedPrice &&
 		miner.MinPieceSize == confBid.MinPieceSize &&
-		miner.MaxPieceSize == confBid.MaxPieceSize {
+		miner.MaxPieceSize == confBid.MaxPieceSize &&
+		miner.AutoBidTaskPerDay == confBid.AutoBidTaskPerDay {
 		logs.GetLogger().Info("No changes in bid configuration")
 		return
 	}
@@ -116,6 +123,7 @@ func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 	params.Add("verified_price", confBid.VerifiedPrice)
 	params.Add("min_piece_size", confBid.MinPieceSize)
 	params.Add("max_piece_size", confBid.MaxPieceSize)
+	params.Add("auto_bid_task_per_day", strconv.Itoa(confBid.AutoBidTaskPerDay))
 
 	response := HttpPost(apiUrl, self.Token, strings.NewReader(params.Encode()))
 

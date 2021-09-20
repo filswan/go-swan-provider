@@ -136,3 +136,5 @@ swan-provider
 .DS_Store
 swan-provider
 .idea/codeStyles/codeStyleConfig.xml
+config/config.toml
+config/config.toml
