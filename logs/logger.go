@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -23,8 +22,6 @@ func InitLogger() {
 		logger.SetLevel(logrus.InfoLevel)
 	}
 
-	goPath := os.Getenv("GOPATH")
-	fmt.Println("goPath:"+goPath)
 	formatter := &logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05.000",
 		FullTimestamp:   true,
