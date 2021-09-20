@@ -56,12 +56,13 @@ type main struct {
 }
 
 type bid struct {
-	BidMode        int     `toml:"bid_mode"`
-	StartEpoch     int     `toml:"start_epoch"`
-	Price          string  `toml:"price"`
-	VerifiedPrice  string  `toml:"verified_price"`
-	MinPieceSize   string  `toml:"min_piece_size"`
-	MaxPieceSize   string  `toml:"max_piece_size"`
+	BidMode           int     `toml:"bid_mode"`
+	StartEpoch        int     `toml:"start_epoch"`
+	Price             string  `toml:"price"`
+	VerifiedPrice     string  `toml:"verified_price"`
+	MinPieceSize      string  `toml:"min_piece_size"`
+	MaxPieceSize      string  `toml:"max_piece_size"`
+	AutoBidTaskPerDay int     `toml:"auto_bid_task_per_day"`
 }
 
 var config *Configuration

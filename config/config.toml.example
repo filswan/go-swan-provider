@@ -47,3 +47,4 @@ price = "0.01"
 verified_price = "0.05"
 min_piece_size = "8 Gib"
 max_piece_size = "32 Gib"
+auto_bid_task_per_day=20
