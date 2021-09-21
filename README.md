@@ -13,7 +13,7 @@ This miner tool listens to the tasks that come from Swan platform. It provides t
 - Aria2
 
 ## Config
-** rename config.toml.example to config.toml **
+** ./config/config.toml.example **
 ```shell
 port="8888"
 dev = true
