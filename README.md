@@ -46,7 +46,7 @@ auto_bid_task_per_day= 20
 
 ## Installation
 
-Install miner tool and aria2
+Install aria2
 ```shell
 sudo apt install aria2
 ```
