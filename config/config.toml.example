@@ -2,49 +2,26 @@ port="8888"
 dev = true
 
 [aria2]
-disk-cache=0
-file-allocation="prealloc"
-continue=true
-max-tries=50
-rpc-listen-port=6800
-max-concurrent-downloads=10
-max-connection-per-server=10
-min-split-size="5M"
-split=10
-disable-ipv6=true
-always-resume=false
-keep-unfinished-download-result=false
-input-file="/etc/aria2/aria2.session"
-save-session="/etc/aria2/aria2.session"
-save-session-interval=60
-enable-rpc=true
-pause=false
-rpc-allow-origin-all=true
-rpc-listen-all=true
-rpc-save-upload-metadata=true
-rpc-secure=false
-rpc-secret="my_aria2_secret"
-aria2_download_dir = ""
-aria2_conf = "/etc/aria2/aria2.conf"
+aria2_download_dir = ""              # Your download directory in local host
 aria2_host = "127.0.0.1"
 aria2_port = 6800
 aria2_secret = "my_aria2_secret"
 
 [main]
-api_url = "http://192.168.88.216:5002"
-miner_fid = "t03354"
-expected_sealing_time = 1920    # 1920 epoch or 16 hours
-import_interval = 600           # 600 seconds or 10 minutes
-scan_interval = 600             # 600 seconds or 10 minutes
-api_key = ""
-access_token = ""
-api_heartbeat_interval = 600    # 600 seconds or 10 minutes
+api_url = "https://api.filswan.com"
+miner_fid = "f0xxxx"                 # Your miner fid
+expected_sealing_time = 1920         # 1920 epoch or 16 hours
+import_interval = 600                # 600 seconds or 10 minutes
+scan_interval = 600                  # 600 seconds or 10 minutes
+api_key = ""                         # Your api key
+access_token = ""                    # Your access token
+api_heartbeat_interval = 600         # 600 seconds or 10 minutes
 
 [bid]
-bid_mode = 1   #0:manual, 1:auto
-start_epoch = 276570  #current block height + 2880(1 day)
+bid_mode = 1                         # 0: manual, 1: auto
+start_epoch = 276570                 # current block height + 2880(1 day)
 price = "0.01"
 verified_price = "0.05"
 min_piece_size = "8 Gib"
 max_piece_size = "32 Gib"
-auto_bid_task_per_day=20
+auto_bid_task_per_day= 20

@@ -126,6 +126,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.idea/
 .idea/go-swan-provider.iml
 .idea/misc.xml
 .idea/modules.xml
