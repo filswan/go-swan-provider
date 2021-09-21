@@ -15,30 +15,7 @@ type Configuration struct {
 }
 
 type aria2 struct {
-	DiskCache                    int         `toml:"disk-cache"`
-	FileAllocation               string      `toml:"file-allocation"`
-	IsContinue                   bool        `toml:"continue"`
-	MaxTries                     int         `toml:"max-tries"`
-	RpcListenPort                int         `toml:"rpc-listen-port"`
-	MaxConcurrentDownloads       int         `toml:"max-concurrent-downloads"`
-	MaxConnectionPerServer       int         `toml:"max-connection-per-server"`
-	MinSplitSize                 string      `toml:"min-split-size"`
-	Split                        int         `toml:"split"`
-	DisableIpv6                  bool        `toml:"disable-ipv6"`
-	AlwaysResume                 bool        `toml:"always-resume"`
-	KeepUnfinishedDownloadResult bool        `toml:"keep-unfinished-download-result"`
-	InputFile                    string      `toml:"input-file"`
-	SaveSession                  string      `toml:"save-session"`
-	SaveSessionInterval          int         `toml:"save-session-interval"`
-	EnableRpc                    bool        `toml:"enable-rpc"`
-	Pause                        bool        `toml:"pause"`
-	RpcAllowOriginAll            bool        `toml:"rpc-allow-origin-all"`
-	RpcListenAll                 bool        `toml:"rpc-listen-all"`
-	RpcSaveUploadMetadata        bool        `toml:"rpc-save-upload-metadata"`
-	RpcSecure                    bool        `toml:"rpc-secure"`
-	RpcSecret                    string      `toml:"rpc-secret"`
 	Aria2DownloadDir             string      `toml:"aria2_download_dir"`
-	Aria2Conf                    string      `toml:"aria2_conf"`
 	Aria2Host                    string      `toml:"aria2_host"`
 	Aria2Port                    int         `toml:"aria2_port"`
 	Aria2Secret                  string      `toml:"aria2_secret"`
@@ -96,30 +73,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main"},
 		{"bid"},
 
-		{"aria2", "disk-cache"},
-		{"aria2", "file-allocation"},
-		{"aria2", "continue"},
-		{"aria2", "max-tries"},
-		{"aria2", "rpc-listen-port"},
-		{"aria2", "max-concurrent-downloads"},
-		{"aria2", "max-connection-per-server"},
-		{"aria2", "min-split-size"},
-		{"aria2", "split"},
-		{"aria2", "disable-ipv6"},
-		{"aria2", "always-resume"},
-		{"aria2", "keep-unfinished-download-result"},
-		{"aria2", "input-file"},
-		{"aria2", "save-session"},
-		{"aria2", "save-session-interval"},
-		{"aria2", "enable-rpc"},
-		{"aria2", "pause"},
-		{"aria2", "rpc-allow-origin-all"},
-		{"aria2", "rpc-listen-all"},
-		{"aria2", "rpc-save-upload-metadata"},
-		{"aria2", "rpc-secure"},
-		{"aria2", "rpc-secret"},
 		{"aria2", "aria2_download_dir"},
-		{"aria2", "aria2_conf"},
 		{"aria2", "aria2_host"},
 		{"aria2", "aria2_port"},
 		{"aria2", "aria2_secret"},
