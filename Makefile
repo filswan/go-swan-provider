@@ -1,8 +1,8 @@
-PROJECT_NAME=payment-bridge
+PROJECT_NAME=swan-provider
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
-BINARY_NAME=payment-bridge
+BINARY_NAME="$(PROJECT_NAME)"
 
 GOCMD=go
 GOBUILD=$(GOCMD) build
@@ -14,10 +14,6 @@ GOBIN=$(shell pwd)/build/bin
 .PHONY: all dep build clean test coverage coverhtml lint
 
 all: build
-
-lint: ## Lint the files
-	@golangci-lint run --timeout 150m
-	@echo "Done lint."
 
 test: ## Run unittests
 	@go test -short ${PKG_LIST}
@@ -43,12 +39,9 @@ endif
 build: ## Build the binary file
 	@go mod download
 	@go mod tidy
-	@go build -o build/payment-bridge main/payment-bridge.go
 	@mkdir -p ./build/config
-	@mkdir -p ./build/on-chain/contracts/abi
-	@cp ./config/config.toml ./build/config/config.toml
-	@cp .env ./build/.env
-	@cp ./on-chain/contracts/abi/SwanPayment.json ./build/on-chain/contracts/abi/SwanPayment.json
+	@cp ./config/config.toml.example ./build/config/config.toml
+	@go build -o ./build
 	@echo "Done building."
 
 clean: ## Remove previous build

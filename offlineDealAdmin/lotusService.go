@@ -107,7 +107,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 				if !updated {
 					logs.GetLogger().Error("Failed to update offline deal status")
 				}
-				msg = fmt.Sprintf("Import deal failed. CID: %s. Error message: %s", deal.Id, result)
+				msg = fmt.Sprintf("Import deal failed. CID: %d. Error message: %s", deal.Id, result)
 				logs.GetLogger().Error(msg)
 				return
 			}
