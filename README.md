@@ -2,7 +2,7 @@
 
 ## Features:
 
-This miner tool listens to the tasks that come from Swan platform. It provides the following functions:
+This provider tool listens to the tasks that come from Swan platform. It provides the following functions:
 
 * Download tasks automatically using Aria2 for downloading service.
 * Import deals once download tasks completed.
@@ -13,30 +13,30 @@ This miner tool listens to the tasks that come from Swan platform. It provides t
 - Aria2
 
 ## Config
-** rename config.toml.example to config.toml **
+** ./config/config.toml.example **
 ```shell
 port="8888"
 dev = true
 
 [aria2]
-aria2_download_dir = ""
+aria2_download_dir = ""              # Your download directory in local host
 aria2_host = "127.0.0.1"
 aria2_port = 6800
 aria2_secret = "my_aria2_secret"
 
 [main]
 api_url = "https://api.filswan.com"
-miner_fid = "f0xxxx"
-expected_sealing_time = 1920    # 1920 epoch or 16 hours
-import_interval = 600           # 600 seconds or 10 minutes
-scan_interval = 600             # 600 seconds or 10 minutes
-api_key = ""
-access_token = ""
-api_heartbeat_interval = 600    # 600 seconds or 10 minutes
+miner_fid = "f0xxxx"                 # Your miner fid
+expected_sealing_time = 1920         # 1920 epoch or 16 hours
+import_interval = 600                # 600 seconds or 10 minutes
+scan_interval = 600                  # 600 seconds or 10 minutes
+api_key = ""                         # Your api key
+access_token = ""                    # Your access token
+api_heartbeat_interval = 600         # 600 seconds or 10 minutes
 
 [bid]
-bid_mode = 1   #0:manual, 1:auto
-start_epoch = 276570  #current block height + 2880(1 day)
+bid_mode = 1                         # 0: manual, 1: auto
+start_epoch = 276570                 # current block height + 2880(1 day)
 price = "0.01"
 verified_price = "0.05"
 min_piece_size = "8 Gib"
@@ -46,7 +46,7 @@ auto_bid_task_per_day= 20
 
 ## Installation
 
-Install miner tool and aria2
+Install Aria2
 ```shell
 sudo apt install aria2
 ```
