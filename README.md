@@ -103,16 +103,19 @@ The Aira2 service will listen on certain port if installed and started correctly
 
 ### Step 2. Compile Provider
 ```shell
-1. for linux
-GOOS=linux GOARCH=amd64 go build -v ./
-
-2. for mac
-env GOOS=darwin GOARCH=amd64 go build -v ./
+make help    # view how to use make tool
+make clean   # remove generated binary file and config file
+make dep     # Get dependencies
+make test    # Run unit tests
+make build   # generate binary file and config file
 ```
 
 ### Step 3. Start Swan Provider
 ```shell
-swan-provider
+cd ./build/config
+vi ./config.toml   # fill valid configuration
+cd ./build
+nohup ./swan-provider > logs.txt
 ```
 
 The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
