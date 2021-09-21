@@ -2,7 +2,7 @@
 
 ## Features:
 
-This miner tool listens to the tasks that come from Swan platform. It provides the following functions:
+This swan provider tool listens to the tasks that come from Swan platform. It provides the following functions:
 
 * Download tasks automatically using Aria2 for downloading service.
 * Import deals once download tasks completed.
@@ -46,7 +46,7 @@ auto_bid_task_per_day= 20
 
 ## Installation
 
-Install aria2
+Install Aria2
 ```shell
 sudo apt install aria2
 ```
