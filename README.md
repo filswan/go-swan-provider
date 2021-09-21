@@ -2,7 +2,7 @@
 
 ## Features:
 
-This swan provider tool listens to the tasks that come from Swan platform. It provides the following functions:
+This provider tool listens to the tasks that come from Swan platform. It provides the following functions:
 
 * Download tasks automatically using Aria2 for downloading service.
 * Import deals once download tasks completed.
