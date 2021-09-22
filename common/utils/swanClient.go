@@ -102,11 +102,8 @@ func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 
 	confBid := config.GetConfig().Bid
 	if miner.BidMode == confBid.BidMode &&
+		miner.ExpectedSealingTime == confBid.ExpectedSealingTime &&
 		miner.StartEpoch == confBid.StartEpoch &&
-		miner.Price == confBid.Price &&
-		miner.VerifiedPrice == confBid.VerifiedPrice &&
-		miner.MinPieceSize == confBid.MinPieceSize &&
-		miner.MaxPieceSize == confBid.MaxPieceSize &&
 		miner.AutoBidTaskPerDay == confBid.AutoBidTaskPerDay {
 		logs.GetLogger().Info("No changes in bid configuration")
 		return
@@ -118,11 +115,8 @@ func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 	params := url.Values{}
 	params.Add("miner_fid", minerFid)
 	params.Add("bid_mode", strconv.Itoa(confBid.BidMode))
+	params.Add("expected_sealing_time", strconv.Itoa(confBid.ExpectedSealingTime))
 	params.Add("start_epoch", strconv.Itoa(confBid.StartEpoch))
-	params.Add("price", confBid.Price)
-	params.Add("verified_price", confBid.VerifiedPrice)
-	params.Add("min_piece_size", confBid.MinPieceSize)
-	params.Add("max_piece_size", confBid.MaxPieceSize)
 	params.Add("auto_bid_task_per_day", strconv.Itoa(confBid.AutoBidTaskPerDay))
 
 	response := HttpPost(apiUrl, self.Token, strings.NewReader(params.Encode()))

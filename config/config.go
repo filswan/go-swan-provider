@@ -33,13 +33,10 @@ type main struct {
 }
 
 type bid struct {
-	BidMode           int     `toml:"bid_mode"`
-	StartEpoch        int     `toml:"start_epoch"`
-	Price             string  `toml:"price"`
-	VerifiedPrice     string  `toml:"verified_price"`
-	MinPieceSize      string  `toml:"min_piece_size"`
-	MaxPieceSize      string  `toml:"max_piece_size"`
-	AutoBidTaskPerDay int     `toml:"auto_bid_task_per_day"`
+	BidMode             int     `toml:"bid_mode"`
+	ExpectedSealingTime int     `toml:"expected_sealing_time"`
+	StartEpoch          int     `toml:"start_epoch"`
+	AutoBidTaskPerDay   int     `toml:"auto_bid_task_per_day"`
 }
 
 var config *Configuration
@@ -88,11 +85,9 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "api_heartbeat_interval"},
 
 		{"bid", "bid_mode"},
+		{"bid", "expected_sealing_time"},
 		{"bid", "start_epoch"},
-		{"bid", "price"},
-		{"bid", "verified_price"},
-		{"bid", "min_piece_size"},
-		{"bid", "max_piece_size"},
+		{"bid", "auto_bid_task_per_day"},
 	}
 
 	for _, v := range requiredFields {
