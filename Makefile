@@ -11,7 +11,7 @@ test: ## Run unittests
 	@echo "Done testing."
 
 dep: ## Get all the dependencies
-	@@go get -u -v all
+	@go get ./...
 	@echo "Done getting dependencies."
 
 build: ## Build the binary file
