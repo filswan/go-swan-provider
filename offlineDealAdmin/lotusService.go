@@ -21,7 +21,7 @@ func GetLotusService()(*LotusService){
 	lotusService := &LotusService{
 		MinerFid: confMain.MinerFid,
 		ImportIntervalSecond: confMain.LotusImportInterval * time.Second,
-		ExpectedSealingTime: confMain.ExpectedSealingTime,
+		ExpectedSealingTime: config.GetConfig().Bid.ExpectedSealingTime,
 		ScanIntervalSecond: confMain.LotusScanInterval * time.Second,
 	}
 

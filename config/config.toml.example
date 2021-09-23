@@ -10,7 +10,6 @@ aria2_secret = "my_aria2_secret"
 [main]
 api_url = "https://api.filswan.com"
 miner_fid = "f0xxxx"                 # Your miner fid
-expected_sealing_time = 1920         # 1920 epoch or 16 hours
 import_interval = 600                # 600 seconds or 10 minutes
 scan_interval = 600                  # 600 seconds or 10 minutes
 api_key = ""                         # Your api key

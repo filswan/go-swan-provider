@@ -27,7 +27,6 @@ type main struct {
 	SwanAccessToken          string        `toml:"access_token"`
 	SwanApiHeartbeatInterval time.Duration `toml:"api_heartbeat_interval"`
 	MinerFid                 string        `toml:"miner_fid"`
-	ExpectedSealingTime      int           `toml:"expected_sealing_time"`
 	LotusImportInterval      time.Duration `toml:"import_interval"`
 	LotusScanInterval        time.Duration `toml:"scan_interval"`
 }
@@ -77,7 +76,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 
 		{"main", "api_url"},
 		{"main", "miner_fid"},
-		{"main", "expected_sealing_time"},
 		{"main", "import_interval"},
 		{"main", "scan_interval"},
 		{"main", "api_key"},
