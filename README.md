@@ -99,11 +99,11 @@ The Aira2 service will listen on certain port if installed and started correctly
 
 ### Step 2. Download code
 ```shell
-make dir swan-provider
 git clone https://github.com/filswan/go-swan-provider.git
 ```
 ### Step 3. Compile Code
 ```shell
+cd go-swan-provider
 make help    # view how to use make tool
 make clean   # remove generated binary file and config file
 make dep     # Get dependencies
