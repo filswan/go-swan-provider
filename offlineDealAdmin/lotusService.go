@@ -73,7 +73,6 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 			}
 		case ONCHAIN_DEAL_STATUS_WAITTING:
 			currentEpoch := utils.GetCurrentEpoch()
-
 			if currentEpoch < 0 {
 				return
 			}
@@ -103,7 +102,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 				}
 				msg = fmt.Sprintf("Import deal failed. CID: %d. Error message: %s", deal.Id, result)
 				logs.GetLogger().Error(msg)
-				return
+				continue
 			}
 
 			updated = swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORTED)
