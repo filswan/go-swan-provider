@@ -32,8 +32,6 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 	deals := swanClient.GetOfflineDeals(self.MinerFid, DEAL_STATUS_IMPORT_READY, LOTUS_IMPORT_NUMNBER)
 	if deals == nil || len(deals) == 0 {
 		logs.GetLogger().Info("No pending offline deals found.")
-		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(self.ImportIntervalSecond)
 		return
 	}
 
@@ -44,9 +42,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 		onChainStatus, _ := utils.GetDealOnChainStatus(deal.DealCid)
 
 		if len(onChainStatus) == 0 {
-			logs.GetLogger().Info("Sleeping...")
-			time.Sleep(self.ImportIntervalSecond)
-			break
+			return
 		}
 
 		logs.GetLogger().Info("Deal on chain status: ", onChainStatus)
@@ -79,8 +75,6 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 			currentEpoch := utils.GetCurrentEpoch()
 
 			if currentEpoch < 0 {
-				logs.GetLogger().Error("Failed to get current epoch. Please check if miner is running properly.")
-				time.Sleep(self.ImportIntervalSecond)
 				return
 			}
 
@@ -92,7 +86,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 				if !updated {
 					logs.GetLogger().Error("Failed to update offline deal status")
 				}
-				return
+				continue
 			}
 
 			updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORTING)
@@ -133,8 +127,6 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 
 	if len(deals) == 0 {
 		logs.GetLogger().Info("No ongoing offline deals found.")
-		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(self.ScanIntervalSecond)
 		return
 	}
 
@@ -145,9 +137,7 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 		onChainStatus, onChainMessage := utils.GetDealOnChainStatus(deal.DealCid)
 
 		if len(onChainStatus) == 0 {
-			logs.GetLogger().Info("Sleeping...")
-			time.Sleep(self.ScanIntervalSecond)
-			break
+			return
 		}
 
 		logs.GetLogger().Info("Deal on chain status: ", onChainStatus)
@@ -170,7 +160,11 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 			logs.GetLogger().Info(msg)
 		case ONCHAIN_DEAL_STATUS_AWAITING:
 			currentEpoch := utils.GetCurrentEpoch()
-			if currentEpoch != -1 && currentEpoch > deal.StartEpoch {
+			if currentEpoch < 0 {
+				return
+			}
+
+			if currentEpoch > deal.StartEpoch {
 				note := fmt.Sprintf("Sector is proved and active, while deal on chain status is %s. Set deal status as %s.", ONCHAIN_DEAL_STATUS_AWAITING, DEAL_STATUS_IMPORT_FAILED)
 				updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 				if !updated {
