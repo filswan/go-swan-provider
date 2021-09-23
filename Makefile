@@ -10,8 +10,9 @@ test: ## Run unittests
 	@go test -short ${PKG_LIST}
 	@echo "Done testing."
 
-dep: ## Get the dependencies
+dep: ## Get all the dependencies
 	@@go get -u -v all
+	@echo "Done getting dependencies."
 
 build: ## Build the binary file
 	@go mod download
