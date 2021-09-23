@@ -27,19 +27,15 @@ type main struct {
 	SwanAccessToken          string        `toml:"access_token"`
 	SwanApiHeartbeatInterval time.Duration `toml:"api_heartbeat_interval"`
 	MinerFid                 string        `toml:"miner_fid"`
-	ExpectedSealingTime      int           `toml:"expected_sealing_time"`
 	LotusImportInterval      time.Duration `toml:"import_interval"`
 	LotusScanInterval        time.Duration `toml:"scan_interval"`
 }
 
 type bid struct {
-	BidMode           int     `toml:"bid_mode"`
-	StartEpoch        int     `toml:"start_epoch"`
-	Price             string  `toml:"price"`
-	VerifiedPrice     string  `toml:"verified_price"`
-	MinPieceSize      string  `toml:"min_piece_size"`
-	MaxPieceSize      string  `toml:"max_piece_size"`
-	AutoBidTaskPerDay int     `toml:"auto_bid_task_per_day"`
+	BidMode             int     `toml:"bid_mode"`
+	ExpectedSealingTime int     `toml:"expected_sealing_time"`
+	StartEpoch          int     `toml:"start_epoch"`
+	AutoBidTaskPerDay   int     `toml:"auto_bid_task_per_day"`
 }
 
 var config *Configuration
@@ -80,7 +76,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 
 		{"main", "api_url"},
 		{"main", "miner_fid"},
-		{"main", "expected_sealing_time"},
 		{"main", "import_interval"},
 		{"main", "scan_interval"},
 		{"main", "api_key"},
@@ -88,11 +83,9 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "api_heartbeat_interval"},
 
 		{"bid", "bid_mode"},
+		{"bid", "expected_sealing_time"},
 		{"bid", "start_epoch"},
-		{"bid", "price"},
-		{"bid", "verified_price"},
-		{"bid", "min_piece_size"},
-		{"bid", "max_piece_size"},
+		{"bid", "auto_bid_task_per_day"},
 	}
 
 	for _, v := range requiredFields {
