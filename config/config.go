@@ -8,7 +8,6 @@ import (
 
 type Configuration struct {
 	Port  string        `toml:"port"`
-	Dev   bool          `toml:"dev"`
 	Aria2 aria2         `toml:"aria2"`
 	Main  main          `toml:"main"`
 	Bid   bid           `toml:"bid"`
@@ -63,7 +62,6 @@ func GetConfig() Configuration {
 func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	requiredFields := [][]string {
 		{"port"},
-		{"dev"},
 
 		{"aria2"},
 		{"main"},

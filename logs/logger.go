@@ -7,20 +7,12 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"swan-provider/config"
 )
 
 var logger *logrus.Logger
 
 func InitLogger() {
-	conf := config.GetConfig()
-
 	logger = logrus.New()
-	if conf.Dev {
-		logger.SetLevel(logrus.DebugLevel)
-	} else {
-		logger.SetLevel(logrus.InfoLevel)
-	}
 
 	formatter := &logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05.000",
