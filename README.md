@@ -27,7 +27,6 @@ aria2_secret = "my_aria2_secret"
 [main]
 api_url = "https://api.filswan.com"
 miner_fid = "f0xxxx"                 # Your miner fid
-expected_sealing_time = 1920         # 1920 epoch or 16 hours
 import_interval = 600                # 600 seconds or 10 minutes
 scan_interval = 600                  # 600 seconds or 10 minutes
 api_key = ""                         # Your api key
@@ -36,12 +35,9 @@ api_heartbeat_interval = 600         # 600 seconds or 10 minutes
 
 [bid]
 bid_mode = 1                         # 0: manual, 1: auto
-start_epoch = 276570                 # current block height + 2880(1 day)
-price = "0.01"
-verified_price = "0.05"
-min_piece_size = "8 Gib"
-max_piece_size = "32 Gib"
-auto_bid_task_per_day= 20
+expected_sealing_time = 1920         # 1920 epoch or 16 hours
+start_epoch = 2880                   # 2880 epoch or 24 hours
+auto_bid_task_per_day = 20           # auto-bid task limit per day for your miner defined above
 ```
 
 ## Installation
@@ -103,11 +99,11 @@ The Aira2 service will listen on certain port if installed and started correctly
 
 ### Step 2. Download code
 ```shell
-make dir swan-provider
 git clone https://github.com/filswan/go-swan-provider.git
 ```
 ### Step 3. Compile Code
 ```shell
+cd go-swan-provider
 make help    # view how to use make tool
 make clean   # remove generated binary file and config file
 make dep     # Get dependencies
