@@ -2,14 +2,14 @@ port="8888"
 dev = true
 
 [aria2]
-aria2_download_dir = ""              # Your download directory in local host
-aria2_host = "127.0.0.1"
-aria2_port = 6800
+aria2_download_dir = ""   # Directory where offline deal files will be downloaded for importing
+aria2_host = "127.0.0.1"  # Aria2 server address
+aria2_port = 6800         # Aria2 server port
 aria2_secret = "my_aria2_secret"
 
 [main]
-api_url = "https://api.filswan.com"
-miner_fid = "f0xxxx"                 # Your miner fid
+api_url = "https://api.filswan.com"  # Swan API address. For Swan production, it is "https://api.filswan.com"
+miner_fid = "f0xxxx"                 # Your filecoin Miner ID
 import_interval = 600                # 600 seconds or 10 minutes
 scan_interval = 600                  # 600 seconds or 10 minutes
 api_key = ""                         # Your api key
@@ -18,6 +18,6 @@ api_heartbeat_interval = 600         # 600 seconds or 10 minutes
 
 [bid]
 bid_mode = 1                         # 0: manual, 1: auto
-expected_sealing_time = 1920         # 1920 epoch or 16 hours
-start_epoch = 2880                   # 2880 epoch or 24 hours
+expected_sealing_time = 1920         # 1920 epoch or 16 hours, The time expected for sealing deals. Deals starting too soon will be rejected.
+start_epoch = 2880                   # 2880 epoch or 24 hours, relative value to current epoch
 auto_bid_task_per_day = 20           # auto-bid task limit per day for your miner defined above
