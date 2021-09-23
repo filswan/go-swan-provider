@@ -101,7 +101,12 @@ Jul 30 03:00:00 aria2c[2433312]: 07/30 03:00:00 [NOTICE] IPv4 RPC: listening on 
 
 The Aira2 service will listen on certain port if installed and started correctly.
 
-### Step 2. Compile Provider
+### Step 2. Download code
+```shell
+make dir swan-provider
+git clone https://github.com/filswan/go-swan-provider.git
+```
+### Step 3. Compile Provider
 ```shell
 make help    # view how to use make tool
 make clean   # remove generated binary file and config file
@@ -110,12 +115,11 @@ make test    # Run unit tests
 make build   # generate binary file and config file
 ```
 
-### Step 3. Start Swan Provider
+### Step 4. Start Swan Provider
 ```shell
-cd ./build/config
-vi ./config.toml   # fill valid configuration
-cd ./build
-nohup ./swan-provider > logs.txt
+cd build
+vi ./config/config.toml   # fill valid configuration
+nohup ./swan-provider > ./swan-provider.log &
 ```
 
 The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
