@@ -13,7 +13,7 @@ This provider tool listens to the tasks that come from Swan platform. It provide
 - Aria2
 
 ## Config
-** ./config/config.toml.example **
+* ./config/config.toml.example
 ```shell
 port = 8888
 
