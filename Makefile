@@ -2,17 +2,13 @@ PROJECT_NAME=swan-provider
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 
-.PHONY: all dep build clean test coverage coverhtml lint
+.PHONY: all build clean test help
 
 all: build
 
 test: ## Run unittests
 	@go test -short ${PKG_LIST}
 	@echo "Done testing."
-
-dep: ## Get all the dependencies
-	@go get ./...
-	@echo "Done getting dependencies."
 
 build: ## Build the binary file
 	@go mod download

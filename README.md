@@ -79,10 +79,9 @@ sudo systemctl daemon-reload
 sudo systemctl start aria2c.service
 ```
 
-
 #### Step 1.2 Test Aria2 service from log (Optional)
 
-Check if Aria2 service is successfullly started
+Check if Aria2 service is successfully started
 
 ```shell
 journalctl -u aria2c.service -f
@@ -105,7 +104,6 @@ git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
 make help    # view how to use make tool
 make clean   # remove generated binary file and config file
-make dep     # Get dependencies
 make test    # Run unit tests
 make build   # generate binary file and config file
 ```
