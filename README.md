@@ -13,31 +13,30 @@ This provider tool listens to the tasks that come from Swan platform. It provide
 - Aria2
 
 ## Config
-** ./config/config.toml.example **
+* ./config/config.toml.example
 ```shell
-port="8888"
-dev = true
+port = 8888
 
 [aria2]
-aria2_download_dir = ""              # Your download directory in local host
-aria2_host = "127.0.0.1"
-aria2_port = 6800
-aria2_secret = "my_aria2_secret"
+aria2_download_dir = ""   # Directory where offline deal files will be downloaded for importing
+aria2_host = "127.0.0.1"  # Aria2 server address
+aria2_port = 6800         # Aria2 server port
+aria2_secret = "my_aria2_secret"  # Must be the same value as rpc-secure in aria2.conf
 
 [main]
-api_url = "https://api.filswan.com"
-miner_fid = "f0xxxx"                 # Your miner fid
-import_interval = 600                # 600 seconds or 10 minutes
-scan_interval = 600                  # 600 seconds or 10 minutes
-api_key = ""                         # Your api key
-access_token = ""                    # Your access token
-api_heartbeat_interval = 600         # 600 seconds or 10 minutes
+api_url = "https://api.filswan.com"  # Swan API address. For Swan production, it is "https://api.filswan.com"
+miner_fid = "f0xxxx"          # Your filecoin Miner ID
+import_interval = 600         # 600 seconds or 10 minutes. Importing interval between each deal.
+scan_interval = 600           # 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
+api_key = ""                  # Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
+access_token = ""             # Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
+api_heartbeat_interval = 600  # 600 seconds or 10 minutes. Time interval to send heartbeat.
 
 [bid]
-bid_mode = 1                         # 0: manual, 1: auto
-expected_sealing_time = 1920         # 1920 epoch or 16 hours
-start_epoch = 2880                   # 2880 epoch or 24 hours
-auto_bid_task_per_day = 20           # auto-bid task limit per day for your miner defined above
+bid_mode = 1                  # 0: manual, 1: auto
+expected_sealing_time = 1920  # 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
+start_epoch = 2880            # 2880 epoch or 24 hours. Relative value to current epoch
+auto_bid_task_per_day = 20    # auto-bid task limit per day for your miner defined above
 ```
 
 ## Installation
@@ -80,10 +79,9 @@ sudo systemctl daemon-reload
 sudo systemctl start aria2c.service
 ```
 
-
 #### Step 1.2 Test Aria2 service from log (Optional)
 
-Check if Aria2 service is successfullly started
+Check if Aria2 service is successfully started
 
 ```shell
 journalctl -u aria2c.service -f
@@ -100,15 +98,12 @@ The Aira2 service will listen on certain port if installed and started correctly
 ### Step 2. Download code
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
+cd go-swan-provider
+git checkout main
 ```
 ### Step 3. Compile Code
 ```shell
-cd go-swan-provider
-make help    # view how to use make tool
-make clean   # remove generated binary file and config file
-make dep     # Get dependencies
-make test    # Run unit tests
-make build   # generate binary file and config file
+make   # generate binary file and config file to ./build folder
 ```
 
 ### Step 4. Start Swan Provider

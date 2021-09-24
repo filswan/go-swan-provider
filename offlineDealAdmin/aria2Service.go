@@ -171,6 +171,8 @@ func (self *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Clie
 		outFilename = strings.TrimLeft(urlInfo.RawQuery, "filename=")
 		outFilename = utils.GetDir(urlInfo.Path, outFilename)
 	}
+	outFilename = strings.TrimLeft(outFilename,"/")
+
 	today := time.Now()
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
 	outDir := utils.GetDir(self.OutDir, strconv.Itoa(deal.UserId), timeStr)

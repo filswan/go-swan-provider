@@ -5,6 +5,7 @@ import (
 	cors "github.com/itsjamie/gin-cors"
 	"github.com/joho/godotenv"
 	"os"
+	"strconv"
 	"swan-provider/common/constants"
 	"swan-provider/config"
 	"swan-provider/logs"
@@ -36,7 +37,7 @@ func createHttpServer() {
 	v1 := r.Group("/api/v1")
 	commonRouters.HostManager(v1.Group(constants.URL_HOST_GET_COMMON))
 
-	err := r.Run(":" + config.GetConfig().Port)
+	err := r.Run(":" + strconv.Itoa(config.GetConfig().Port))
 	if err != nil {
 		logs.GetLogger().Fatal(err)
 	}
