@@ -7,17 +7,17 @@ import (
 )
 
 type Configuration struct {
-	Port  string        `toml:"port"`
+	Port  int           `toml:"port"`
 	Aria2 aria2         `toml:"aria2"`
 	Main  main          `toml:"main"`
 	Bid   bid           `toml:"bid"`
 }
 
 type aria2 struct {
-	Aria2DownloadDir             string      `toml:"aria2_download_dir"`
-	Aria2Host                    string      `toml:"aria2_host"`
-	Aria2Port                    int         `toml:"aria2_port"`
-	Aria2Secret                  string      `toml:"aria2_secret"`
+	Aria2DownloadDir         string        `toml:"aria2_download_dir"`
+	Aria2Host                string        `toml:"aria2_host"`
+	Aria2Port                int           `toml:"aria2_port"`
+	Aria2Secret              string        `toml:"aria2_secret"`
 }
 
 type main struct {
@@ -31,10 +31,10 @@ type main struct {
 }
 
 type bid struct {
-	BidMode             int     `toml:"bid_mode"`
-	ExpectedSealingTime int     `toml:"expected_sealing_time"`
-	StartEpoch          int     `toml:"start_epoch"`
-	AutoBidTaskPerDay   int     `toml:"auto_bid_task_per_day"`
+	BidMode                  int     `toml:"bid_mode"`
+	ExpectedSealingTime      int     `toml:"expected_sealing_time"`
+	StartEpoch               int     `toml:"start_epoch"`
+	AutoBidTaskPerDay        int     `toml:"auto_bid_task_per_day"`
 }
 
 var config *Configuration
