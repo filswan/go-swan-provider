@@ -14,8 +14,8 @@ const GET_OFFLINEDEAL_LIMIT_DEFAULT = 50
 const RESPONSE_STATUS_SUCCESS = "SUCCESS"
 
 type TokenAccessInfo struct {
-	ApiKey      string   `json:"apikey"`
-	AccessToken string   `json:"access_token"`
+	ApiKey      string `json:"apikey"`
+	AccessToken string `json:"access_token"`
 }
 
 type SwanClient struct {
@@ -25,9 +25,9 @@ type SwanClient struct {
 }
 
 type MinerResponse struct {
-	Status      string        `json:"status"`
-	Message     string        `json:"message"`
-	Data        models.Miner  `json:"data"`
+	Status  string       `json:"status"`
+	Message string       `json:"message"`
+	Data    models.Miner `json:"data"`
 }
 
 type GetOfflineDealResponse struct {
@@ -36,7 +36,7 @@ type GetOfflineDealResponse struct {
 }
 
 type GetOfflineDealData struct {
-	Deal    []models.OfflineDeal `json:"deal""`
+	Deal []models.OfflineDeal `json:"deal""`
 }
 
 type UpdateOfflineDealResponse struct {
@@ -45,33 +45,55 @@ type UpdateOfflineDealResponse struct {
 }
 
 type UpdateOfflineDealData struct {
-	Deal    models.OfflineDeal   `json:"deal""`
-	Message string               `json:"message"`
+	Deal    models.OfflineDeal `json:"deal""`
+	Message string             `json:"message"`
+}
+
+func (self *SwanClient) GetJwtToken() bool {
+	for i := 0; i < 3; i++ {
+		uri := self.ApiUrl + "/user/api_keys/jwt"
+		data := TokenAccessInfo{ApiKey: self.ApiKey, AccessToken: config.GetConfig().Main.SwanAccessToken}
+		response := HttpPostNoToken(uri, data)
+
+		if strings.Contains(response, "fail") {
+			message := GetFieldStrFromJson(response, "message")
+			status := GetFieldStrFromJson(response, "status")
+			logs.GetLogger().Error(status, ": ", message)
+			if i < 3 {
+				continue
+			} else {
+				logs.GetLogger().Error("Failed to get token after trying 3 times.")
+				return false
+			}
+		}
+
+		jwtToken := GetFieldMapFromJson(response, "data")
+		if jwtToken == nil {
+			logs.GetLogger().Error("Error: fail to connect swan api")
+			if i < 3 {
+				continue
+			} else {
+				logs.GetLogger().Error("Failed to get token after trying 3 times.")
+				return false
+			}
+		}
+
+		self.Token = jwtToken["jwt"].(string)
+
+		return true
+	}
+
+	return false
 }
 
 func GetSwanClient() *SwanClient {
-	mainConf := config.GetConfig().Main
-	uri := mainConf.SwanApiUrl + "/user/api_keys/jwt"
-	data := TokenAccessInfo{ApiKey: mainConf.SwanApiKey, AccessToken: mainConf.SwanAccessToken}
-	response := HttpPostNoToken(uri, data)
-
-	if strings.Index(response, "fail") >= 0 {
-		message := GetFieldStrFromJson(response, "message")
-		status := GetFieldStrFromJson(response, "status")
-		logs.GetLogger().Fatal(status, ": ", message)
+	swanClient := &SwanClient{
+		ApiUrl: config.GetConfig().Main.SwanApiUrl,
+		ApiKey: config.GetConfig().Main.SwanApiKey,
 	}
 
-	jwtToken := GetFieldMapFromJson(response,"data")
-	if jwtToken == nil {
-		logs.GetLogger().Fatal("Error: fail to connect swan api")
-	}
-
-	jwt:= jwtToken["jwt"].(string)
-
-	swanClient := &SwanClient {
-		ApiUrl: mainConf.SwanApiUrl,
-		ApiKey: mainConf.SwanApiKey,
-		Token: jwt,
+	if !swanClient.GetJwtToken() {
+		logs.GetLogger().Fatal("Failed to get jwt token from swan")
 	}
 
 	return swanClient
@@ -92,6 +114,8 @@ func (self *SwanClient) GetMiner(minerFid string) *MinerResponse {
 }
 
 func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
+	self.GetJwtToken()
+
 	minerResponse := self.GetMiner(minerFid)
 	if minerResponse == nil || strings.ToUpper(minerResponse.Status) != RESPONSE_STATUS_SUCCESS {
 		logs.GetLogger().Error("Error: Get miner information failed")
@@ -137,8 +161,12 @@ func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 }
 
 func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeal {
+	if !self.GetJwtToken() {
+		return nil
+	}
+
 	rowLimit := strconv.Itoa(GET_OFFLINEDEAL_LIMIT_DEFAULT)
-	if limit != nil && len(limit) >0 {
+	if limit != nil && len(limit) > 0 {
 		rowLimit = limit[0]
 	}
 
@@ -160,6 +188,10 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 }
 
 func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) bool {
+	if !self.GetJwtToken() {
+		return false
+	}
+
 	if len(status) == 0 {
 		logs.GetLogger().Error("Please provide status")
 		return false
@@ -204,7 +236,10 @@ func (self *SwanClient) SendHeartbeatRequest(minerFid string) string {
 	params := url.Values{}
 	params.Add("miner_id", minerFid)
 
-	response := HttpPost(apiUrl, self.Token , strings.NewReader(params.Encode()))
+	response := HttpPostNoToken(apiUrl, strings.NewReader(params.Encode()))
+
+	if strings.Contains(response, "fail") {
+		logs.GetLogger().Error("Failed to send heartbeat.")
+	}
 	return response
 }
-
