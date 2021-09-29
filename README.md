@@ -66,7 +66,7 @@ cd go-swan-provider
 # Copy config file and service file
 cp config/aria2.conf /etc/aria2/
 sudo cp aria2c.service /etc/systemd/system/
-# Modify the aria2c.service file in /etc/systemd/system/, especially User & Group to value of $USER
+# Modify /etc/systemd/system/aria2c.service, set User & Group to value of $USER  
 sudo vi /etc/systemd/system/aria2c.service
 
 # Set to start Aria2 automatically
@@ -92,7 +92,6 @@ The output will be like:
 ```shell
 Sep 29 11:07:29 systemd[1]: Started Aria2c download manager.
 Sep 29 11:07:29 aria2c[2008]: 09/29 11:07:29 [NOTICE] IPv4 RPC: listening on TCP port 6800
-Sep 29 11:08:29 aria2c[2008]: 09/29 11:08:29 [NOTICE] Serialized session to '/etc/aria2/aria2.session' successfully.
 ```
 
 The Aira2 service will listen on certain port if installed and started correctly.
