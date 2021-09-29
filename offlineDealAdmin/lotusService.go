@@ -15,14 +15,14 @@ type LotusService struct {
 	ScanIntervalSecond   time.Duration
 }
 
-func GetLotusService()(*LotusService){
-	confMain:=config.GetConfig().Main
+func GetLotusService() *LotusService {
+	confMain := config.GetConfig().Main
 
 	lotusService := &LotusService{
-		MinerFid: confMain.MinerFid,
+		MinerFid:             confMain.MinerFid,
 		ImportIntervalSecond: confMain.LotusImportInterval * time.Second,
-		ExpectedSealingTime: config.GetConfig().Bid.ExpectedSealingTime,
-		ScanIntervalSecond: confMain.LotusScanInterval * time.Second,
+		ExpectedSealingTime:  config.GetConfig().Bid.ExpectedSealingTime,
+		ScanIntervalSecond:   confMain.LotusScanInterval * time.Second,
 	}
 
 	return lotusService
@@ -42,6 +42,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 		onChainStatus, _ := utils.GetDealOnChainStatus(deal.DealCid)
 
 		if len(onChainStatus) == 0 {
+			logs.GetLogger().Error("Failed to get on chain status for :", deal.DealCid)
 			return
 		}
 
@@ -77,7 +78,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 				return
 			}
 
-			if deal.StartEpoch - currentEpoch < self.ExpectedSealingTime {
+			if deal.StartEpoch-currentEpoch < self.ExpectedSealingTime {
 				note := "Deal will start too soon. Do not import this deal."
 				logs.GetLogger().Info(note)
 				note = "Deal expired."
@@ -136,6 +137,7 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 		onChainStatus, onChainMessage := utils.GetDealOnChainStatus(deal.DealCid)
 
 		if len(onChainStatus) == 0 {
+			logs.GetLogger().Error("Failed to get on chain status for :", deal.DealCid)
 			return
 		}
 
@@ -178,4 +180,3 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 		logs.GetLogger().Info(msg)
 	}
 }
-
