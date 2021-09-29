@@ -41,7 +41,7 @@ func GetRewardPerBlock() *big.Int {
 	return rewardBig
 }
 
-func GetFieldFromJson(jsonStr string, fieldName string) (interface{}){
+func GetFieldFromJson(jsonStr string, fieldName string) interface{} {
 	var result map[string]interface{}
 	err := json.Unmarshal([]byte(jsonStr), &result)
 	if err != nil {
@@ -53,7 +53,7 @@ func GetFieldFromJson(jsonStr string, fieldName string) (interface{}){
 	return fieldVal
 }
 
-func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
+func GetFieldStrFromJson(jsonStr string, fieldName string) string {
 	var result map[string]interface{}
 	err := json.Unmarshal([]byte(jsonStr), &result)
 	if err != nil {
@@ -65,7 +65,7 @@ func GetFieldStrFromJson(jsonStr string, fieldName string) (string){
 	return fieldVal.(string)
 }
 
-func GetFieldMapFromJson(jsonStr string, fieldName string) (map[string]interface{}){
+func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{} {
 	var result map[string]interface{}
 	err := json.Unmarshal([]byte(jsonStr), &result)
 	if err != nil {
@@ -78,7 +78,7 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) (map[string]interface
 	return fieldVal.(map[string]interface{})
 }
 
-func ToJson(obj interface{}) (string){
+func ToJson(obj interface{}) string {
 	jsonBytes, err := json.Marshal(obj)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -89,7 +89,7 @@ func ToJson(obj interface{}) (string){
 	return jsonString
 }
 
-func GetDir(root string, dirs ...string) (string) {
+func GetDir(root string, dirs ...string) string {
 	path := root
 
 	for _, dir := range dirs {
@@ -97,12 +97,12 @@ func GetDir(root string, dirs ...string) (string) {
 			continue
 		}
 
-		if strings.HasSuffix(path,"/") {
-			if strings.HasPrefix(dir, "/"){
+		if strings.HasSuffix(path, "/") {
+			if strings.HasPrefix(dir, "/") {
 				dir = strings.TrimLeft(dir, "/")
 			}
 			path = path + dir
-		}else{
+		} else {
 			path = path + "/" + dir
 		}
 	}
@@ -110,7 +110,7 @@ func GetDir(root string, dirs ...string) (string) {
 	return path
 }
 
-func IsFileExists(filePath, fileName string) (bool) {
+func IsFileExists(filePath, fileName string) bool {
 	fileFullPath := GetDir(filePath, fileName)
 	_, err := os.Stat(fileFullPath)
 
@@ -122,7 +122,7 @@ func IsFileExists(filePath, fileName string) (bool) {
 	return true
 }
 
-func IsFileExistsFullPath(fileFullPath string) (bool) {
+func IsFileExistsFullPath(fileFullPath string) bool {
 	_, err := os.Stat(fileFullPath)
 
 	if err != nil {
@@ -137,11 +137,11 @@ func RemoveFile(filePath, fileName string) {
 	fileFullPath := GetDir(filePath, fileName)
 	err := os.Remove(fileFullPath)
 	if err != nil {
-		 logs.GetLogger().Error(err.Error())
+		logs.GetLogger().Error(err.Error())
 	}
 }
 
-func GetFileSize(fileFullPath string) (int64) {
+func GetFileSize(fileFullPath string) int64 {
 	fi, err := os.Stat(fileFullPath)
 	if err != nil {
 		logs.GetLogger().Info(err)
@@ -151,7 +151,7 @@ func GetFileSize(fileFullPath string) (int64) {
 	return fi.Size()
 }
 
-func GetStrFromInt64(num int64) (string) {
+func GetStrFromInt64(num int64) string {
 	return strconv.FormatInt(num, 10)
 }
 
