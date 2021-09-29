@@ -79,8 +79,15 @@ make   # generate binary file and config file to ./build folder
 ```shell
 cd build
 vi ./config/config.toml   # fill valid configuration
+./swan-provider > ./swan-provider.log &
+```
+
+#### Note
+You can add "nohup" before "./swan-provider > ./swan-provider.log &" to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
+```shell
 nohup ./swan-provider > ./swan-provider.log &
 ```
+
 
 #### Config Explanation
 - **port：** the port for restful api
