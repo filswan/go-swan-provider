@@ -83,7 +83,7 @@ vi ./config/config.toml   # fill valid configuration
 ```
 
 #### Note
-You can add "nohup" before "./swan-provider > ./swan-provider.log &" to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
+You can add **nohup** before **./swan-provider > ./swan-provider.log &** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
 ```shell
 nohup ./swan-provider > ./swan-provider.log &
 ```
