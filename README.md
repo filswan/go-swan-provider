@@ -12,33 +12,6 @@ This provider tool listens to the tasks that come from Swan platform. It provide
 - Lotus-miner
 - Aria2
 
-## Config
-* ./config/config.toml.example
-```shell
-port = 8888
-
-[aria2]
-aria2_download_dir = ""   # Directory where offline deal files will be downloaded for importing
-aria2_host = "127.0.0.1"  # Aria2 server address
-aria2_port = 6800         # Aria2 server port
-aria2_secret = "my_aria2_secret"  # Must be the same value as rpc-secure in aria2.conf
-
-[main]
-api_url = "https://api.filswan.com"  # Swan API address. For Swan production, it is "https://api.filswan.com"
-miner_fid = "f0xxxx"          # Your filecoin Miner ID
-import_interval = 600         # 600 seconds or 10 minutes. Importing interval between each deal.
-scan_interval = 600           # 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
-api_key = ""                  # Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
-access_token = ""             # Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
-api_heartbeat_interval = 600  # 600 seconds or 10 minutes. Time interval to send heartbeat.
-
-[bid]
-bid_mode = 1                  # 0: manual, 1: auto
-expected_sealing_time = 1920  # 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
-start_epoch = 2880            # 2880 epoch or 24 hours. Relative value to current epoch
-auto_bid_task_per_day = 20    # auto-bid task limit per day for your miner defined above
-```
-
 ## Installation
 
 Install Aria2
@@ -60,6 +33,7 @@ sudo chown $USER:$USER /etc/aria2/
 touch /etc/aria2/aria2.session
 # Checkout the source and install 
 git clone https://github.com/filswan/go-swan-provider.git
+git checkout main
 
 cd go-swan-provider
 
@@ -96,22 +70,40 @@ Sep 29 11:07:29 aria2c[2008]: 09/29 11:07:29 [NOTICE] IPv4 RPC: listening on TCP
 
 The Aira2 service will listen on certain port if installed and started correctly.
 
-### Step 2. Download code
-```shell
-git clone https://github.com/filswan/go-swan-provider.git
-cd go-swan-provider
-git checkout main
-```
-### Step 3. Compile Code
+### Step 2. Compile Code
 ```shell
 make   # generate binary file and config file to ./build folder
 ```
 
-### Step 4. Start Swan Provider
+### Step 3. Start Swan Provider
 ```shell
 cd build
 vi ./config/config.toml   # fill valid configuration
 nohup ./swan-provider > ./swan-provider.log &
 ```
+
+#### Config Explanation
+* port = 8888
+
+##### [aria2]
+* aria2_download_dir: Directory where offline deal files will be downloaded for importing
+* aria2_host: Aria2 server address
+* aria2_port: Aria2 server port
+* aria2_secret: Must be the same value as rpc-secure in aria2.conf
+
+##### [main]
+* api_url: Swan API address. For Swan production, it is "https://api.filswan.com"
+* miner_fid: Your filecoin Miner ID
+* import_interval: 600 seconds or 10 minutes. Importing interval between each deal.
+* scan_interval: 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
+* api_key: Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
+* access_token: Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
+* api_heartbeat_interval: 600 seconds or 10 minutes. Time interval to send heartbeat.
+
+##### [bid]
+* bid_mode: 0: manual, 1: auto
+* expected_sealing_time: 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
+* start_epoch: 2880 epoch or 24 hours. Relative value to current epoch
+* auto_bid_task_per_day: auto-bid task limit per day for your miner defined above
 
 The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
