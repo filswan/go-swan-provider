@@ -83,27 +83,27 @@ nohup ./swan-provider > ./swan-provider.log &
 ```
 
 #### Config Explanation
-* port = 8888
+- **port：** the port for restful api
 
 ##### [aria2]
-* aria2_download_dir: Directory where offline deal files will be downloaded for importing
-* aria2_host: Aria2 server address
-* aria2_port: Aria2 server port
-* aria2_secret: Must be the same value as rpc-secure in aria2.conf
+- **aria2_download_dir:** Directory where offline deal files will be downloaded for importing
+- **aria2_host:** Aria2 server address
+- **aria2_port:** Aria2 server port
+- **aria2_secret:** Must be the same value as rpc-secure in aria2.conf
 
 ##### [main]
-* api_url: Swan API address. For Swan production, it is "https://api.filswan.com"
-* miner_fid: Your filecoin Miner ID
-* import_interval: 600 seconds or 10 minutes. Importing interval between each deal.
-* scan_interval: 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
-* api_key: Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
-* access_token: Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
-* api_heartbeat_interval: 600 seconds or 10 minutes. Time interval to send heartbeat.
+- **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com"
+- **miner_fid:** Your filecoin Miner ID
+- **import_interval:** 600 seconds or 10 minutes. Importing interval between each deal.
+- **scan_interval:** 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
+- **api_key:** Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
+- **access_token:** Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
+- **api_heartbeat_interval:** 600 seconds or 10 minutes. Time interval to send heartbeat.
 
 ##### [bid]
-* bid_mode: 0: manual, 1: auto
-* expected_sealing_time: 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
-* start_epoch: 2880 epoch or 24 hours. Relative value to current epoch
-* auto_bid_task_per_day: auto-bid task limit per day for your miner defined above
+- **bid_mode:** 0: manual, 1: auto
+- **expected_sealing_time:** 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
+- **start_epoch:** 2880 epoch or 24 hours. Relative value to current epoch
+- **auto_bid_task_per_day:** auto-bid task limit per day for your miner defined above
 
 The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
