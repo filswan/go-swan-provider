@@ -36,7 +36,7 @@ type GetOfflineDealResponse struct {
 }
 
 type GetOfflineDealData struct {
-	Deal []models.OfflineDeal `json:"deal""`
+	Deal []models.OfflineDeal `json:"deal"`
 }
 
 type UpdateOfflineDealResponse struct {
@@ -45,7 +45,7 @@ type UpdateOfflineDealResponse struct {
 }
 
 type UpdateOfflineDealData struct {
-	Deal    models.OfflineDeal `json:"deal""`
+	Deal    models.OfflineDeal `json:"deal"`
 	Message string             `json:"message"`
 }
 
