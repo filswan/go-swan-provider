@@ -9,8 +9,8 @@ This provider tool listens to the tasks that come from Swan platform. It provide
 * Synchronize deal status with Swan platform so that client will know the status changes in realtime.
 
 ## Prerequisite
-- Lotus-miner
-- Aria2
+- lotus-miner
+- aria2
 - go 1.16
 
 ## Installation
