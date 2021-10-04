@@ -15,7 +15,7 @@ This provider tool listens to the tasks that come from Swan platform. It provide
 
 ## Installation
 
-Install Aria2
+Install aria2
 ```shell
 sudo apt install aria2
 ```
