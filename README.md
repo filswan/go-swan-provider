@@ -11,6 +11,7 @@ This provider tool listens to the tasks that come from Swan platform. It provide
 ## Prerequisite
 - Lotus-miner
 - Aria2
+- go 1.16
 
 ## Installation
 
