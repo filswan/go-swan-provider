@@ -9,12 +9,13 @@ This provider tool listens to the tasks that come from Swan platform. It provide
 * Synchronize deal status with Swan platform so that client will know the status changes in realtime.
 
 ## Prerequisite
-- Lotus-miner
-- Aria2
+- lotus-miner
+- aria2
+- go 1.16
 
 ## Installation
 
-Install Aria2
+Install aria2
 ```shell
 sudo apt install aria2
 ```
@@ -33,9 +34,8 @@ sudo chown $USER:$USER /etc/aria2/
 touch /etc/aria2/aria2.session
 # Checkout the source and install 
 git clone https://github.com/filswan/go-swan-provider.git
-git checkout main
-
 cd go-swan-provider
+git checkout main
 
 # Copy config file and service file
 cp config/aria2.conf /etc/aria2/
