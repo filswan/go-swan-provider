@@ -35,7 +35,7 @@ touch /etc/aria2/aria2.session
 # Checkout the source and install 
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout main
+git checkout release-0.1.0
 
 # Copy config file and service file
 cp config/aria2.conf /etc/aria2/
