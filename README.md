@@ -78,14 +78,17 @@ make   # generate binary file and config file to ./build folder
 ### Step 3. Start Swan Provider
 ```shell
 cd build
-vi ./config/config.toml   # fill valid configuration
-./swan-provider > ./swan-provider.log &
+vi ./config/config.toml   # update configuration
+./swan-provider
 ```
 
 #### Note
-You can add **nohup** before **./swan-provider > ./swan-provider.log &** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
+Logs are in directory ./logs
+You can add **nohup** before **./swan-provider** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
+You can add **&** after **./swan-provider** to let the program run in background.
+
 ```shell
-nohup ./swan-provider > ./swan-provider.log &
+nohup ./swan-provider &
 ```
 
 
