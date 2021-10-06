@@ -110,17 +110,19 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 	case ARIA2_TASK_STATUS_COMPLETE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		if fileSizeDownloaded >= 0 {
+			note := fmt.Sprintf("Deal id:%d downloaded", deal.Id)
+			logs.GetLogger().Info(note)
 			updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADED, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
 			}
 		} else {
 			note := fmt.Sprintf("File %s not found on ", filePath)
+			logs.GetLogger().Error(note)
 			updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, utils.GetStrFromInt64(fileSize))
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
 			}
-			logs.GetLogger().Error(note)
 		}
 	default:
 		note := fmt.Sprintf("Download failed, cause: %s", result.ErrorMessage)

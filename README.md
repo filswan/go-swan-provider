@@ -35,7 +35,7 @@ touch /etc/aria2/aria2.session
 # Checkout the source and install 
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout main
+git checkout release-0.1.0
 
 # Copy config file and service file
 cp config/aria2.conf /etc/aria2/
@@ -79,13 +79,16 @@ make   # generate binary file and config file to ./build folder
 ```shell
 cd build
 vi ./config/config.toml   # update configuration
-./swan-provider 
+./swan-provider
 ```
 
 #### Note
-You can add **nohup** before **./swan-provider > ./swan-provider.log &** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
+- Logs are in directory ./logs
+- You can add **nohup** before **./swan-provider** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
+- You can add **&** after **./swan-provider** to let the program run in background.
+
 ```shell
-nohup ./swan-provider > ./swan-provider.log &
+nohup ./swan-provider &
 ```
 
 
@@ -105,7 +108,7 @@ nohup ./swan-provider > ./swan-provider.log &
 - **scan_interval:** 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
 - **api_key:** Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
 - **access_token:** Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
-- **api_heartbeat_interval:** 600 seconds or 10 minutes. Time interval to send heartbeat.
+- **api_heartbeat_interval:** 300 seconds or 5 minutes. Time interval to send heartbeat.
 
 ##### [bid]
 - **bid_mode:** 0: manual, 1: auto
