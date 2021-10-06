@@ -43,7 +43,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 
 		if len(onChainStatus) == 0 {
 			logs.GetLogger().Error("Failed to get on chain status for :", deal.DealCid)
-			return
+			continue
 		}
 
 		logs.GetLogger().Info("Deal on chain status: ", onChainStatus)
@@ -51,7 +51,7 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 		switch onChainStatus {
 		case ONCHAIN_DEAL_STATUS_ERROR:
 			note := "Deal on chain status is error before importing."
-			logs.GetLogger().Info(note)
+			logs.GetLogger().Warn("Deal id:", deal.Id, " ", note)
 			updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
