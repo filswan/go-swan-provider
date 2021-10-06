@@ -11,6 +11,7 @@ test: ## Run unittests
 	@echo "Done testing."
 
 build: ## Build the binary file
+	@echo "Building sp binary to './build'"
 	@go mod download
 	@go mod tidy
 	@mkdir -p ./build/config
