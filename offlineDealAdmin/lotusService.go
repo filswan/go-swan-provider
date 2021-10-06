@@ -39,19 +39,19 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 		msg := fmt.Sprintf("Deal CID: %s. File Path: %s", deal.DealCid, deal.FilePath)
 		logs.GetLogger().Info(msg)
 
-		onChainStatus, _ := utils.GetDealOnChainStatus(deal.DealCid)
+		onChainStatus, message := utils.GetDealOnChainStatus(deal.DealCid)
 
 		if len(onChainStatus) == 0 {
 			logs.GetLogger().Error("Failed to get on chain status for :", deal.DealCid)
-			return
+			continue
 		}
 
 		logs.GetLogger().Info("Deal on chain status: ", onChainStatus)
 
 		switch onChainStatus {
 		case ONCHAIN_DEAL_STATUS_ERROR:
-			note := "Deal on chain status is error before importing."
-			logs.GetLogger().Info(note)
+			note := "Deal on chain status is error before importing." + message
+			logs.GetLogger().Warn("Deal id:", deal.Id, " ", note)
 			updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
@@ -79,13 +79,12 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 			}
 
 			if deal.StartEpoch-currentEpoch < self.ExpectedSealingTime {
-				note := "Deal will start too soon. Do not import this deal."
-				logs.GetLogger().Info(note)
-				note = "Deal expired."
-				updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
+				updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, "Deal expired.")
 				if !updated {
 					logs.GetLogger().Error("Failed to update offline deal status")
 				}
+				note := fmt.Sprintf("Deal id:%d, Deal will start too soon. Do not import this deal.", deal.Id)
+				logs.GetLogger().Warn(note)
 				continue
 			}
 
@@ -101,8 +100,8 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 				if !updated {
 					logs.GetLogger().Error("Failed to update offline deal status")
 				}
-				msg = fmt.Sprintf("Import deal failed. CID: %d. Error message: %s", deal.Id, result)
-				logs.GetLogger().Error(msg)
+				msg = fmt.Sprintf("Import deal failed. id: %d. Error message: %s", deal.Id, result)
+				logs.GetLogger().Warn(msg)
 				continue
 			}
 

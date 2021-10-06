@@ -236,7 +236,7 @@ func (swanClient *SwanClient) SendHeartbeatRequest(minerFid string) string {
 	params := url.Values{}
 	params.Add("miner_id", minerFid)
 
-	response := HttpPostNoToken(apiUrl, strings.NewReader(params.Encode()))
+	response := HttpPost(apiUrl, self.Token, strings.NewReader(params.Encode()))
 
 	if strings.Contains(response, "fail") {
 		logs.GetLogger().Error("Failed to send heartbeat.")

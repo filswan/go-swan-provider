@@ -139,3 +139,4 @@ swan-provider
 .idea/codeStyles/codeStyleConfig.xml
 config/config.toml
 .vscode/launch.json
+__debug_bin
