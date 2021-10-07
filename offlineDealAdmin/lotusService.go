@@ -137,7 +137,7 @@ func (self *LotusService) StartScan(swanClient *utils.SwanClient) {
 
 		if len(onChainStatus) == 0 {
 			logs.GetLogger().Error("Failed to get on chain status for :", deal.DealCid)
-			return
+			continue
 		}
 
 		logs.GetLogger().Info("Deal on chain status: ", onChainStatus)

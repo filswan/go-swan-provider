@@ -8,7 +8,7 @@ GOBIN=$(shell pwd)/build
 
 # Binary names
 PROJECT_NAME=swan-provider
-BINARY_NAME=swan-provider
+BINARY_NAME=$(PROJECT_NAME)
 BINARY_UNIX=$(BINARY_NAME)_unix
 
 PKG := "$(PROJECT_NAME)"
@@ -23,7 +23,6 @@ test: ## Run unittests
 	@echo "Done testing."
 
 build: ## Build the binary file
-	@echo "Building $(PROJECT_NAME) binary to './build'"
 	@go mod download
 	@go mod tidy
 	@mkdir -p ./build/config
