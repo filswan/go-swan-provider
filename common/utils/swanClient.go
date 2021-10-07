@@ -8,6 +8,7 @@ import (
 	"swan-provider/config"
 	"swan-provider/logs"
 	"swan-provider/models"
+	"time"
 )
 
 const GET_OFFLINEDEAL_LIMIT_DEFAULT = 50
@@ -70,6 +71,8 @@ func (swanClient *SwanClient) GetJwtToken(isInit bool) bool {
 				logs.GetLogger().Fatal("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
 			}
 			if i < 3 {
+				logs.GetLogger().Info("Wait, sleeping 5 minutes, and connect again")
+				time.Sleep(5 * time.Minute)
 				continue
 			} else {
 				if isInit {
