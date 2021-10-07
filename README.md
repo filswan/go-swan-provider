@@ -81,6 +81,8 @@ cd build
 vi ~/.swan/provider/config.toml   # update configuration if needed
 ```
 
+The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
+
 #### Note
 - Logs are in directory ./logs
 - You can add **nohup** before **./swan-provider** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
@@ -115,4 +117,3 @@ nohup ./swan-provider &
 - **start_epoch:** 2880 epoch or 24 hours. Relative value to current epoch
 - **auto_bid_task_per_day:** auto-bid task limit per day for your miner defined above
 
-The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
