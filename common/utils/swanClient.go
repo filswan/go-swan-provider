@@ -120,7 +120,9 @@ func GetSwanClient() *SwanClient {
 	}
 
 	if !swanClient.GetJwtToken(true) {
-		logs.GetLogger().Fatal("Failed to get jwt token from swan")
+		logs.GetLogger().Error("Swan provider launch failed.")
+		logs.GetLogger().Error("Failed to connect swan platform.")
+		logs.GetLogger().Fatal("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
 	}
 
 	return swanClient
