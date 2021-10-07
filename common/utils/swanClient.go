@@ -61,7 +61,12 @@ func (swanClient *SwanClient) GetJwtToken(isInit bool) bool {
 			logs.GetLogger().Error(status, ": ", message)
 			if message == "api_key Not found" || message == "Please provide a valid api token." {
 				logs.GetLogger().Error("Swan provider launch failed.")
-				logs.GetLogger().Error("Please check api_key,access_token in ~/.swan/provider/config.toml")
+				if message == "api_key Not found" {
+					logs.GetLogger().Error("Please check api_key in ~/.swan/provider/config.toml")
+				} else {
+					logs.GetLogger().Error("Please check access_token in ~/.swan/provider/config.toml")
+				}
+
 				logs.GetLogger().Fatal("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
 			}
 			if i < 3 {
