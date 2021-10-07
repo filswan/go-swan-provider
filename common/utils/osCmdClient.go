@@ -11,7 +11,7 @@ import (
 
 const SHELL_TO_USE = "bash"
 
-func ExecOsCmd2Screen(cmdStr string) (string ,error){
+func ExecOsCmd2Screen(cmdStr string) (string, error) {
 	out, err := ExecOsCmdBase(cmdStr, true)
 	return out, err
 }
@@ -21,7 +21,7 @@ func ExecOsCmd(cmdStr string) (string, error) {
 	return out, err
 }
 
-func ExecOsCmdBase(cmdStr string, out2Screen bool) (string ,error){
+func ExecOsCmdBase(cmdStr string, out2Screen bool) (string, error) {
 	var stdoutBuf bytes.Buffer
 	var stderrBuf bytes.Buffer
 
@@ -42,10 +42,10 @@ func ExecOsCmdBase(cmdStr string, out2Screen bool) (string ,error){
 	}
 
 	if len(stderrBuf.Bytes()) != 0 {
-		outErr :=errors.New(string(stderrBuf.Bytes()))
+		outErr := errors.New(stderrBuf.String())
 		logs.GetLogger().Error(cmdStr, outErr)
 		return "", outErr
 	}
 
-	return string(stdoutBuf.Bytes()), nil
+	return stdoutBuf.String(), nil
 }

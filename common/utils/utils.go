@@ -49,7 +49,7 @@ func GetFieldFromJson(jsonStr string, fieldName string) interface{} {
 		return nil
 	}
 
-	fieldVal := result[fieldName].(interface{})
+	fieldVal := result[fieldName]
 	return fieldVal
 }
 
@@ -61,7 +61,7 @@ func GetFieldStrFromJson(jsonStr string, fieldName string) string {
 		return ""
 	}
 
-	fieldVal := result[fieldName].(interface{})
+	fieldVal := result[fieldName]
 	return fieldVal.(string)
 }
 
@@ -73,7 +73,7 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{
 		return nil
 	}
 
-	fieldVal := result[fieldName].(interface{})
+	fieldVal := result[fieldName]
 
 	return fieldVal.(map[string]interface{})
 }
