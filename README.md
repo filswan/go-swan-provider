@@ -77,8 +77,8 @@ make   # generate binary file and config file to ./build folder
 ### Step 3. Start Swan Provider
 ```shell
 cd build
-vi ~/.swan/provider/config.toml   # update configuration
 ./swan-provider
+vi ~/.swan/provider/config.toml   # update configuration if needed
 ```
 
 #### Note
