@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"swan-provider/logs"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -35,15 +36,15 @@ type bid struct {
 	BidMode             int `toml:"bid_mode"`
 	ExpectedSealingTime int `toml:"expected_sealing_time"`
 	StartEpoch          int `toml:"start_epoch"`
-	AutoBidDealPerDay   int `toml:"auto_bid_deal_per_day"`
+	AutoBidTaskPerDay   int `toml:"auto_bid_task_per_day"`
 }
 
 var config *Configuration
 
 func InitConfig() {
-	//if strings.Trim(configFile, " ") == "" {
-	configFile := "./config/config.toml"
-	//}
+	configFile := generateConfigFile()
+	logs.GetLogger().Info("Your config file is:", configFile)
+
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
 		log.Fatal("error:", err)
 	} else {

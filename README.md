@@ -35,7 +35,7 @@ touch /etc/aria2/aria2.session
 # Checkout the source and install 
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout main
+git checkout release-0.1.0
 
 # Copy config file and service file
 cp config/aria2.conf /etc/aria2/
@@ -78,7 +78,7 @@ make   # generate binary file and config file to ./build folder
 ### Step 3. Start Swan Provider
 ```shell
 cd build
-vi ./config/config.toml   # update configuration
+vi ~/.swan/provider/config.toml   # update configuration
 ./swan-provider
 ```
 

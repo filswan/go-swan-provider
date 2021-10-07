@@ -103,6 +103,11 @@ func (swanClient *SwanClient) GetMiner(minerFid string) *MinerResponse {
 	apiUrl := swanClient.ApiUrl + "/miner/info/" + minerFid
 
 	response := HttpGetNoToken(apiUrl, "")
+	msg := GetFieldStrFromJson(response, "message")
+	if msg == "Miner Not found" {
+		logs.GetLogger().Fatal("Cannot find your miner:", minerFid)
+	}
+
 	minerResponse := &MinerResponse{}
 	err := json.Unmarshal([]byte(response), minerResponse)
 	if err != nil {

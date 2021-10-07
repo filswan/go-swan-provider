@@ -3,6 +3,7 @@ package offlineDealAdmin
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"swan-provider/common/utils"
@@ -21,6 +22,11 @@ func GetAria2Service() *Aria2Service {
 	aria2Service := &Aria2Service{
 		MinerFid: config.GetConfig().Main.MinerFid,
 		OutDir:   config.GetConfig().Aria2.Aria2DownloadDir,
+	}
+
+	_, err := os.Stat(aria2Service.OutDir)
+	if err != nil {
+		logs.GetLogger().Fatal("Your download directory:", aria2Service.OutDir, " not exists.")
 	}
 
 	return aria2Service
@@ -88,7 +94,7 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 
 	switch status {
 	case ARIA2_TASK_STATUS_ERROR:
-		note := fmt.Sprintf("Deal status for %s, code:%s, message:%s, status:%s", gid, code, message, status)
+		note := fmt.Sprintf("Deal:%s status for %s, code:%s, message:%s, status:%s", deal.DealCid, gid, code, message, status)
 		if !utils.IsFileExistsFullPath(self.OutDir) {
 			note = fmt.Sprintf("%s.aria2 download directory: %s not exists", note, self.OutDir)
 		}
@@ -105,12 +111,12 @@ func (self *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Clien
 				logs.GetLogger().Error("Failed to update offline deal status")
 			}
 		}
-		msg := fmt.Sprintf("Deal downloading, id: %d, file size: %d, complete: %.2f%%, speed: %dKiB", deal.Id, fileSize, completePercent, downloadSpeed)
+		msg := fmt.Sprintf("Deal downloading, CID: %s, file size: %d, complete: %.2f%%, speed: %dKiB", deal.DealCid, fileSize, completePercent, downloadSpeed)
 		logs.GetLogger().Info(msg)
 	case ARIA2_TASK_STATUS_COMPLETE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		if fileSizeDownloaded >= 0 {
-			note := fmt.Sprintf("Deal id:%d downloaded", deal.Id)
+			note := fmt.Sprintf("Deal:%s downloaded", deal.DealCid)
 			logs.GetLogger().Info(note)
 			updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADED, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
 			if !updated {
@@ -163,7 +169,7 @@ func (self *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Clie
 		if !updated {
 			logs.GetLogger().Error("Failed to update offline deal status")
 		}
-		msg = fmt.Sprintf("Deal id:%d, %s", deal.Id, msg)
+		msg = fmt.Sprintf("Deal:%s, %s", deal.DealCid, msg)
 		logs.GetLogger().Error(msg)
 		return
 	}
