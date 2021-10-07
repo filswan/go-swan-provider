@@ -85,10 +85,19 @@ func (swanClient *SwanClient) GetJwtToken(isInit bool) bool {
 			}
 		}
 
+		if response == "" && i < 3 {
+			logs.GetLogger().Error("Failed to connect swan platform.")
+			logs.GetLogger().Info("Wait, sleeping 5 minutes, and connect again")
+			time.Sleep(5 * time.Minute)
+			continue
+		}
+
 		jwtToken := GetFieldMapFromJson(response, "data")
 		if jwtToken == nil {
 			logs.GetLogger().Error("Error: fail to connect swan api")
 			if i < 3 {
+				logs.GetLogger().Info("Wait, sleeping 5 minutes, and connect again")
+				time.Sleep(5 * time.Minute)
 				continue
 			} else {
 				logs.GetLogger().Error("Failed to get token after trying 3 times.")
