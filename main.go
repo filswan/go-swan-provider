@@ -1,9 +1,6 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	cors "github.com/itsjamie/gin-cors"
-	"github.com/joho/godotenv"
 	"os"
 	"strconv"
 	"swan-provider/common/constants"
@@ -12,12 +9,16 @@ import (
 	"swan-provider/offlineDealAdmin"
 	"swan-provider/routers/commonRouters"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	cors "github.com/itsjamie/gin-cors"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	//LoadEnv()
 	logs.InitLogger()
-	config.InitConfig()
+	//config.InitConfig()
 	offlineDealAdmin.AdminOfflineDeal()
 	createHttpServer()
 }

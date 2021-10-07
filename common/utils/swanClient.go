@@ -8,6 +8,7 @@ import (
 	"swan-provider/config"
 	"swan-provider/logs"
 	"swan-provider/models"
+	"time"
 )
 
 const GET_OFFLINEDEAL_LIMIT_DEFAULT = 50
@@ -49,7 +50,7 @@ type UpdateOfflineDealData struct {
 	Message string             `json:"message"`
 }
 
-func (swanClient *SwanClient) GetJwtToken() bool {
+func (swanClient *SwanClient) GetJwtToken(isInit bool) bool {
 	for i := 0; i < 3; i++ {
 		uri := swanClient.ApiUrl + "/user/api_keys/jwt"
 		data := TokenAccessInfo{ApiKey: swanClient.ApiKey, AccessToken: config.GetConfig().Main.SwanAccessToken}
@@ -59,18 +60,44 @@ func (swanClient *SwanClient) GetJwtToken() bool {
 			message := GetFieldStrFromJson(response, "message")
 			status := GetFieldStrFromJson(response, "status")
 			logs.GetLogger().Error(status, ": ", message)
+			if message == "api_key Not found" || message == "Please provide a valid api token." {
+				logs.GetLogger().Error("Swan provider launch failed.")
+				if message == "api_key Not found" {
+					logs.GetLogger().Error("Please check api_key in ~/.swan/provider/config.toml")
+				} else {
+					logs.GetLogger().Error("Please check access_token in ~/.swan/provider/config.toml")
+				}
+
+				logs.GetLogger().Fatal("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
+			}
 			if i < 3 {
+				logs.GetLogger().Info("Wait, sleeping 5 minutes, and connect again")
+				time.Sleep(5 * time.Minute)
 				continue
 			} else {
+				if isInit {
+					logs.GetLogger().Error("Swan provider launch failed.")
+					logs.GetLogger().Error("Failed to connect swan platform.")
+					logs.GetLogger().Fatal("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
+				}
 				logs.GetLogger().Error("Failed to get token after trying 3 times.")
 				return false
 			}
+		}
+
+		if response == "" && i < 3 {
+			logs.GetLogger().Error("Failed to connect swan platform.")
+			logs.GetLogger().Info("Wait, sleeping 5 minutes, and connect again")
+			time.Sleep(5 * time.Minute)
+			continue
 		}
 
 		jwtToken := GetFieldMapFromJson(response, "data")
 		if jwtToken == nil {
 			logs.GetLogger().Error("Error: fail to connect swan api")
 			if i < 3 {
+				logs.GetLogger().Info("Wait, sleeping 5 minutes, and connect again")
+				time.Sleep(5 * time.Minute)
 				continue
 			} else {
 				logs.GetLogger().Error("Failed to get token after trying 3 times.")
@@ -92,8 +119,10 @@ func GetSwanClient() *SwanClient {
 		ApiKey: config.GetConfig().Main.SwanApiKey,
 	}
 
-	if !swanClient.GetJwtToken() {
-		logs.GetLogger().Fatal("Failed to get jwt token from swan")
+	if !swanClient.GetJwtToken(true) {
+		logs.GetLogger().Error("Swan provider launch failed.")
+		logs.GetLogger().Error("Failed to connect swan platform.")
+		logs.GetLogger().Fatal("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
 	}
 
 	return swanClient
@@ -105,7 +134,9 @@ func (swanClient *SwanClient) GetMiner(minerFid string) *MinerResponse {
 	response := HttpGetNoToken(apiUrl, "")
 	msg := GetFieldStrFromJson(response, "message")
 	if msg == "Miner Not found" {
-		logs.GetLogger().Fatal("Cannot find your miner:", minerFid)
+		logs.GetLogger().Error("Swan provider launch failed.")
+		logs.GetLogger().Error("Cannot find your miner:", minerFid)
+		logs.GetLogger().Fatal("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
 	}
 
 	minerResponse := &MinerResponse{}
@@ -119,7 +150,7 @@ func (swanClient *SwanClient) GetMiner(minerFid string) *MinerResponse {
 }
 
 func (swanClient *SwanClient) UpdateMinerBidConf(minerFid string) {
-	swanClient.GetJwtToken()
+	swanClient.GetJwtToken(false)
 
 	minerResponse := swanClient.GetMiner(minerFid)
 	if minerResponse == nil || strings.ToUpper(minerResponse.Status) != RESPONSE_STATUS_SUCCESS {
@@ -166,7 +197,7 @@ func (swanClient *SwanClient) UpdateMinerBidConf(minerFid string) {
 }
 
 func (swanClient *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeal {
-	if !swanClient.GetJwtToken() {
+	if !swanClient.GetJwtToken(false) {
 		return nil
 	}
 
@@ -193,7 +224,7 @@ func (swanClient *SwanClient) GetOfflineDeals(minerFid, status string, limit ...
 }
 
 func (swanClient *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) bool {
-	if !swanClient.GetJwtToken() {
+	if !swanClient.GetJwtToken(false) {
 		return false
 	}
 

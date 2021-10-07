@@ -77,9 +77,11 @@ make   # generate binary file and config file to ./build folder
 ### Step 3. Start Swan Provider
 ```shell
 cd build
-vi ~/.swan/provider/config.toml   # update configuration
 ./swan-provider
+vi ~/.swan/provider/config.toml   # update configuration if needed
 ```
+
+The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
 
 #### Note
 - Logs are in directory ./logs
@@ -115,4 +117,3 @@ nohup ./swan-provider &
 - **start_epoch:** 2880 epoch or 24 hours. Relative value to current epoch
 - **auto_bid_task_per_day:** auto-bid task limit per day for your miner defined above
 
-The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
