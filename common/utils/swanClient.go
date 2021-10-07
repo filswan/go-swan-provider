@@ -59,6 +59,9 @@ func (swanClient *SwanClient) GetJwtToken() bool {
 			message := GetFieldStrFromJson(response, "message")
 			status := GetFieldStrFromJson(response, "status")
 			logs.GetLogger().Error(status, ": ", message)
+			if message == "api_key Not found" {
+				logs.GetLogger().Fatal(message, " please check api_key,access_token in ~/.swan/provider/config.toml")
+			}
 			if i < 3 {
 				continue
 			} else {
