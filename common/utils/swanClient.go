@@ -133,7 +133,7 @@ func (swanClient *SwanClient) UpdateMinerBidConf(minerFid string) {
 	if miner.BidMode == confBid.BidMode &&
 		miner.ExpectedSealingTime == confBid.ExpectedSealingTime &&
 		miner.StartEpoch == confBid.StartEpoch &&
-		miner.AutoBidDealPerDay == confBid.AutoBidDealPerDay {
+		miner.AutoBidTaskPerDay == confBid.AutoBidTaskPerDay {
 		logs.GetLogger().Info("No changes in bid configuration")
 		return
 	}
@@ -146,7 +146,7 @@ func (swanClient *SwanClient) UpdateMinerBidConf(minerFid string) {
 	params.Add("bid_mode", strconv.Itoa(confBid.BidMode))
 	params.Add("expected_sealing_time", strconv.Itoa(confBid.ExpectedSealingTime))
 	params.Add("start_epoch", strconv.Itoa(confBid.StartEpoch))
-	params.Add("auto_bid_deal_per_day", strconv.Itoa(confBid.AutoBidDealPerDay))
+	params.Add("auto_bid_task_per_day", strconv.Itoa(confBid.AutoBidTaskPerDay))
 
 	response := HttpPost(apiUrl, swanClient.Token, strings.NewReader(params.Encode()))
 
