@@ -26,6 +26,7 @@ func GetAria2Service() *Aria2Service {
 
 	_, err := os.Stat(aria2Service.OutDir)
 	if err != nil {
+		logs.GetLogger().Error("Swan provider launch failed.")
 		logs.GetLogger().Fatal("Your download directory:", aria2Service.OutDir, " not exists.")
 	}
 

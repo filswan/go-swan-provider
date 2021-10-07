@@ -60,6 +60,7 @@ func (swanClient *SwanClient) GetJwtToken() bool {
 			status := GetFieldStrFromJson(response, "status")
 			logs.GetLogger().Error(status, ": ", message)
 			if message == "api_key Not found" {
+				logs.GetLogger().Error("Swan provider launch failed.")
 				logs.GetLogger().Fatal(message, " please check api_key,access_token in ~/.swan/provider/config.toml")
 			}
 			if i < 3 {
@@ -108,6 +109,7 @@ func (swanClient *SwanClient) GetMiner(minerFid string) *MinerResponse {
 	response := HttpGetNoToken(apiUrl, "")
 	msg := GetFieldStrFromJson(response, "message")
 	if msg == "Miner Not found" {
+		logs.GetLogger().Error("Swan provider launch failed.")
 		logs.GetLogger().Fatal("Cannot find your miner:", minerFid)
 	}
 
