@@ -49,10 +49,10 @@ type UpdateOfflineDealData struct {
 	Message string             `json:"message"`
 }
 
-func (self *SwanClient) GetJwtToken() bool {
+func (swanClient *SwanClient) GetJwtToken() bool {
 	for i := 0; i < 3; i++ {
-		uri := self.ApiUrl + "/user/api_keys/jwt"
-		data := TokenAccessInfo{ApiKey: self.ApiKey, AccessToken: config.GetConfig().Main.SwanAccessToken}
+		uri := swanClient.ApiUrl + "/user/api_keys/jwt"
+		data := TokenAccessInfo{ApiKey: swanClient.ApiKey, AccessToken: config.GetConfig().Main.SwanAccessToken}
 		response := HttpPostNoToken(uri, data)
 
 		if strings.Contains(response, "fail") {
@@ -78,7 +78,7 @@ func (self *SwanClient) GetJwtToken() bool {
 			}
 		}
 
-		self.Token = jwtToken["jwt"].(string)
+		swanClient.Token = jwtToken["jwt"].(string)
 
 		return true
 	}
@@ -99,10 +99,15 @@ func GetSwanClient() *SwanClient {
 	return swanClient
 }
 
-func (self *SwanClient) GetMiner(minerFid string) *MinerResponse {
-	apiUrl := self.ApiUrl + "/miner/info/" + minerFid
+func (swanClient *SwanClient) GetMiner(minerFid string) *MinerResponse {
+	apiUrl := swanClient.ApiUrl + "/miner/info/" + minerFid
 
 	response := HttpGetNoToken(apiUrl, "")
+	msg := GetFieldStrFromJson(response, "message")
+	if msg == "Miner Not found" {
+		logs.GetLogger().Fatal("Cannot find your miner:", minerFid)
+	}
+
 	minerResponse := &MinerResponse{}
 	err := json.Unmarshal([]byte(response), minerResponse)
 	if err != nil {
@@ -113,10 +118,10 @@ func (self *SwanClient) GetMiner(minerFid string) *MinerResponse {
 	return minerResponse
 }
 
-func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
-	self.GetJwtToken()
+func (swanClient *SwanClient) UpdateMinerBidConf(minerFid string) {
+	swanClient.GetJwtToken()
 
-	minerResponse := self.GetMiner(minerFid)
+	minerResponse := swanClient.GetMiner(minerFid)
 	if minerResponse == nil || strings.ToUpper(minerResponse.Status) != RESPONSE_STATUS_SUCCESS {
 		logs.GetLogger().Error("Error: Get miner information failed")
 		return
@@ -128,22 +133,22 @@ func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 	if miner.BidMode == confBid.BidMode &&
 		miner.ExpectedSealingTime == confBid.ExpectedSealingTime &&
 		miner.StartEpoch == confBid.StartEpoch &&
-		miner.AutoBidTaskPerDay == confBid.AutoBidTaskPerDay {
+		miner.AutoBidDealPerDay == confBid.AutoBidDealPerDay {
 		logs.GetLogger().Info("No changes in bid configuration")
 		return
 	}
 
 	logs.GetLogger().Info("Begin updating bid configuration")
-	apiUrl := self.ApiUrl + "/miner/info"
+	apiUrl := swanClient.ApiUrl + "/miner/info"
 
 	params := url.Values{}
 	params.Add("miner_fid", minerFid)
 	params.Add("bid_mode", strconv.Itoa(confBid.BidMode))
 	params.Add("expected_sealing_time", strconv.Itoa(confBid.ExpectedSealingTime))
 	params.Add("start_epoch", strconv.Itoa(confBid.StartEpoch))
-	params.Add("auto_bid_task_per_day", strconv.Itoa(confBid.AutoBidTaskPerDay))
+	params.Add("auto_bid_deal_per_day", strconv.Itoa(confBid.AutoBidDealPerDay))
 
-	response := HttpPost(apiUrl, self.Token, strings.NewReader(params.Encode()))
+	response := HttpPost(apiUrl, swanClient.Token, strings.NewReader(params.Encode()))
 
 	minerResponse = &MinerResponse{}
 	err := json.Unmarshal([]byte(response), minerResponse)
@@ -160,18 +165,18 @@ func (self *SwanClient) UpdateMinerBidConf(minerFid string) {
 	logs.GetLogger().Info("Bid configuration updated.")
 }
 
-func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeal {
-	if !self.GetJwtToken() {
+func (swanClient *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeal {
+	if !swanClient.GetJwtToken() {
 		return nil
 	}
 
 	rowLimit := strconv.Itoa(GET_OFFLINEDEAL_LIMIT_DEFAULT)
-	if limit != nil && len(limit) > 0 {
+	if len(limit) > 0 {
 		rowLimit = limit[0]
 	}
 
-	urlStr := self.ApiUrl + "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
-	response := HttpGet(urlStr, self.Token, "")
+	urlStr := swanClient.ApiUrl + "/offline_deals/" + minerFid + "?deal_status=" + status + "&limit=" + rowLimit + "&offset=0"
+	response := HttpGet(urlStr, swanClient.Token, "")
 	getOfflineDealResponse := GetOfflineDealResponse{}
 	err := json.Unmarshal([]byte(response), &getOfflineDealResponse)
 	if err != nil {
@@ -187,8 +192,8 @@ func (self *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string
 	return getOfflineDealResponse.Data.Deal
 }
 
-func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) bool {
-	if !self.GetJwtToken() {
+func (swanClient *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) bool {
+	if !swanClient.GetJwtToken() {
 		return false
 	}
 
@@ -197,7 +202,7 @@ func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statu
 		return false
 	}
 
-	apiUrl := self.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
+	apiUrl := swanClient.ApiUrl + "/my_miner/deals/" + strconv.Itoa(dealId)
 
 	params := url.Values{}
 	params.Add("status", status)
@@ -214,7 +219,7 @@ func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statu
 		params.Add("file_size", statusInfo[2])
 	}
 
-	response := HttpPut(apiUrl, self.Token, strings.NewReader(params.Encode()))
+	response := HttpPut(apiUrl, swanClient.Token, strings.NewReader(params.Encode()))
 
 	updateOfflineDealResponse := &UpdateOfflineDealResponse{}
 	err := json.Unmarshal([]byte(response), updateOfflineDealResponse)
@@ -231,12 +236,12 @@ func (self *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statu
 	return true
 }
 
-func (self *SwanClient) SendHeartbeatRequest(minerFid string) string {
-	apiUrl := self.ApiUrl + "/heartbeat"
+func (swanClient *SwanClient) SendHeartbeatRequest(minerFid string) string {
+	apiUrl := swanClient.ApiUrl + "/heartbeat"
 	params := url.Values{}
 	params.Add("miner_id", minerFid)
 
-	response := HttpPost(apiUrl, self.Token, strings.NewReader(params.Encode()))
+	response := HttpPost(apiUrl, swanClient.Token, strings.NewReader(params.Encode()))
 
 	if strings.Contains(response, "fail") {
 		logs.GetLogger().Error("Failed to send heartbeat.")

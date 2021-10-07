@@ -65,7 +65,7 @@ func GetCurrentEpoch() int {
 	words := re.FindAllString(result, -1)
 	logs.GetLogger().Info("words:", words)
 	var currentEpoch int64 = -1
-	if words != nil && len(words) > 0 {
+	if len(words) > 0 {
 		currentEpoch = GetInt64FromStr(words[0])
 	}
 

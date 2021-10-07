@@ -93,14 +93,14 @@ func GetAria2Client() *Aria2Client {
 	return aria2cClient
 }
 
-func (self *Aria2Client) GenPayload4Download(method string, uri string, outDir, outFilename string) Aria2Payload {
+func (aria2Client *Aria2Client) GenPayload4Download(method string, uri string, outDir, outFilename string) Aria2Payload {
 	options := Aria2DownloadOption{
 		Out: outFilename,
 		Dir: outDir,
 	}
 
 	var params []interface{}
-	params = append(params, "token:"+self.token)
+	params = append(params, "token:"+aria2Client.token)
 	var urls []string
 	urls = append(urls, uri)
 	params = append(params, urls)
@@ -116,14 +116,14 @@ func (self *Aria2Client) GenPayload4Download(method string, uri string, outDir, 
 	return payload
 }
 
-func (self *Aria2Client) DownloadFile(uri string, outDir, outFilename string) *Aria2Download {
-	payload := self.GenPayload4Download(ADD_URI, uri, outDir, outFilename)
+func (aria2Client *Aria2Client) DownloadFile(uri string, outDir, outFilename string) *Aria2Download {
+	payload := aria2Client.GenPayload4Download(ADD_URI, uri, outDir, outFilename)
 
 	if IsFileExists(outDir, outFilename) {
 		RemoveFile(outDir, outFilename)
 	}
 
-	response := HttpPostNoToken(self.serverUrl, payload)
+	response := HttpPostNoToken(aria2Client.serverUrl, payload)
 	aria2Download := &Aria2Download{}
 	err := json.Unmarshal([]byte(response), aria2Download)
 	if err != nil {
@@ -134,9 +134,9 @@ func (self *Aria2Client) DownloadFile(uri string, outDir, outFilename string) *A
 	return aria2Download
 }
 
-func (self *Aria2Client) GenPayload4Status(gid string) Aria2Payload {
+func (aria2Client *Aria2Client) GenPayload4Status(gid string) Aria2Payload {
 	var params []interface{}
-	params = append(params, "token:"+self.token)
+	params = append(params, "token:"+aria2Client.token)
 	params = append(params, gid)
 
 	payload := Aria2Payload{
@@ -148,9 +148,9 @@ func (self *Aria2Client) GenPayload4Status(gid string) Aria2Payload {
 	return payload
 }
 
-func (self *Aria2Client) GetDownloadStatus(gid string) *Aria2Status {
-	payload := self.GenPayload4Status(gid)
-	response := HttpPostNoToken(self.serverUrl, payload)
+func (aria2Client *Aria2Client) GetDownloadStatus(gid string) *Aria2Status {
+	payload := aria2Client.GenPayload4Status(gid)
+	response := HttpPostNoToken(aria2Client.serverUrl, payload)
 	//logs.GetLogger().Info(gid, " download status:", response)
 
 	aria2Status := &Aria2Status{}
