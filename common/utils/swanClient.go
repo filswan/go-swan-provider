@@ -49,7 +49,7 @@ type UpdateOfflineDealData struct {
 	Message string             `json:"message"`
 }
 
-func (swanClient *SwanClient) GetJwtToken() bool {
+func (swanClient *SwanClient) GetJwtToken(isInit bool) bool {
 	for i := 0; i < 3; i++ {
 		uri := swanClient.ApiUrl + "/user/api_keys/jwt"
 		data := TokenAccessInfo{ApiKey: swanClient.ApiKey, AccessToken: config.GetConfig().Main.SwanAccessToken}
@@ -67,6 +67,11 @@ func (swanClient *SwanClient) GetJwtToken() bool {
 			if i < 3 {
 				continue
 			} else {
+				if isInit {
+					logs.GetLogger().Error("Swan provider launch failed.")
+					logs.GetLogger().Error("Failed to connect swan platform.")
+					logs.GetLogger().Fatal("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
+				}
 				logs.GetLogger().Error("Failed to get token after trying 3 times.")
 				return false
 			}
@@ -97,7 +102,7 @@ func GetSwanClient() *SwanClient {
 		ApiKey: config.GetConfig().Main.SwanApiKey,
 	}
 
-	if !swanClient.GetJwtToken() {
+	if !swanClient.GetJwtToken(true) {
 		logs.GetLogger().Fatal("Failed to get jwt token from swan")
 	}
 
@@ -126,7 +131,7 @@ func (swanClient *SwanClient) GetMiner(minerFid string) *MinerResponse {
 }
 
 func (swanClient *SwanClient) UpdateMinerBidConf(minerFid string) {
-	swanClient.GetJwtToken()
+	swanClient.GetJwtToken(false)
 
 	minerResponse := swanClient.GetMiner(minerFid)
 	if minerResponse == nil || strings.ToUpper(minerResponse.Status) != RESPONSE_STATUS_SUCCESS {
@@ -173,7 +178,7 @@ func (swanClient *SwanClient) UpdateMinerBidConf(minerFid string) {
 }
 
 func (swanClient *SwanClient) GetOfflineDeals(minerFid, status string, limit ...string) []models.OfflineDeal {
-	if !swanClient.GetJwtToken() {
+	if !swanClient.GetJwtToken(false) {
 		return nil
 	}
 
@@ -200,7 +205,7 @@ func (swanClient *SwanClient) GetOfflineDeals(minerFid, status string, limit ...
 }
 
 func (swanClient *SwanClient) UpdateOfflineDealStatus(dealId int, status string, statusInfo ...string) bool {
-	if !swanClient.GetJwtToken() {
+	if !swanClient.GetJwtToken(false) {
 		return false
 	}
 
