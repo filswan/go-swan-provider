@@ -96,5 +96,6 @@ nohup ./swan-provider &
 
 ## License
 
-[Apache](License)
+[Apache](https://github.com/filswan/go-swan-provider/blob/main/LICENSE)
+
 
