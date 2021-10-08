@@ -82,8 +82,8 @@ nohup ./swan-provider &
 - **miner_fid:** Your filecoin Miner ID
 - **import_interval:** 600 seconds or 10 minutes. Importing interval between each deal.
 - **scan_interval:** 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
-- **api_key:** Your api key. Acquire from https://www.filswan.com/ -> "My Profile"->"Developer Settings". You can also check the Guide.
-- **access_token:** Your access token. Acquire from https://www.filswan.com/ -> "My Profile"->"Developer Settings". You can also check the Guide.
+- **api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide.
+- **access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide.
 - **api_heartbeat_interval:** 300 seconds or 5 minutes. Time interval to send heartbeat.
 
 ##### [bid]
