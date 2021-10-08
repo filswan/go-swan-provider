@@ -40,18 +40,10 @@ chmod +x ./install.sh
 After installing, it maybe fail, due to not setting configuration.
 
 ### Option 2.  Source Code
-#### Step 1. Download Code
-
-#### Step 2. Compile Code
 ```shell
-make   # generate binary file and config file to ./build folder
-```
-
-#### Step 3. Start Swan Provider
-```shell
-cd build
-./swan-provider
-vi ~/.swan/provider/config.toml   # update configuration if needed
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc1/installFromSourceCode.sh
+chmod +x ./install.sh
+./install.sh
 ```
 
 The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
