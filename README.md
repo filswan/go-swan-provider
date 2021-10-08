@@ -15,7 +15,7 @@
 
 ## Features:
 
-Swan Provider tool listens to offline deals that come from Swan platform. It provides the following functions:
+Swan Provider listens to offline deals that come from Swan platform. It provides the following functions:
 
 * Download offline deals automatically using aria2 for downloading service.
 * Import deals using lotus once download completed.
