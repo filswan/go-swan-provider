@@ -1,10 +1,17 @@
-# Swan Provider Tool Guide
+# Swan Provider
 [![Made by FilSwan](https://img.shields.io/badge/made%20by-FilSwan-green.svg)](https://www.filswan.com/)
 [![Chat on Slack](https://img.shields.io/badge/slack-filswan.slack.com-green.svg)](https://filswan.slack.com)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 
 - Join us on our [public Slack channel](https://www.filswan.com/) for news, discussions, and status updates. 
 - [Check out our medium](https://filswan.medium.com) for the latest posts and announcements.
+
+## Table of Contents
+
+- [Features](#Features)
+- [Prerequisite](#Prerequisite)
+- [Installation](#Installation)
+- [How2Use](#How to use)
 
 ## Features:
 
