@@ -24,14 +24,16 @@ This provider tool listens to the tasks that come from Swan platform. It provide
 ## Prerequisite
 - lotus-miner
 - aria2
-- go 1.16
-
-## Installation
-
-Install aria2
 ```shell
 sudo apt install aria2
 ```
+- go 1.16
+
+## Installation
+-   **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
+
+Install aria2
+
 
 ## How to use
 
