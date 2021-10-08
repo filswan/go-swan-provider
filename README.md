@@ -17,8 +17,8 @@
 
 This provider tool listens to the tasks that come from Swan platform. It provides the following functions:
 
-* Download tasks automatically using Aria2 for downloading service.
-* Import deals once download tasks completed.
+* Download offline deals automatically using aria2 for downloading service.
+* Import deals using lotus once download tasks completed.
 * Synchronize deal status with Swan platform so that client will know the status changes in realtime.
 
 ## Prerequisite
