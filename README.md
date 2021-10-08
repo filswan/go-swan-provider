@@ -70,7 +70,7 @@ nohup ./swan-provider &
 
 
 #### Config Explanation
-- **port：** the port for restful api
+- **port：** Default 8888, web api port for extension in future
 
 ##### [aria2]
 - **aria2_download_dir:** Directory where offline deal files will be downloaded for importing
