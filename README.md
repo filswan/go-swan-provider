@@ -47,8 +47,8 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 ### Option 2.  Source Code
 ```shell
 wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc1/installFromSourceCode.sh
-chmod +x ./install.sh
-./install.sh
+chmod +x ./installFromSourceCode.sh
+./installFromSourceCode.sh
 ```
 
 After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
