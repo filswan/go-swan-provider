@@ -230,14 +230,24 @@ func (self *Aria2Service) StartDownload(aria2Client *utils.Aria2Client, swanClie
 	}
 
 	for i := 1; i <= ARIA2_MAX_DOWNLOADING_TASKS-countDownloadingDeals; i++ {
-		deal2Download := self.findNextDealReady2Download(swanClient)
+		deal := self.findNextDealReady2Download(swanClient)
 
-		if deal2Download == nil {
+		if deal == nil {
 			logs.GetLogger().Info("No offline deal to download")
 			break
 		}
 
-		self.StartDownload4Deal(deal2Download, aria2Client, swanClient)
+		if strings.HasPrefix(deal.SourceFileUrl, "/") {
+			note := fmt.Sprintf("Deal CID:%s, id:%d, is already in local directory:%s", deal.DealCid, deal.Id, deal.SourceFileUrl)
+			logs.GetLogger().Info(note)
+			updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADED, "NBFS Deal", deal.SourceFileUrl)
+			if !updated {
+				logs.GetLogger().Error("Failed to update offline deal status")
+			}
+			continue
+		}
+
+		self.StartDownload4Deal(deal, aria2Client, swanClient)
 		time.Sleep(1 * time.Second)
 	}
 }
