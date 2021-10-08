@@ -77,13 +77,15 @@ Sep 29 11:07:29 systemd[1]: Started Aria2c download manager.
 Sep 29 11:07:29 aria2c[2008]: 09/29 11:07:29 [NOTICE] IPv4 RPC: listening on TCP port 6800
 ```
 
+### Option 2.  Source Code
+#### Step 1. Download Code
 
-### Step 2. Compile Code
+#### Step 2. Compile Code
 ```shell
 make   # generate binary file and config file to ./build folder
 ```
 
-### Step 3. Start Swan Provider
+#### Step 3. Start Swan Provider
 ```shell
 cd build
 ./swan-provider
