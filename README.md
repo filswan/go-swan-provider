@@ -11,7 +11,7 @@
 - [Features](#Features)
 - [Prerequisite](#Prerequisite)
 - [Installation](#Installation)
-- [How2Use](#How to use)
+- [How to use](#How-to-use)
 
 ## Features:
 
