@@ -37,7 +37,12 @@ chmod +x ./install.sh
 ./install.sh
 ```
 
-After installing, it maybe fail, due to not setting configuration.
+After installation, swan-provider maybe quit due to lack configuration. Under this situation, you need:
+- First: edit the config file **~/.swan/provider/config.toml** to solve this.
+- Second: execute swan-provider using the following command
+```shell
+./swan-provider-0.1.0-rc-unix
+```
 
 ### Option 2.  Source Code
 ```shell
@@ -46,13 +51,20 @@ chmod +x ./install.sh
 ./install.sh
 ```
 
-The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
+After installation, swan-provider maybe quit due to lack configuration. Under this situation, you need:
+- First: edit the config file **~/.swan/provider/config.toml** to solve this.
+- Second: execute swan-provider using the following command
+```shell
+./build/swan-provider
+```
+
 
 #### Note
+- The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
 - Logs are in directory ./logs
 - You can add **nohup** before **./swan-provider** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
 - You can add **&** after **./swan-provider** to let the program run in background.
-
+- Such as:
 ```shell
 nohup ./swan-provider &
 ```
