@@ -132,10 +132,8 @@ dmypy.json
 .idea/modules.xml
 .idea/runConfigurations.xml
 .idea/vcs.xml
-swan-miner
 swan-provider
 .DS_Store
-swan-provider
 .idea/codeStyles/codeStyleConfig.xml
 config/config.toml
 .vscode/launch.json

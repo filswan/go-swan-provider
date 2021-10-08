@@ -240,7 +240,7 @@ func (self *Aria2Service) StartDownload(aria2Client *utils.Aria2Client, swanClie
 		if strings.HasPrefix(deal.SourceFileUrl, "/") {
 			note := fmt.Sprintf("Deal CID:%s, id:%d, is already in local directory:%s", deal.DealCid, deal.Id, deal.SourceFileUrl)
 			logs.GetLogger().Info(note)
-			updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADED, "NBFS Deal", deal.SourceFileUrl)
+			updated := swanClient.UpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADED, "File download skipped", deal.SourceFileUrl)
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
 			}
