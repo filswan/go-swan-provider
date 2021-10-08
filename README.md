@@ -31,51 +31,13 @@ sudo apt install aria2
 
 ## Installation
 ### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
-
-#### Step 1. Download binary
-#### Step 2. Run Aria2 as System Service
 ```shell
-sudo mkdir /etc/aria2
-# Change user authority to current user
-sudo chown $USER:$USER /etc/aria2/
-# Create a session file
-touch /etc/aria2/aria2.session
-# Checkout the source and install 
-git clone https://github.com/filswan/go-swan-provider.git
-cd go-swan-provider
-
-# Copy config file and service file
-cp config/aria2.conf /etc/aria2/
-sudo cp aria2c.service /etc/systemd/system/
-# Modify /etc/systemd/system/aria2c.service, set User & Group to value of $USER  
-sudo vi /etc/systemd/system/aria2c.service
-
-# Set to start Aria2 automatically
-sudo systemctl enable aria2c.service
-# Start Aria2
-sudo systemctl start aria2c.service
-```
-If modify user is nessecary while the service has been started, service should be reloaded before start.
-```shell
-sudo systemctl daemon-reload
-sudo systemctl start aria2c.service
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc1/install.sh
+chmod +x ./install.sh
+./install.sh
 ```
 
-The Aira2 service will listen on certain port if installed and started correctly.
-
-#### Step 3. Test Aria2 service from log (Optional)
-
-Check if Aria2 service is successfully started
-
-```shell
-journalctl -u aria2c.service -f
-```
-The output will be like:
-
-```shell
-Sep 29 11:07:29 systemd[1]: Started Aria2c download manager.
-Sep 29 11:07:29 aria2c[2008]: 09/29 11:07:29 [NOTICE] IPv4 RPC: listening on TCP port 6800
-```
+After installing, it maybe fail, due to not setting configuration.
 
 ### Option 2.  Source Code
 #### Step 1. Download Code
