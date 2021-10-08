@@ -39,7 +39,7 @@ chmod +x ./install.sh
 
 After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
 - Step 1. edit the config file **~/.swan/provider/config.toml** to solve this.
-- Step 2. execute swan-provider using the following command
+- Step 2. execute **swan-provider** using the following command
 ```shell
 ./swan-provider-0.1.0-rc-unix
 ```
@@ -53,7 +53,7 @@ chmod +x ./install.sh
 
 After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
 - Step 1. edit the config file **~/.swan/provider/config.toml** to solve this.
-- Step 2. execute swan-provider using the following command
+- Step 2. execute **swan-provider** using the following command
 ```shell
 ./build/swan-provider
 ```
