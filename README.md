@@ -11,15 +11,14 @@
 - [Features](#Features)
 - [Prerequisite](#Prerequisite)
 - [Installation](#Installation)
-- [How to use](#How-to-use)
 
 ## Features:
 
 This provider tool listens to the tasks that come from Swan platform. It provides the following functions:
 
 * Download offline deals automatically using aria2 for downloading service.
-* Import deals using lotus once download tasks completed.
-* Synchronize deal status with Swan platform so that client will know the status changes in realtime.
+* Import deals using lotus once download completed.
+* Synchronize deal status to filwan.com so that both client and miner will know the status changes in realtime.
 
 ## Prerequisite
 - lotus-miner
@@ -60,7 +59,6 @@ After installation, swan-provider maybe quit due to lack configuration. Under th
 
 
 #### Note
-- The deal status will be synchronized on the filwan.com, both client and miner will know the status changes in realtime.
 - Logs are in directory ./logs
 - You can add **nohup** before **./swan-provider** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
 - You can add **&** after **./swan-provider** to let the program run in background.
