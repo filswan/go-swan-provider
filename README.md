@@ -1,5 +1,7 @@
 # Swan Provider Tool Guide
-[![Made by Nebula]](https://nebula-ai.com)
+[![Made by Nebula](https://img.shields.io/badge/made%20by-Nebula%20AI-green.svg)](https://nebula-ai.com)
+[![Chat on Slack](https://img.shields.io/badge/slack-filswan.slack.com-green.svg)](https://filswan.slack.com)
+[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 
 ## Features:
 
