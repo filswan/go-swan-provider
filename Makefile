@@ -25,7 +25,6 @@ test: ## Run unittests
 build: ## Build the binary file
 	@go mod download
 	@go mod tidy
-	@mkdir -p ./build/config
 	@go build -o $(GOBIN)/$(BINARY_NAME)  main.go
 	@echo "Done building."
 	@echo "Go to build folder and run \"$(GOBIN)/$(BINARY_NAME)\" to launch swan provider."
