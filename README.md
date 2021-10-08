@@ -30,10 +30,10 @@ sudo apt install aria2
 - go 1.16
 
 ## Installation
--   **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
+### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 
-### Step 1. Download binary
-### Step 2. Run Aria2 as System Service
+#### Step 1. Download binary
+#### Step 2. Run Aria2 as System Service
 ```shell
 sudo mkdir /etc/aria2
 # Change user authority to current user
@@ -63,7 +63,7 @@ sudo systemctl start aria2c.service
 
 The Aira2 service will listen on certain port if installed and started correctly.
 
-### Step 3. Test Aria2 service from log (Optional)
+#### Step 3. Test Aria2 service from log (Optional)
 
 Check if Aria2 service is successfully started
 
@@ -76,7 +76,6 @@ The output will be like:
 Sep 29 11:07:29 systemd[1]: Started Aria2c download manager.
 Sep 29 11:07:29 aria2c[2008]: 09/29 11:07:29 [NOTICE] IPv4 RPC: listening on TCP port 6800
 ```
-## How to use
 
 
 ### Step 2. Compile Code
