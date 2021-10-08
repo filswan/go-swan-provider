@@ -14,11 +14,11 @@
 
 ## Features:
 
-This provider tool listens to the tasks that come from Swan platform. It provides the following functions:
+Swan Provider tool listens to offline deals that come from Swan platform. It provides the following functions:
 
 * Download offline deals automatically using aria2 for downloading service.
 * Import deals using lotus once download completed.
-* Synchronize deal status to [Swan Platform](https://www.filswan.com/) so that both client and miner will know the status changes in realtime.
+* Synchronize deal status to [Swan Platform](https://www.filswan.com/), so that both clients and miners will know the status changes in realtime.
 
 ## Prerequisite
 - lotus-miner
@@ -82,8 +82,8 @@ nohup ./swan-provider &
 - **miner_fid:** Your filecoin Miner ID
 - **import_interval:** 600 seconds or 10 minutes. Importing interval between each deal.
 - **scan_interval:** 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
-- **api_key:** Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
-- **access_token:** Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
+- **api_key:** Your api key. Acquire from https://www.filswan.com/ -> "My Profile"->"Developer Settings". You can also check the Guide.
+- **access_token:** Your access token. Acquire from https://www.filswan.com/ -> "My Profile"->"Developer Settings". You can also check the Guide.
 - **api_heartbeat_interval:** 300 seconds or 5 minutes. Time interval to send heartbeat.
 
 ##### [bid]
