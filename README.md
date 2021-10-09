@@ -46,8 +46,8 @@ chmod +x ./installFromSourceCode.sh
 ./installFromSourceCode.sh
 ```
 
-:bangbang: | After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need
-:---: | :---
+:bangbang:#### Important
+After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need
 - Step 1. edit the config file **~/.swan/provider/config.toml** to solve this.
 - Step 2. execute **swan-provider** using the following command
 ```shell
