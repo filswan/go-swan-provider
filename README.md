@@ -15,7 +15,7 @@
 
 ## Features:
 
-Swan Provider tool listens to offline deals that come from Swan platform. It provides the following functions:
+Swan Provider listens to offline deals that come from Swan platform. It provides the following functions:
 
 * Download offline deals automatically using aria2 for downloading service.
 * Import deals using lotus once download completed.
@@ -32,30 +32,27 @@ sudo apt install aria2
 ## Installation
 ### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ```shell
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc1/install.sh
+wget https://raw.githubusercontent.com/filswan/go-swan-provider/main/install.sh
 chmod +x ./install.sh
 ./install.sh
-```
-
-After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
-- Step 1. edit the config file **~/.swan/provider/config.toml** to solve this.
-- Step 2. execute **swan-provider** using the following command
-```shell
-./swan-provider-0.1.0-rc-unix
 ```
 
 ### Option 2.  Source Code
 ```shell
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc1/installFromSourceCode.sh
-chmod +x ./install.sh
-./install.sh
+git clone https://github.com/filswan/go-swan-provider.git
+cd go-swan-provider
+git checkout <release_name>
+chmod +x ./buld_from_source.sh
+./buld_from_source.sh
 ```
 
-After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
-- Step 1. edit the config file **~/.swan/provider/config.toml** to solve this.
-- Step 2. execute **swan-provider** using the following command
+#### :bangbang: Important
+After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need
+- :one: Edit config file **~/.swan/provider/config.toml** to solve this.
+- :two: Execute **swan-provider** using one of the following commands
 ```shell
-./build/swan-provider
+./swan-provider-0.1.0-rc-unix   #After installation from Option 1
+./build/swan-provider           #After installation from Option 2
 ```
 
 
