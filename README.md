@@ -36,14 +36,6 @@ wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0
 chmod +x ./install.sh
 ./install.sh
 ```
-:bangbang: | This is important
-:---: | :---
-:warning:| After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need::---
-- Step 1. edit the config file **~/.swan/provider/config.toml** to solve this.
-- Step 2. execute **swan-provider** using the following command
-```shell
-./swan-provider-0.1.0-rc-unix
-```
 
 ### Option 2.  Source Code
 ```shell
@@ -54,11 +46,12 @@ chmod +x ./installFromSourceCode.sh
 ./installFromSourceCode.sh
 ```
 
-:warning: After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
+:bangbang: | After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need
+:---: | :---
 - Step 1. edit the config file **~/.swan/provider/config.toml** to solve this.
 - Step 2. execute **swan-provider** using the following command
 ```shell
-./build/swan-provider
+./swan-provider-0.1.0-rc-unix
 ```
 
 
