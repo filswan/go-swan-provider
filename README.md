@@ -41,7 +41,7 @@ chmod +x ./install.sh
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout main
+git checkout <release_name>
 chmod +x ./installFromSourceCode.sh
 ./installFromSourceCode.sh
 ```
