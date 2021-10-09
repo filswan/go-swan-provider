@@ -27,7 +27,7 @@ Swan Provider listens to offline deals that come from Swan platform. It provides
 ```shell
 sudo apt install aria2
 ```
-- go 1.16   **required only when install from souce code**
+- go 1.16     :bulb:**required only when install from souce code**
 
 ## Installation
 ### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
