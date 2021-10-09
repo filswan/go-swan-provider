@@ -1,9 +1,5 @@
 #!/bin/bash
 
-git clone https://github.com/filswan/go-swan-provider.git
-cd go-swan-provider
-git checkout main
-
 sed -i 's/%%USER%%/'${USER}'/g' ./aria2c.service   # Set User & Group to value of $USER
 
 if [ ! -d "/etc/aria2" ]; then

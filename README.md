@@ -37,7 +37,7 @@ chmod +x ./install.sh
 ./install.sh
 ```
 
-After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
+!! After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
 - Step 1. edit the config file **~/.swan/provider/config.toml** to solve this.
 - Step 2. execute **swan-provider** using the following command
 ```shell
@@ -46,12 +46,14 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 
 ### Option 2.  Source Code
 ```shell
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc1/installFromSourceCode.sh
+git clone https://github.com/filswan/go-swan-provider.git
+cd go-swan-provider
+git checkout main
 chmod +x ./installFromSourceCode.sh
 ./installFromSourceCode.sh
 ```
 
-After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
+!! After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need:
 - Step 1. edit the config file **~/.swan/provider/config.toml** to solve this.
 - Step 2. execute **swan-provider** using the following command
 ```shell
