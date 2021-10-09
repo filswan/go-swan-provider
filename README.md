@@ -32,7 +32,7 @@ sudo apt install aria2
 ## Installation
 ### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ```shell
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc1/install.sh
+wget https://raw.githubusercontent.com/filswan/go-swan-provider/main/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
