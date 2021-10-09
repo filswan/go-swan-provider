@@ -48,7 +48,9 @@ chmod +x ./installFromSourceCode.sh
 
 #### :bangbang: Important
 After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need
+
 :one: Edit config file **~/.swan/provider/config.toml** to solve this.
+
 :two: Execute **swan-provider** using one of the following commands
 ```shell
 ./swan-provider-0.1.0-rc-unix   #After install from Option 1
