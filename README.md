@@ -13,7 +13,7 @@
 - [Installation](#Installation)
 - [License](#license)
 
-## Features:
+## Features
 
 Swan Provider listens to offline deals that come from Swan platform. It provides the following functions:
 
@@ -38,6 +38,7 @@ sudo ./install.sh
 ```
 
 ### Option 2.  Source Code
+:bell:**go 1.16+** is required
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
