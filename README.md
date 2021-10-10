@@ -19,7 +19,8 @@ Swan Provider listens to offline deals that come from Swan platform. It provides
 
 * Download offline deals automatically using aria2 for downloading service.
 * Import deals using lotus once download completed.
-* Synchronize deal status to [Swan Platform](https://www.filswan.com/), so that both clients and miners will know the status changes in realtime.
+* Synchronize deal status to [Swan Platform](https://www.filswan.com/), so that both clients and miners will know the status changes in realtime. 
+* Auto bid task from FilSwan bidding market.
 
 ## Prerequisite
 - lotus-miner
@@ -31,17 +32,16 @@ sudo apt install aria2
 ## Installation
 ### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ```shell
-wget https://raw.githubusercontent.com/filswan/go-swan-provider/main/install.sh
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc1/install.sh
 chmod +x ./install.sh
-./install.sh
+sudo ./install.sh
 ```
 
 ### Option 2.  Source Code
-:bell:**go 1.16** is required
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout <release_name>
+git checkout <release_branch>
 chmod +x ./buld_from_source.sh
 ./buld_from_source.sh
 ```
