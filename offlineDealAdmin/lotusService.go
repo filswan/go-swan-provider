@@ -118,6 +118,9 @@ func (self *LotusService) StartImport(swanClient *utils.SwanClient) {
 				logs.GetLogger().Error("Failed to update offline deal status")
 			}
 		}
+
+		logs.GetLogger().Info("Sleeping...")
+		time.Sleep(lotusService.ImportIntervalSecond)
 	}
 }
 
