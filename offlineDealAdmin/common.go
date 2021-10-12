@@ -41,7 +41,7 @@ var swanService = GetSwanService()
 var aria2Service = GetAria2Service()
 var lotusService = GetLotusService()
 
-func AdminOfflineDeal()  {
+func AdminOfflineDeal() {
 	swanService.UpdateBidConf(swanClient)
 	go swanSendHeartbeatRequest()
 	go aria2CheckDownloadStatus()
@@ -81,8 +81,6 @@ func lotusStartImport() {
 	for {
 		logs.GetLogger().Info("Start...")
 		lotusService.StartImport(swanClient)
-		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(lotusService.ImportIntervalSecond)
 	}
 }
 
