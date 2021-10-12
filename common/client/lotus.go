@@ -2,13 +2,14 @@ package client
 
 import (
 	"regexp"
-	"strings"
 	"swan-provider/common/utils"
 	"swan-provider/logs"
 )
 
 const (
-	JSON_RPC_VERSION = "2.0"
+	JSON_RPC_VERSION       = "2.0"
+	CLIENT_GET_DEAL_INFO   = "Filecoin.ClientGetDealInfo"
+	CLIENT_GET_DEAL_STATUS = "Filecoin.ClientGetDealStatus"
 
 	//StorageDealStaged  29
 )
@@ -29,7 +30,7 @@ type LotusClient struct {
 	Token  string
 }
 
-func GenJsonRpcParams(dealCid string) JsonRpcParams {
+func GenJsonRpcParams4ClientGetDealInfo(dealCid string) JsonRpcParams {
 	var params []interface{}
 	getDealInfoParam := GetDealInfoParam{
 		DealCid: dealCid,
@@ -38,7 +39,7 @@ func GenJsonRpcParams(dealCid string) JsonRpcParams {
 
 	jsonRpcParams := JsonRpcParams{
 		JsonRpc: JSON_RPC_VERSION,
-		Method:  "Filecoin.ClientGetDealInfo",
+		Method:  CLIENT_GET_DEAL_INFO,
 		Params:  params,
 		Id:      7878,
 	}
@@ -46,72 +47,65 @@ func GenJsonRpcParams(dealCid string) JsonRpcParams {
 	return jsonRpcParams
 }
 
-func LotusGetDealOnChainStatus1(dealCid string, token string) (string, string) {
-	url := "http://192.168.88.41:1234/rpc/v0"
+func GenJsonRpcParams4ClientGetDealStatus(state int) JsonRpcParams {
+	var params []interface{}
+	params = append(params, state)
 
-	params := GenJsonRpcParams(dealCid)
-	response := utils.HttpPostNoToken(url, params)
+	jsonRpcParams := JsonRpcParams{
+		JsonRpc: JSON_RPC_VERSION,
+		Method:  CLIENT_GET_DEAL_STATUS,
+		Params:  params,
+		Id:      7878,
+	}
+
+	return jsonRpcParams
+}
+
+//"lotus-miner storage-deals list -v | grep -a " + dealCid
+func (lotusClient *LotusClient) LotusClientGetDealStatus(state int) string {
+	params := GenJsonRpcParams4ClientGetDealStatus(state)
+	response := utils.HttpPostNoToken(lotusClient.ApiUrl, params)
+
+	logs.GetLogger().Info(response)
+
+	result := utils.GetFieldStrFromJson(response, "result")
+	if result == "" {
+		logs.GetLogger().Error("Failed to get result from:", lotusClient.ApiUrl)
+		return ""
+	}
+
+	return result
+}
+
+//"lotus-miner storage-deals list -v | grep -a " + dealCid
+func (lotusClient *LotusClient) LotusGetDealOnChainStatus(dealCid string, token string) (string, string) {
+	params := GenJsonRpcParams4ClientGetDealInfo(dealCid)
+	response := utils.HttpPostNoToken(lotusClient.ApiUrl, params)
 
 	logs.GetLogger().Info(response)
 
 	result := utils.GetFieldMapFromJson(response, "result")
 	if result == nil {
-		logs.GetLogger().Error("Failed to get result from:", url)
+		logs.GetLogger().Error("Failed to get result from:", lotusClient.ApiUrl)
 		return "", ""
 	}
 	state := result["State"]
 	if state == nil {
-		logs.GetLogger().Error("Failed to get state from:", url)
+		logs.GetLogger().Error("Failed to get state from:", lotusClient.ApiUrl)
 		return "", ""
 	}
 	message := result["Message"]
 	if message == nil {
-		logs.GetLogger().Error("Failed to get message from:", url)
+		logs.GetLogger().Error("Failed to get message from:", lotusClient.ApiUrl)
 		return "", ""
 	}
 
-	logs.GetLogger().Info(state)
+	status := lotusClient.LotusClientGetDealStatus(state.(int))
+
+	logs.GetLogger().Info(status)
 	logs.GetLogger().Info(message)
 
-	return state.(string), message.(string)
-}
-
-func GetDealOnChainStatus(dealCid string) (string, string) {
-	cmd := "lotus-miner storage-deals list -v | grep -a " + dealCid
-	result, err := ExecOsCmd(cmd)
-
-	if err != nil {
-		logs.GetLogger().Error("Failed to get deal on chain status, please check if lotus-miner is running properly.")
-		logs.GetLogger().Error(err)
-		return "", ""
-	}
-
-	if len(result) == 0 {
-		logs.GetLogger().Error("Deal does not found on chain. DealCid:", dealCid)
-		return "", ""
-	}
-
-	words := strings.Fields(result)
-	status := ""
-	for _, word := range words {
-		if strings.HasPrefix(word, "StorageDeal") {
-			status = word
-			break
-		}
-	}
-
-	if len(status) == 0 {
-		return "", ""
-	}
-
-	message := ""
-
-	for i := 11; i < len(words); i++ {
-		message = message + words[i] + " "
-	}
-
-	message = strings.TrimRight(message, " ")
-	return status, message
+	return status, message.(string)
 }
 
 func GetCurrentEpoch() int {
