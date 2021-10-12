@@ -44,7 +44,7 @@ git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
 git checkout <release_branch>
 chmod +x ./buld_from_source.sh
-./buld_from_source.sh
+sudo ./buld_from_source.sh
 ```
 
 #### :bangbang: Important
