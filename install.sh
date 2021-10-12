@@ -1,6 +1,6 @@
 #!/bin/bash
 
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc2/swan-provider-0.1.0-rc-unix
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc2/swan-provider-0.1.0-rc2-unix
 wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc2/aria2.conf
 wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc2/aria2c.service
 
