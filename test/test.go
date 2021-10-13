@@ -119,7 +119,7 @@ func TestLotusClient() {
 	lotusClinet := client.LotusGetClient()
 	currentEpoch := lotusClinet.GetCurrentEpoch()
 	logs.GetLogger().Info("currentEpoch: ", currentEpoch)
-	status, message := lotusClinet.LotusGetDealOnChainStatus("")
+	status, message := lotusClinet.LotusGetDealOnChainStatus("bafyreigbcdmozbfyr5sfipu7xm4fj23r3g2idgk7jibaku4y4r2z4x55bq")
 	logs.GetLogger().Info("status: ", status)
 	logs.GetLogger().Info("message: ", message)
 }

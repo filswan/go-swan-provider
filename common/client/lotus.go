@@ -53,7 +53,7 @@ func (lotusClient *LotusClient) LotusClientGetDealStatus(state int) string {
 
 	response := utils.HttpPost(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
 
-	logs.GetLogger().Info(response)
+	//logs.GetLogger().Info(response)
 
 	result := utils.GetFieldStrFromJson(response, "result")
 	if result == "" {
@@ -79,7 +79,7 @@ func (lotusClient *LotusClient) LotusGetDealOnChainStatus(dealCid string) (strin
 
 	response := utils.HttpPost(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
 
-	logs.GetLogger().Info(response)
+	//logs.GetLogger().Info(response)
 
 	result := utils.GetFieldMapFromJson(response, "result")
 	if result == nil {
@@ -97,7 +97,9 @@ func (lotusClient *LotusClient) LotusGetDealOnChainStatus(dealCid string) (strin
 		return "", ""
 	}
 
-	status := lotusClient.LotusClientGetDealStatus(state.(int))
+	stateInt := int(state.(float64))
+
+	status := lotusClient.LotusClientGetDealStatus(stateInt)
 
 	logs.GetLogger().Info(status)
 	logs.GetLogger().Info(message)
@@ -117,7 +119,7 @@ func (lotusClient *LotusClient) GetCurrentEpoch() int {
 
 	response := utils.HttpPost(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
 
-	logs.GetLogger().Info(response)
+	//logs.GetLogger().Info(response)
 
 	result := utils.GetFieldMapFromJson(response, "result")
 	if result == nil {
