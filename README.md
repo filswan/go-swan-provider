@@ -73,6 +73,9 @@ nohup ./swan-provider &
 ##### [lotus]
 - **api_url:** Url of lotus web api
 - **access_token:** Lotus access token
+- **miner_api_url:** Url of lotus miner web api
+- **miner_access_token:** Access token of lotus miner web api
+
 
 ##### [aria2]
 - **aria2_download_dir:** Directory where offline deal files will be downloaded for importing
