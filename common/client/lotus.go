@@ -16,13 +16,6 @@ const (
 	LOTUS_MARKET_IMPORT_DATA     = "Filecoin.MarketImportDealData"
 )
 
-type JsonRpcParams struct {
-	JsonRpc string        `json:"jsonrpc"`
-	Method  string        `json:"method"`
-	Params  []interface{} `json:"params"`
-	Id      int           `json:"id"`
-}
-
 type LotusParamSingle struct {
 	DealCid string `json:"/"`
 }
@@ -44,7 +37,7 @@ func LotusGetClient() *LotusClient {
 }
 
 //"lotus-miner storage-deals list -v | grep -a " + dealCid
-func LotusClientGetDealStatus(state int) string {
+func LotusGetDealStatus(state int) string {
 	lotusClient := LotusGetClient()
 
 	var params []interface{}
@@ -57,7 +50,7 @@ func LotusClientGetDealStatus(state int) string {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
+	response := HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
 
 	//logs.GetLogger().Info(response)
 
@@ -85,7 +78,7 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
+	response := HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
 
 	//logs.GetLogger().Info(response)
 
@@ -107,7 +100,7 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 
 	stateInt := int(state.(float64))
 
-	status := LotusClientGetDealStatus(stateInt)
+	status := LotusGetDealStatus(stateInt)
 
 	logs.GetLogger().Info(status)
 	logs.GetLogger().Info(message)
@@ -127,7 +120,7 @@ func LotusGetCurrentEpoch() int {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
+	response := HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
 
 	//logs.GetLogger().Info(response)
 
@@ -162,7 +155,7 @@ func LotusImportData(dealCid string, filepath string) string {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPost(lotusClient.MinerApiUrl, lotusClient.MinerAccessToken, jsonRpcParams)
+	response := HttpPost(lotusClient.MinerApiUrl, lotusClient.MinerAccessToken, jsonRpcParams)
 	if response == "" {
 		msg := "no return"
 		logs.GetLogger().Error(msg)

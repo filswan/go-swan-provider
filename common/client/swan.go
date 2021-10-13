@@ -1,10 +1,11 @@
-package utils
+package client
 
 import (
 	"encoding/json"
 	"net/url"
 	"strconv"
 	"strings"
+	"swan-provider/common/utils"
 	"swan-provider/config"
 	"swan-provider/logs"
 	"swan-provider/models"
@@ -57,8 +58,8 @@ func (swanClient *SwanClient) GetJwtToken(isInit bool) bool {
 		response := HttpPostNoToken(uri, data)
 
 		if strings.Contains(response, "fail") {
-			message := GetFieldStrFromJson(response, "message")
-			status := GetFieldStrFromJson(response, "status")
+			message := utils.GetFieldStrFromJson(response, "message")
+			status := utils.GetFieldStrFromJson(response, "status")
 			logs.GetLogger().Error(status, ": ", message)
 			if message == "api_key Not found" || message == "Please provide a valid api token." {
 				logs.GetLogger().Error("Swan provider launch failed.")
@@ -92,7 +93,7 @@ func (swanClient *SwanClient) GetJwtToken(isInit bool) bool {
 			continue
 		}
 
-		jwtToken := GetFieldMapFromJson(response, "data")
+		jwtToken := utils.GetFieldMapFromJson(response, "data")
 		if jwtToken == nil {
 			logs.GetLogger().Error("Error: fail to connect swan api")
 			if i < 3 {
@@ -132,7 +133,7 @@ func (swanClient *SwanClient) GetMiner(minerFid string) *MinerResponse {
 	apiUrl := swanClient.ApiUrl + "/miner/info/" + minerFid
 
 	response := HttpGetNoToken(apiUrl, "")
-	msg := GetFieldStrFromJson(response, "message")
+	msg := utils.GetFieldStrFromJson(response, "message")
 	if msg == "Miner Not found" {
 		logs.GetLogger().Error("Swan provider launch failed.")
 		logs.GetLogger().Error("Cannot find your miner:", minerFid)

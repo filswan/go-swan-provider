@@ -1,7 +1,7 @@
-package offlineDealAdmin
+package service
 
 import (
-	"swan-provider/common/utils"
+	"swan-provider/common/client"
 	"swan-provider/config"
 	"swan-provider/logs"
 	"time"
@@ -22,11 +22,11 @@ func GetSwanService() *SwanService {
 	return swanService
 }
 
-func (swanService *SwanService) SendHeartbeatRequest(swanClient *utils.SwanClient) {
+func (swanService *SwanService) SendHeartbeatRequest(swanClient *client.SwanClient) {
 	response := swanClient.SendHeartbeatRequest(swanService.MinerFid)
 	logs.GetLogger().Info(response)
 }
 
-func (swanService *SwanService) UpdateBidConf(swanClient *utils.SwanClient) {
+func (swanService *SwanService) UpdateBidConf(swanClient *client.SwanClient) {
 	swanClient.UpdateMinerBidConf(swanService.MinerFid)
 }

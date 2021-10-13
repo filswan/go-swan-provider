@@ -1,8 +1,9 @@
-package utils
+package client
 
 import (
 	"encoding/json"
 	"fmt"
+	"swan-provider/common/utils"
 	"swan-provider/config"
 	"swan-provider/logs"
 )
@@ -15,13 +16,6 @@ type Aria2Client struct {
 	port      int
 	token     string
 	serverUrl string
-}
-
-type Aria2Payload struct {
-	JsonRpc string        `json:"jsonrpc"`
-	Id      string        `json:"id"`
-	Method  string        `json:"method"`
-	Params  []interface{} `json:"params"`
 }
 
 type Aria2DownloadOption struct {
@@ -119,8 +113,8 @@ func (aria2Client *Aria2Client) GenPayload4Download(method string, uri string, o
 func (aria2Client *Aria2Client) DownloadFile(uri string, outDir, outFilename string) *Aria2Download {
 	payload := aria2Client.GenPayload4Download(ADD_URI, uri, outDir, outFilename)
 
-	if IsFileExists(outDir, outFilename) {
-		RemoveFile(outDir, outFilename)
+	if utils.IsFileExists(outDir, outFilename) {
+		utils.RemoveFile(outDir, outFilename)
 	}
 
 	response := HttpPostNoToken(aria2Client.serverUrl, payload)
