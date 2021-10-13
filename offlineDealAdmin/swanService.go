@@ -6,6 +6,7 @@ import (
 	"swan-provider/logs"
 	"time"
 )
+
 type SwanService struct {
 	MinerFid             string
 	ApiHeartbeatInterval time.Duration
@@ -13,21 +14,19 @@ type SwanService struct {
 
 func GetSwanService() *SwanService {
 	mainConf := config.GetConfig().Main
-	swanService := &SwanService {
-		MinerFid: mainConf.MinerFid,
+	swanService := &SwanService{
+		MinerFid:             mainConf.MinerFid,
 		ApiHeartbeatInterval: mainConf.SwanApiHeartbeatInterval * time.Second,
 	}
 
 	return swanService
 }
 
-func (self *SwanService) SendHeartbeatRequest(swanClient *utils.SwanClient) {
-	response := swanClient.SendHeartbeatRequest(self.MinerFid)
+func (swanService *SwanService) SendHeartbeatRequest(swanClient *utils.SwanClient) {
+	response := swanClient.SendHeartbeatRequest(swanService.MinerFid)
 	logs.GetLogger().Info(response)
 }
 
-func (self *SwanService) UpdateBidConf(swanClient *utils.SwanClient) {
-	swanClient.UpdateMinerBidConf(self.MinerFid)
+func (swanService *SwanService) UpdateBidConf(swanClient *utils.SwanClient) {
+	swanClient.UpdateMinerBidConf(swanService.MinerFid)
 }
-
-

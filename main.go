@@ -8,6 +8,7 @@ import (
 	"swan-provider/logs"
 	"swan-provider/offlineDealAdmin"
 	"swan-provider/routers/commonRouters"
+	"swan-provider/test"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,7 @@ import (
 
 func main() {
 	//LoadEnv()
+	test.Test()
 	logs.InitLogger()
 	//config.InitConfig()
 	offlineDealAdmin.AdminOfflineDeal()
