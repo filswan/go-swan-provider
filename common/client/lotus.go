@@ -16,13 +16,6 @@ const (
 	LOTUS_MARKET_IMPORT_DATA     = "Filecoin.MarketImportDealData"
 )
 
-type JsonRpcParams struct {
-	JsonRpc string        `json:"jsonrpc"`
-	Method  string        `json:"method"`
-	Params  []interface{} `json:"params"`
-	Id      int           `json:"id"`
-}
-
 type LotusParamSingle struct {
 	DealCid string `json:"/"`
 }

@@ -18,13 +18,6 @@ type Aria2Client struct {
 	serverUrl string
 }
 
-type Aria2Payload struct {
-	JsonRpc string        `json:"jsonrpc"`
-	Id      string        `json:"id"`
-	Method  string        `json:"method"`
-	Params  []interface{} `json:"params"`
-}
-
 type Aria2DownloadOption struct {
 	Out string `json:"out"`
 	Dir string `json:"dir"`
