@@ -21,7 +21,7 @@ type JsonRpcParams struct {
 	Id      int           `json:"id"`
 }
 
-type GetDealInfoParam struct {
+type LotusGetDealInfoParam struct {
 	DealCid string `json:"/"`
 }
 
@@ -67,7 +67,7 @@ func (lotusClient *LotusClient) LotusClientGetDealStatus(state int) string {
 //"lotus-miner storage-deals list -v | grep -a " + dealCid
 func (lotusClient *LotusClient) LotusGetDealOnChainStatus(dealCid string) (string, string) {
 	var params []interface{}
-	getDealInfoParam := GetDealInfoParam{DealCid: dealCid}
+	getDealInfoParam := LotusGetDealInfoParam{DealCid: dealCid}
 	params = append(params, getDealInfoParam)
 
 	jsonRpcParams := JsonRpcParams{
@@ -131,7 +131,8 @@ func (lotusClient *LotusClient) GetCurrentEpoch() int {
 		return -1
 	}
 
-	return height.(int)
+	heightFloat := height.(float64)
+	return int(heightFloat)
 }
 
 func LotusImportData(dealCid string, filepath string) string {

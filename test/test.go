@@ -2,6 +2,7 @@ package test
 
 import (
 	"strings"
+	"swan-provider/common/client"
 	"swan-provider/common/utils"
 	"swan-provider/config"
 	"swan-provider/logs"
@@ -115,6 +116,14 @@ func TestSendHeartbeatRequest() {
 }
 
 func TestLotusClient() {
-	currentEpoch := utils.GetCurrentEpoch()
+	lotusClinet := client.LotusGetClient()
+	currentEpoch := lotusClinet.GetCurrentEpoch()
 	logs.GetLogger().Info("currentEpoch: ", currentEpoch)
+	status, message := lotusClinet.LotusGetDealOnChainStatus("")
+	logs.GetLogger().Info("status: ", status)
+	logs.GetLogger().Info("message: ", message)
+}
+
+func Test() {
+	TestLotusClient()
 }

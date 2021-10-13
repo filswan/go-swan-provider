@@ -73,9 +73,23 @@ func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{
 		return nil
 	}
 
-	fieldVal := result[fieldName]
+	if result == nil {
+		logs.GetLogger().Error("Failed to parse ", jsonStr, " as map[string]interface{}.")
+		return nil
+	}
 
-	return fieldVal.(map[string]interface{})
+	fieldVal := result[fieldName]
+	if fieldVal == nil {
+		logs.GetLogger().Error("Failed to get ", fieldName, " from ", jsonStr)
+		return nil
+	}
+
+	switch fieldValType := fieldVal.(type) {
+	case map[string]interface{}:
+		return fieldValType
+	default:
+		return nil
+	}
 }
 
 func ToJson(obj interface{}) string {
