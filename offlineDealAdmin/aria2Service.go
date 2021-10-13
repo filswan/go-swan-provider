@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"swan-provider/common/client"
 	"swan-provider/common/utils"
 	"swan-provider/config"
 	"swan-provider/logs"
@@ -34,7 +35,7 @@ func GetAria2Service() *Aria2Service {
 	return aria2Service
 }
 
-func (aria2Service *Aria2Service) findNextDealReady2Download(swanClient *utils.SwanClient) *models.OfflineDeal {
+func (aria2Service *Aria2Service) findNextDealReady2Download(swanClient *client.SwanClient) *models.OfflineDeal {
 	deals := swanClient.GetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_CREATED, "1")
 	if len(deals) == 0 {
 		deals = swanClient.GetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_WAITING, "1")
@@ -48,7 +49,7 @@ func (aria2Service *Aria2Service) findNextDealReady2Download(swanClient *utils.S
 	return nil
 }
 
-func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient, deal *models.OfflineDeal, gid string) {
+func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.Aria2Client, swanClient *client.SwanClient, deal *models.OfflineDeal, gid string) {
 	aria2Status := aria2Client.GetDownloadStatus(gid)
 	if aria2Status == nil {
 		note := fmt.Sprintf("Get status for %s failed, no response", gid)
@@ -142,7 +143,7 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *utils.Ar
 	}
 }
 
-func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
+func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2Client, swanClient *client.SwanClient) {
 	downloadingDeals := swanClient.GetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_DOWNLOADING)
 
 	for _, deal := range downloadingDeals {
@@ -162,7 +163,7 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *utils.Aria2Cl
 	}
 }
 
-func (aria2Service *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
+func (aria2Service *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, aria2Client *client.Aria2Client, swanClient *client.SwanClient) {
 	logs.GetLogger().Info("start downloading deal id ", deal.Id)
 	urlInfo, err := url.Parse(deal.SourceFileUrl)
 	if err != nil {
@@ -222,7 +223,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *models.OfflineDeal, a
 	aria2Service.CheckDownloadStatus4Deal(aria2Client, swanClient, deal, aria2Download.Gid)
 }
 
-func (aria2Service *Aria2Service) StartDownload(aria2Client *utils.Aria2Client, swanClient *utils.SwanClient) {
+func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client, swanClient *client.SwanClient) {
 	downloadingDeals := swanClient.GetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_DOWNLOADING)
 	countDownloadingDeals := len(downloadingDeals)
 	if countDownloadingDeals >= ARIA2_MAX_DOWNLOADING_TASKS {

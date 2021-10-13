@@ -1,7 +1,7 @@
 package offlineDealAdmin
 
 import (
-	"swan-provider/common/utils"
+	"swan-provider/common/client"
 	"swan-provider/logs"
 	"time"
 )
@@ -34,8 +34,8 @@ const ARIA2_MAX_DOWNLOADING_TASKS = 10
 const LOTUS_IMPORT_NUMNBER = "20" //Max number of deals to be imported at a time
 const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
 
-var aria2Client = utils.GetAria2Client()
-var swanClient = utils.GetSwanClient()
+var aria2Client = client.GetAria2Client()
+var swanClient = client.GetSwanClient()
 
 var swanService = GetSwanService()
 var aria2Service = GetAria2Service()

@@ -3,7 +3,6 @@ package offlineDealAdmin
 import (
 	"fmt"
 	"swan-provider/common/client"
-	"swan-provider/common/utils"
 	"swan-provider/config"
 	"swan-provider/logs"
 	"time"
@@ -29,7 +28,7 @@ func GetLotusService() *LotusService {
 	return lotusService
 }
 
-func (lotusService *LotusService) StartImport(swanClient *utils.SwanClient) {
+func (lotusService *LotusService) StartImport(swanClient *client.SwanClient) {
 	deals := swanClient.GetOfflineDeals(lotusService.MinerFid, DEAL_STATUS_IMPORT_READY, LOTUS_IMPORT_NUMNBER)
 	if len(deals) == 0 {
 		logs.GetLogger().Info("No pending offline deals found.")
@@ -125,7 +124,7 @@ func (lotusService *LotusService) StartImport(swanClient *utils.SwanClient) {
 	}
 }
 
-func (lotusService *LotusService) StartScan(swanClient *utils.SwanClient) {
+func (lotusService *LotusService) StartScan(swanClient *client.SwanClient) {
 	deals := swanClient.GetOfflineDeals(lotusService.MinerFid, DEAL_STATUS_IMPORTED, LOTUS_SCAN_NUMBER)
 
 	if len(deals) == 0 {

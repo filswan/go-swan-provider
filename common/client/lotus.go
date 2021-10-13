@@ -57,7 +57,7 @@ func LotusClientGetDealStatus(state int) string {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
+	response := HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
 
 	//logs.GetLogger().Info(response)
 
@@ -85,7 +85,7 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
+	response := HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
 
 	//logs.GetLogger().Info(response)
 
@@ -127,7 +127,7 @@ func LotusGetCurrentEpoch() int {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
+	response := HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
 
 	//logs.GetLogger().Info(response)
 
@@ -162,7 +162,7 @@ func LotusImportData(dealCid string, filepath string) string {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPost(lotusClient.MinerApiUrl, lotusClient.MinerAccessToken, jsonRpcParams)
+	response := HttpPost(lotusClient.MinerApiUrl, lotusClient.MinerAccessToken, jsonRpcParams)
 	if response == "" {
 		msg := "no return"
 		logs.GetLogger().Error(msg)
