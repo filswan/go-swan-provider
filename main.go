@@ -6,8 +6,8 @@ import (
 	"swan-provider/common/constants"
 	"swan-provider/config"
 	"swan-provider/logs"
-	"swan-provider/offlineDealAdmin"
 	"swan-provider/routers/commonRouters"
+	"swan-provider/service"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,7 @@ func main() {
 	//test.Test()
 	logs.InitLogger()
 	//config.InitConfig()
-	offlineDealAdmin.AdminOfflineDeal()
+	service.AdminOfflineDeal()
 	createHttpServer()
 }
 

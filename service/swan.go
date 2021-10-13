@@ -1,4 +1,4 @@
-package offlineDealAdmin
+package service
 
 import (
 	"swan-provider/common/client"

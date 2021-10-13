@@ -2,6 +2,7 @@ package logs
 
 import (
 	"fmt"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -18,8 +19,7 @@ func InitLogger() {
 		TimestampFormat: "2006-01-02 15:04:05.000",
 		FullTimestamp:   true,
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
-			fileRelativePathIndex := strings.LastIndex(f.File, "/") + 1
-			filename := f.File[fileRelativePathIndex:]
+			filename := filepath.Base(f.File)
 			funcRelativePathIndex := strings.LastIndex(f.Function, ".") + 1
 			funcName := f.Function[funcRelativePathIndex:]
 			return funcName, fmt.Sprintf("%s:%d", filename, f.Line)

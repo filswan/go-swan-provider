@@ -1,4 +1,4 @@
-package offlineDealAdmin
+package service
 
 import (
 	"fmt"
