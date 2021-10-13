@@ -49,36 +49,31 @@ func GetFieldFromJson(jsonStr string, fieldName string) interface{} {
 		return nil
 	}
 
-	fieldVal := result[fieldName]
-	return fieldVal
-}
-
-func GetFieldStrFromJson(jsonStr string, fieldName string) string {
-	var result map[string]interface{}
-	err := json.Unmarshal([]byte(jsonStr), &result)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return ""
-	}
-
-	fieldVal := result[fieldName]
-	return fieldVal.(string)
-}
-
-func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{} {
-	var result map[string]interface{}
-	err := json.Unmarshal([]byte(jsonStr), &result)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil
-	}
-
 	if result == nil {
 		logs.GetLogger().Error("Failed to parse ", jsonStr, " as map[string]interface{}.")
 		return nil
 	}
 
 	fieldVal := result[fieldName]
+	return fieldVal
+}
+
+func GetFieldStrFromJson(jsonStr string, fieldName string) string {
+	fieldVal := GetFieldFromJson(jsonStr, fieldName)
+	if fieldVal == nil {
+		return ""
+	}
+
+	switch fieldValType := fieldVal.(type) {
+	case string:
+		return fieldValType
+	default:
+		return ""
+	}
+}
+
+func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{} {
+	fieldVal := GetFieldFromJson(jsonStr, fieldName)
 	if fieldVal == nil {
 		logs.GetLogger().Error("Failed to get ", fieldName, " from ", jsonStr)
 		return nil
