@@ -44,7 +44,9 @@ func LotusGetClient() *LotusClient {
 }
 
 //"lotus-miner storage-deals list -v | grep -a " + dealCid
-func (lotusClient *LotusClient) LotusClientGetDealStatus(state int) string {
+func LotusClientGetDealStatus(state int) string {
+	lotusClient := LotusGetClient()
+
 	var params []interface{}
 	params = append(params, state)
 
@@ -69,7 +71,9 @@ func (lotusClient *LotusClient) LotusClientGetDealStatus(state int) string {
 }
 
 //"lotus-miner storage-deals list -v | grep -a " + dealCid
-func (lotusClient *LotusClient) LotusGetDealOnChainStatus(dealCid string) (string, string) {
+func LotusGetDealOnChainStatus(dealCid string) (string, string) {
+	lotusClient := LotusGetClient()
+
 	var params []interface{}
 	getDealInfoParam := LotusParamSingle{DealCid: dealCid}
 	params = append(params, getDealInfoParam)
@@ -103,7 +107,7 @@ func (lotusClient *LotusClient) LotusGetDealOnChainStatus(dealCid string) (strin
 
 	stateInt := int(state.(float64))
 
-	status := lotusClient.LotusClientGetDealStatus(stateInt)
+	status := LotusClientGetDealStatus(stateInt)
 
 	logs.GetLogger().Info(status)
 	logs.GetLogger().Info(message)
@@ -111,7 +115,9 @@ func (lotusClient *LotusClient) LotusGetDealOnChainStatus(dealCid string) (strin
 	return status, message.(string)
 }
 
-func (lotusClient *LotusClient) GetCurrentEpoch() int {
+func LotusGetCurrentEpoch() int {
+	lotusClient := LotusGetClient()
+
 	var params []interface{}
 
 	jsonRpcParams := JsonRpcParams{
@@ -141,7 +147,9 @@ func (lotusClient *LotusClient) GetCurrentEpoch() int {
 	return int(heightFloat)
 }
 
-func (lotusClient *LotusClient) LotusImportData(dealCid string, filepath string) string {
+func LotusImportData(dealCid string, filepath string) string {
+	lotusClient := LotusGetClient()
+
 	var params []interface{}
 	getDealInfoParam := LotusParamSingle{DealCid: dealCid}
 	params = append(params, getDealInfoParam)
@@ -164,14 +172,14 @@ func (lotusClient *LotusClient) LotusImportData(dealCid string, filepath string)
 
 	errorInfo := utils.GetFieldMapFromJson(response, "error")
 
-	if errorInfo != nil {
-		logs.GetLogger().Error(errorInfo)
-		errCode := errorInfo["code"].(float64)
-		errMsg := errorInfo["message"].(string)
-		msg := fmt.Sprintf("Error code:%f message:%s", errCode, errMsg)
-		logs.GetLogger().Error(msg)
-		return msg
+	if errorInfo == nil {
+		return ""
 	}
 
-	return ""
+	logs.GetLogger().Error(errorInfo)
+	errCode := int(errorInfo["code"].(float64))
+	errMsg := errorInfo["message"].(string)
+	msg := fmt.Sprintf("Error code:%d message:%s", errCode, errMsg)
+	logs.GetLogger().Error(msg)
+	return msg
 }

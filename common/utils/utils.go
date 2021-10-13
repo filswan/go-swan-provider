@@ -75,7 +75,7 @@ func GetFieldStrFromJson(jsonStr string, fieldName string) string {
 func GetFieldMapFromJson(jsonStr string, fieldName string) map[string]interface{} {
 	fieldVal := GetFieldFromJson(jsonStr, fieldName)
 	if fieldVal == nil {
-		logs.GetLogger().Error("Failed to get ", fieldName, " from ", jsonStr)
+		logs.GetLogger().Info("No ", fieldName, " in ", jsonStr)
 		return nil
 	}
 
