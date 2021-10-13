@@ -122,6 +122,8 @@ func TestLotusClient() {
 	status, message := lotusClinet.LotusGetDealOnChainStatus("bafyreigbcdmozbfyr5sfipu7xm4fj23r3g2idgk7jibaku4y4r2z4x55bq")
 	logs.GetLogger().Info("status: ", status)
 	logs.GetLogger().Info("message: ", message)
+	message = lotusClinet.LotusImportData("bafyreiaj7av2qgziwfyvo663a2kjg3n35rvfr2i5r2dyrexxukdbybz7ky", "/tmp/swan-downloads/185/202107/go1.15.5.linux-amd64.tar.gz.car")
+	logs.GetLogger().Info("message: ", message)
 }
 
 func Test() {

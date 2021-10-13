@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"swan-provider/common/utils"
 	"swan-provider/config"
 	"swan-provider/logs"
@@ -12,6 +13,7 @@ const (
 	LOTUS_CLIENT_GET_DEAL_INFO   = "Filecoin.ClientGetDealInfo"
 	LOTUS_CLIENT_GET_DEAL_STATUS = "Filecoin.ClientGetDealStatus"
 	LOTUS_CHAIN_HEAD             = "Filecoin.ChainHead"
+	LOTUS_MARKET_IMPORT_DATA     = "Filecoin.MarketImportDealData"
 )
 
 type JsonRpcParams struct {
@@ -21,7 +23,7 @@ type JsonRpcParams struct {
 	Id      int           `json:"id"`
 }
 
-type LotusGetDealInfoParam struct {
+type LotusParamSingle struct {
 	DealCid string `json:"/"`
 }
 
@@ -51,7 +53,7 @@ func (lotusClient *LotusClient) LotusClientGetDealStatus(state int) string {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPost(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
+	response := utils.HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
 
 	//logs.GetLogger().Info(response)
 
@@ -67,7 +69,7 @@ func (lotusClient *LotusClient) LotusClientGetDealStatus(state int) string {
 //"lotus-miner storage-deals list -v | grep -a " + dealCid
 func (lotusClient *LotusClient) LotusGetDealOnChainStatus(dealCid string) (string, string) {
 	var params []interface{}
-	getDealInfoParam := LotusGetDealInfoParam{DealCid: dealCid}
+	getDealInfoParam := LotusParamSingle{DealCid: dealCid}
 	params = append(params, getDealInfoParam)
 
 	jsonRpcParams := JsonRpcParams{
@@ -77,7 +79,7 @@ func (lotusClient *LotusClient) LotusGetDealOnChainStatus(dealCid string) (strin
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPost(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
+	response := utils.HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
 
 	//logs.GetLogger().Info(response)
 
@@ -117,7 +119,7 @@ func (lotusClient *LotusClient) GetCurrentEpoch() int {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPost(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
+	response := utils.HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
 
 	//logs.GetLogger().Info(response)
 
@@ -137,16 +139,31 @@ func (lotusClient *LotusClient) GetCurrentEpoch() int {
 	return int(heightFloat)
 }
 
-func LotusImportData(dealCid string, filepath string) string {
-	cmd := "lotus-miner storage-deals import-data " + dealCid + " " + filepath
-	logs.GetLogger().Info(cmd)
+func (lotusClient *LotusClient) LotusImportData(dealCid string, filepath string) string {
+	var params []interface{}
+	getDealInfoParam := LotusParamSingle{DealCid: dealCid}
+	params = append(params, getDealInfoParam)
+	params = append(params, filepath)
 
-	result, err := utils.ExecOsCmd(cmd)
-
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return ""
+	jsonRpcParams := JsonRpcParams{
+		JsonRpc: LOTUS_JSON_RPC_VERSION,
+		Method:  LOTUS_MARKET_IMPORT_DATA,
+		Params:  params,
+		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	return result
+	response := utils.HttpPost(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
+
+	errorInfo := utils.GetFieldMapFromJson(response, "error")
+
+	if errorInfo != nil {
+		logs.GetLogger().Error(errorInfo)
+		errCode := errorInfo["code"].(float64)
+		errMsg := errorInfo["message"].(string)
+		msg := fmt.Sprintf("Error code:%f message:%s", errCode, errMsg)
+		logs.GetLogger().Error(msg)
+		return msg
+	}
+
+	return ""
 }
