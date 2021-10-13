@@ -50,6 +50,11 @@ func generateConfigFile() string {
 		configs := []string{
 			"port = 8888",
 			"",
+			"[lotus]",
+			"api_url=\"http://192.168.88.41:1234/rpc/v0\"     # Url of lotus web api",
+			"access_token=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.-Y4pF34RGOten6YXoau-sEMOWOEeiHwGh9u2lsl4cv8\" # Lotus access token",
+			"",
+
 			"[aria2]",
 			fmt.Sprintf("aria2_download_dir = \"%s\"   # Directory where offline deal files will be downloaded for importing", downloadDir),
 			"aria2_host = \"127.0.0.1\"  # Aria2 server address",

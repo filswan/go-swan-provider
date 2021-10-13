@@ -70,6 +70,10 @@ nohup ./swan-provider &
 #### Config Explanation
 - **port：** Default 8888, web api port for extension in future
 
+##### [lotus]
+- **api_url:** Url of lotus web api
+- **access_token:** Lotus access token
+
 ##### [aria2]
 - **aria2_download_dir:** Directory where offline deal files will be downloaded for importing
 - **aria2_host:** Aria2 server address
