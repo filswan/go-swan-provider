@@ -7,6 +7,7 @@ import (
 	"swan-provider/logs"
 	"swan-provider/models"
 	"swan-provider/offlineDealAdmin"
+	"time"
 )
 
 type Todo struct {
@@ -14,6 +15,13 @@ type Todo struct {
 	ID        int    `json:"id"`
 	Title     string `json:"title"`
 	Completed bool   `json:"completed"`
+}
+
+func GetCurrentEpoch() int {
+	currentNanoSec := time.Now().UnixNano()
+	currentEpoch := (currentNanoSec/1e9 - 1598306471) / 30
+	logs.GetLogger().Info(currentEpoch)
+	return int(currentEpoch)
 }
 
 func TestRestApiClient() {
@@ -24,24 +32,24 @@ func TestRestApiClient() {
 	response = utils.HttpPostNoToken("https://jsonplaceholder.typicode.com/todos", todo)
 	logs.GetLogger().Info(response)
 
-	response = utils.HttpPut("https://jsonplaceholder.typicode.com/todos/1", "",todo)
+	response = utils.HttpPut("https://jsonplaceholder.typicode.com/todos/1", "", todo)
 	logs.GetLogger().Info(response)
 
-	title := utils.GetFieldFromJson(response,"title")
+	title := utils.GetFieldFromJson(response, "title")
 	logs.GetLogger().Info(title)
 
-	response = utils.HttpDelete("https://jsonplaceholder.typicode.com/todos/1", "",todo)
+	response = utils.HttpDelete("https://jsonplaceholder.typicode.com/todos/1", "", todo)
 	logs.GetLogger().Info(response)
 }
 
 func TestSwanClient() {
 	swanClient := utils.GetSwanClient()
 	mainConf := config.GetConfig().Main
-	deals := swanClient.GetOfflineDeals(mainConf.MinerFid,"Downloading", "10")
+	deals := swanClient.GetOfflineDeals(mainConf.MinerFid, "Downloading", "10")
 	logs.GetLogger().Info(deals)
 
-	response := swanClient.UpdateOfflineDealStatus(2455, "Downloaded","test note")
-	response = swanClient.UpdateOfflineDealStatus(2455,"Completed","test note","/test/test","0003222")
+	response := swanClient.UpdateOfflineDealStatus(2455, "Downloaded", "test note")
+	response = swanClient.UpdateOfflineDealStatus(2455, "Completed", "test note", "/test/test", "0003222")
 	logs.GetLogger().Info(response)
 }
 
@@ -50,8 +58,8 @@ func TestAriaClient() {
 
 	aria2Client := utils.GetAria2Client()
 	offlineDeal := &models.OfflineDeal{
-		Id: 163,
-		UserId: 163,
+		Id:            163,
+		UserId:        163,
 		SourceFileUrl: "https://file-examples-com.github.io/uploads/2020/03/file_example_WEBP_500kB.webp",
 	}
 
@@ -68,7 +76,7 @@ func TestDownloader() {
 	aria2Service.CheckDownloadStatus(aria2Client, swanClient)
 }
 
-func TestOsCmdClient()  {
+func TestOsCmdClient() {
 	result, err := utils.ExecOsCmd("ls -l")
 	logs.GetLogger().Info(result, err)
 
@@ -84,14 +92,16 @@ func TestOsCmdClient()  {
 	}
 }
 
-func TestOsCmdClient1()  {
-	/*result, err := */utils.ExecOsCmd2Screen("ls -l")
+func TestOsCmdClient1() {
+	/*result, err := */ utils.ExecOsCmd2Screen("ls -l")
 	//logs.GetLogger().Info(result, err)
 
-	/*result, err = */utils.ExecOsCmd2Screen("pwd")
+	/*result, err = */
+	utils.ExecOsCmd2Screen("pwd")
 	//logs.GetLogger().Info(result, err)
 
-	/*result, err = */utils.ExecOsCmd2Screen("ls -l | grep x")
+	/*result, err = */
+	utils.ExecOsCmd2Screen("ls -l | grep x")
 	//logs.GetLogger().Info(result, err)
 }
 

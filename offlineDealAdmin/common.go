@@ -81,6 +81,8 @@ func lotusStartImport() {
 	for {
 		logs.GetLogger().Info("Start...")
 		lotusService.StartImport(swanClient)
+		logs.GetLogger().Info("Sleeping...")
+		time.Sleep(lotusService.ImportIntervalSecond)
 	}
 }
 
@@ -89,6 +91,6 @@ func lotusStartScan() {
 		logs.GetLogger().Info("Start...")
 		lotusService.StartScan(swanClient)
 		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(lotusService.ImportIntervalSecond)
+		time.Sleep(lotusService.ScanIntervalSecond)
 	}
 }
