@@ -28,14 +28,16 @@ type LotusParamSingle struct {
 }
 
 type LotusClient struct {
-	ApiUrl      string
-	AccessToken string
+	ApiUrl           string
+	MinerApiUrl      string
+	MinerAccessToken string
 }
 
 func LotusGetClient() *LotusClient {
 	lotusClient := &LotusClient{
-		ApiUrl:      config.GetConfig().Lotus.ApiUrl,
-		AccessToken: config.GetConfig().Lotus.AccessToken,
+		ApiUrl:           config.GetConfig().Lotus.ApiUrl,
+		MinerApiUrl:      config.GetConfig().Lotus.MinerApiUrl,
+		MinerAccessToken: config.GetConfig().Lotus.MinerAccessToken,
 	}
 
 	return lotusClient
@@ -152,7 +154,13 @@ func (lotusClient *LotusClient) LotusImportData(dealCid string, filepath string)
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := utils.HttpPost(lotusClient.ApiUrl, lotusClient.AccessToken, jsonRpcParams)
+	response := utils.HttpPost(lotusClient.MinerApiUrl, lotusClient.MinerAccessToken, jsonRpcParams)
+	if response == "" {
+		msg := "no return"
+		logs.GetLogger().Error(msg)
+		return msg
+	}
+	logs.GetLogger().Info(response)
 
 	errorInfo := utils.GetFieldMapFromJson(response, "error")
 
