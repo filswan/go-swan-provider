@@ -37,7 +37,7 @@ func LotusGetClient() *LotusClient {
 }
 
 //"lotus-miner storage-deals list -v | grep -a " + dealCid
-func LotusClientGetDealStatus(state int) string {
+func LotusGetDealStatus(state int) string {
 	lotusClient := LotusGetClient()
 
 	var params []interface{}
@@ -100,7 +100,7 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 
 	stateInt := int(state.(float64))
 
-	status := LotusClientGetDealStatus(stateInt)
+	status := LotusGetDealStatus(stateInt)
 
 	logs.GetLogger().Info(status)
 	logs.GetLogger().Info(message)
