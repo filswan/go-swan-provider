@@ -269,6 +269,12 @@ func (swanClient *SwanClient) UpdateOfflineDealStatus(dealId int, status string,
 }
 
 func (swanClient *SwanClient) SendHeartbeatRequest(minerFid string) string {
+	if !swanClient.GetJwtToken(false) {
+		msg := "Failed to get token."
+		logs.GetLogger().Error(msg)
+		return msg
+	}
+
 	apiUrl := swanClient.ApiUrl + "/heartbeat"
 	params := url.Values{}
 	params.Add("miner_id", minerFid)
