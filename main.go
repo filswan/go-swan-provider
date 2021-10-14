@@ -6,7 +6,7 @@ import (
 	"swan-provider/common/constants"
 	"swan-provider/config"
 	"swan-provider/logs"
-	"swan-provider/routers/commonRouters"
+	"swan-provider/routers"
 	"swan-provider/service"
 	"time"
 
@@ -37,7 +37,7 @@ func createHttpServer() {
 	}))
 
 	v1 := r.Group("/api/v1")
-	commonRouters.HostManager(v1.Group(constants.URL_HOST_GET_COMMON))
+	routers.HostManager(v1.Group(constants.URL_HOST_GET_COMMON))
 
 	err := r.Run(":" + strconv.Itoa(config.GetConfig().Port))
 	if err != nil {
