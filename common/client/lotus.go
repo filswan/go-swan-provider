@@ -83,8 +83,7 @@ func LotusGetDealStatus(state int) string {
 	return result
 }
 
-//"lotus-miner storage-deals list -v | grep -a " + dealCid
-func LotusGetDealOnChainStatus(dealCid string) (string, string) {
+func LotusGetDeals() []Deal {
 	lotusClient := LotusGetClient()
 
 	var params []interface{}
@@ -97,20 +96,24 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 
 	logs.GetLogger().Info("Get deal list from ", lotusClient.MinerApiUrl)
 	response := HttpGet(lotusClient.MinerApiUrl, lotusClient.MinerAccessToken, jsonRpcParams)
-	logs.GetLogger().Info("Get deal list got from ", lotusClient.MinerApiUrl)
+	logs.GetLogger().Info("Got deal list from ", lotusClient.MinerApiUrl)
 	deals := &MarketListIncompleteDeals{}
 	err := json.Unmarshal([]byte(response), deals)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		return "", ""
+		return nil
 	}
 
-	if deals.Result == nil || len(deals.Result) == 0 {
+	return deals.Result
+}
+
+func LotusGetDealOnChainStatusFromDeals(deals []Deal, dealCid string) (string, string) {
+	if len(deals) == 0 {
 		logs.GetLogger().Error("Deal list is empty.")
 		return "", ""
 	}
 
-	for _, deal := range deals.Result {
+	for _, deal := range deals {
 		if deal.ProposalCid.DealCid != dealCid {
 			continue
 		}
@@ -122,6 +125,13 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 	logs.GetLogger().Error("Did not find your deal:", dealCid, " in the returned list.")
 
 	return "", ""
+}
+
+//"lotus-miner storage-deals list -v | grep -a " + dealCid
+func LotusGetDealOnChainStatus(dealCid string) (string, string) {
+	deals := LotusGetDeals()
+	status, message := LotusGetDealOnChainStatusFromDeals(deals, dealCid)
+	return status, message
 }
 
 func LotusGetCurrentEpoch() int {

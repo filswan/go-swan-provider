@@ -132,11 +132,17 @@ func (lotusService *LotusService) StartScan(swanClient *client.SwanClient) {
 		return
 	}
 
+	lotusDeals := client.LotusGetDeals()
+	if len(lotusDeals) == 0 {
+		logs.GetLogger().Error("Failed to get deals from lotus.")
+		return
+	}
+
 	for _, deal := range deals {
 		msg := fmt.Sprintf("ID: %d. Deal CID: %s. Deal Status: %s.", deal.Id, deal.DealCid, deal.Status)
 		logs.GetLogger().Info(msg)
 
-		onChainStatus, onChainMessage := client.LotusGetDealOnChainStatus(deal.DealCid)
+		onChainStatus, onChainMessage := client.LotusGetDealOnChainStatusFromDeals(lotusDeals, deal.DealCid)
 
 		if len(onChainStatus) == 0 {
 			logs.GetLogger().Error("Failed to get on chain status for :", deal.DealCid)
