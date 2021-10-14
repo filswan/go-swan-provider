@@ -29,7 +29,7 @@ type LotusClient struct {
 }
 
 type MarketListIncompleteDeals struct {
-	Id      string        `json:"id"`
+	Id      int           `json:"id"`
 	JsonRpc string        `json:"jsonrpc"`
 	Result  []Deal        `json:"result"`
 	Error   *JsonRpcError `json:"error"`
@@ -43,7 +43,7 @@ type JsonRpcError struct {
 type Deal struct {
 	State       int     `json:"State"`
 	Message     string  `json:"Message"`
-	ProposalCid DealCid `json:"LotusParamSingle"`
+	ProposalCid DealCid `json:"ProposalCid"`
 }
 
 func LotusGetClient() *LotusClient {
@@ -95,7 +95,9 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 		Id:      LOTUS_JSON_RPC_ID,
 	}
 
-	response := HttpPostNoToken(lotusClient.ApiUrl, jsonRpcParams)
+	logs.GetLogger().Info("Get deal list from ", lotusClient.MinerApiUrl)
+	response := HttpGet(lotusClient.MinerApiUrl, lotusClient.MinerAccessToken, jsonRpcParams)
+	logs.GetLogger().Info("Get deal list got from ", lotusClient.MinerApiUrl)
 	deals := &MarketListIncompleteDeals{}
 	err := json.Unmarshal([]byte(response), deals)
 	if err != nil {
@@ -113,7 +115,7 @@ func LotusGetDealOnChainStatus(dealCid string) (string, string) {
 			continue
 		}
 		status := LotusGetDealStatus(deal.State)
-		logs.GetLogger().Info("deal:", dealCid, " status:", status, " message:", deal.Message)
+		logs.GetLogger().Info("deal: ", dealCid, " status:", status, " message:", deal.Message)
 		return status, deal.Message
 	}
 
