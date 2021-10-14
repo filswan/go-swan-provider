@@ -96,7 +96,7 @@ func LotusGetDeals() []Deal {
 
 	logs.GetLogger().Info("Get deal list from ", lotusClient.MinerApiUrl)
 	response := HttpGet(lotusClient.MinerApiUrl, lotusClient.MinerAccessToken, jsonRpcParams)
-	logs.GetLogger().Info("Get deal list got from ", lotusClient.MinerApiUrl)
+	logs.GetLogger().Info("Got deal list from ", lotusClient.MinerApiUrl)
 	deals := &MarketListIncompleteDeals{}
 	err := json.Unmarshal([]byte(response), deals)
 	if err != nil {
