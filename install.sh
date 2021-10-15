@@ -1,8 +1,8 @@
 #!/bin/bash
 
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc2/swan-provider-0.1.0-rc2-unix
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc2/aria2.conf
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0-beta-rc2/aria2c.service
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0/swan-provider-0.1.0-unix
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0/aria2.conf
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0/aria2c.service
 
 sed -i 's/%%USER%%/'${USER}'/g' ./aria2c.service   # Set User & Group to value of $USER
 
