@@ -20,6 +20,6 @@ sudo cp ./aria2c.service /etc/systemd/system/    # Copy service file
 sudo systemctl enable aria2c.service           # Set to start Aria2 automatically
 sudo systemctl start aria2c.service            # Start Aria2
 
-chmod +x ./swan-provider-0.1.0-rc-unix
-./swan-provider-0.1.0-rc-unix                  # Run swan provider
+chmod +x ./swan-provider-0.1.0-unix
+./swan-provider-0.1.0-unix                     # Run swan provider
 
