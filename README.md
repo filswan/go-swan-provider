@@ -71,8 +71,8 @@ nohup ./swan-provider &
 - **port：** Default 8888, web api port for extension in future
 
 ##### [lotus]
-- :bangbang:**api_url:** Url of lotus web api
-- :bangbang:**miner_api_url:** Url of lotus miner web api
+- :bangbang:**api_url:** Url of lotus web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
+- :bangbang:**miner_api_url:** Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
 - :bangbang:**miner_access_token:** Access token of lotus miner web api
 
 ##### [aria2]
