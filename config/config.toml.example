@@ -1,8 +1,8 @@
 port = 8888
 
 [lotus]
-api_url="http://<ip>:<port>/rpc/v0"   # Url of lotus web api, generally the <port> is 1234
-miner_api_url="http://<ip>:<port>/rpc/v0"   # Url of lotus miner web api, generally the <port> is 2345
+api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus web api, generally the [port] is 1234
+miner_api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus miner web api, generally the [port] is 2345
 miner_access_token=""  # Access token of lotus miner web api
 
 [aria2]
