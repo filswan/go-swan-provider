@@ -25,9 +25,20 @@ Swan Provider listens to offline deals that come from Swan platform. It provides
 ## Prerequisite
 - lotus-miner
 - aria2
+### arial installation
 ```shell
 sudo apt install aria2
 ```
+### Lotus Miner Token creation
+Lotus miner token is used for importing deal for swan provider
+```shell
+lotus-miner auth create-token --perm write
+```
+Note that the Lotus Miner need to be running in the background!
+The created token located at $LOTUS_STORAGE_PATH/token 
+
+Reference: [Lotus: API tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
+#
 
 ## Installation
 ### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
