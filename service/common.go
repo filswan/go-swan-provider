@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strings"
 	"swan-provider/common/client"
 	"swan-provider/logs"
 	"time"
@@ -42,12 +43,44 @@ var aria2Service = GetAria2Service()
 var lotusService = GetLotusService()
 
 func AdminOfflineDeal() {
+	checkLotusConfig()
 	swanService.UpdateBidConf(swanClient)
 	go swanSendHeartbeatRequest()
 	go aria2CheckDownloadStatus()
 	go aria2StartDownload()
 	go lotusStartImport()
 	go lotusStartScan()
+}
+
+func checkLotusConfig() {
+	lotusClient := client.LotusGetClient()
+	if len(lotusClient.ApiUrl) == 0 {
+		logs.GetLogger().Fatal("please set config:lotus->api_url")
+	}
+
+	if len(lotusClient.MinerApiUrl) == 0 {
+		logs.GetLogger().Fatal("please set config:lotus->miner_api_url")
+	}
+
+	if len(lotusClient.MinerAccessToken) == 0 {
+		logs.GetLogger().Fatal("please set config:lotus->miner_access_token")
+	}
+
+	response := client.LotusImportData("test", "test")
+
+	if strings.Contains(response, "no return") {
+		logs.GetLogger().Fatal("please check config:lotus->miner_api_url,lotus->miner_access_token")
+	}
+
+	if strings.Contains(response, "(need 'write')") {
+		logs.GetLogger().Error("please check config:lotus->miner_access_token")
+		logs.GetLogger().Fatal(response)
+	}
+
+	currentEpoch := client.LotusGetCurrentEpoch()
+	if currentEpoch < 0 {
+		logs.GetLogger().Fatal("please check config:lotus->api_url")
+	}
 }
 
 func swanSendHeartbeatRequest() {

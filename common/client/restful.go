@@ -96,6 +96,17 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 		return ""
 	}
 
+	if response.StatusCode != http.StatusOK {
+		logs.GetLogger().Error("http status: ", response.Status, " code: ", response.StatusCode)
+		switch response.StatusCode {
+		case http.StatusNotFound:
+			logs.GetLogger().Error("please check your url:", uri)
+		case http.StatusUnauthorized:
+			logs.GetLogger().Error("Please check your token:", tokenString)
+		}
+		return ""
+	}
+
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		logs.GetLogger().Error(err)
