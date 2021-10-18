@@ -53,6 +53,8 @@ func AdminOfflineDeal() {
 }
 
 func checkLotusConfig() {
+	logs.GetLogger().Info("Start testing lotus config.")
+
 	lotusClient := client.LotusGetClient()
 	if len(lotusClient.ApiUrl) == 0 {
 		logs.GetLogger().Fatal("please set config:lotus->api_url")
@@ -66,7 +68,7 @@ func checkLotusConfig() {
 		logs.GetLogger().Fatal("please set config:lotus->miner_access_token")
 	}
 
-	response := client.LotusImportData("test", "test")
+	response := client.LotusImportData("bafyreib7azyg2yubucdhzn64gvyekdma7nbrbnfafcqvhsz2mcnvbnkktu", "test")
 
 	if strings.Contains(response, "no return") {
 		logs.GetLogger().Fatal("please check config:lotus->miner_api_url,lotus->miner_access_token")
@@ -81,6 +83,8 @@ func checkLotusConfig() {
 	if currentEpoch < 0 {
 		logs.GetLogger().Fatal("please check config:lotus->api_url")
 	}
+
+	logs.GetLogger().Info("Pass testing lotus config.")
 }
 
 func swanSendHeartbeatRequest() {

@@ -97,7 +97,7 @@ func httpRequest(httpMethod, uri, tokenString string, params interface{}) string
 	}
 
 	if response.StatusCode != http.StatusOK {
-		logs.GetLogger().Error("http status: ", response.Status, " code: ", response.StatusCode)
+		logs.GetLogger().Error("http status: ", response.Status, ", code: ", response.StatusCode, ", url:", uri)
 		switch response.StatusCode {
 		case http.StatusNotFound:
 			logs.GetLogger().Error("please check your url:", uri)
