@@ -45,7 +45,7 @@ Reference: [Lotus: API tokens](https://docs.filecoin.io/build/lotus/api-tokens/#
 ```shell
 wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0/install.sh
 chmod +x ./install.sh
-sudo ./install.sh
+./install.sh
 ```
 
 ### Option 2.  Source Code
@@ -55,7 +55,7 @@ git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
 git checkout <release_branch>
 chmod +x ./buld_from_source.sh
-sudo ./buld_from_source.sh
+./buld_from_source.sh
 ```
 
 #### :bangbang: Important
