@@ -39,7 +39,6 @@ Note that the Lotus Miner need to be running in the background!
 The created token located at $LOTUS_STORAGE_PATH/token 
 
 Reference: [Lotus: API tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
-#
 
 ## Installation
 ### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
