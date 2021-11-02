@@ -11,6 +11,7 @@
 - [Features](#Features)
 - [Prerequisite](#Prerequisite)
 - [Installation](#Installation)
+- [Config](#Config)
 - [License](#license)
 
 ## Features
@@ -58,7 +59,7 @@ chmod +x ./buld_from_source.sh
 ./buld_from_source.sh
 ```
 
-#### :bangbang: Important
+### :bangbang: Important
 After installation, swan-provider maybe quit due to lack of configuration. Under this situation, you need
 - :one: Edit config file **~/.swan/provider/config.toml** to solve this.
 - :two: Execute **swan-provider** using one of the following commands
@@ -68,7 +69,7 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 ```
 
 
-#### Note
+### Note
 - Logs are in directory ./logs
 - You can add **nohup** before **./swan-provider** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
 - You can add **&** after **./swan-provider** to let the program run in background.
@@ -78,21 +79,23 @@ nohup ./swan-provider &
 ```
 
 
-#### Config Explanation
+## Config
 - **port：** Default 8888, web api port for extension in future
 
-##### [lotus]
+### [lotus]
 - :bangbang:**api_url:** Url of lotus web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
 - :bangbang:**miner_api_url:** Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
 - :bangbang:**miner_access_token:** Access token of lotus miner web api
 
-##### [aria2]
+:bell:When the market and miner are separated, you need use market api url and access token instead of miner api url and access token
+
+### [aria2]
 - **aria2_download_dir:** Directory where offline deal files will be downloaded for importing
 - **aria2_host:** Aria2 server address
 - **aria2_port:** Aria2 server port
 - **aria2_secret:** Must be the same value as rpc-secure in aria2.conf
 
-##### [main]
+### [main]
 - **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com"
 - :bangbang:**miner_fid:** Your filecoin Miner ID
 - **import_interval:** 600 seconds or 10 minutes. Importing interval between each deal.
@@ -101,7 +104,7 @@ nohup ./swan-provider &
 - :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide.
 - **api_heartbeat_interval:** 300 seconds or 5 minutes. Time interval to send heartbeat.
 
-##### [bid]
+### [bid]
 - **bid_mode:** 0: manual, 1: auto
 - **expected_sealing_time:** 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
 - **start_epoch:** 2880 epoch or 24 hours. Relative value to current epoch
