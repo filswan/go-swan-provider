@@ -26,7 +26,7 @@ Swan Provider listens to offline deals that come from Swan platform. It provides
 ## Prerequisite
 - lotus-miner
 - aria2
-### arial installation
+### arial2 installation
 ```shell
 sudo apt install aria2
 ```
@@ -54,8 +54,8 @@ chmod +x ./install.sh
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
 git checkout <release_branch>
-chmod +x ./buld_from_source.sh
-./buld_from_source.sh
+chmod +x ./build_from_source.sh
+./build_from_source.sh
 ```
 
 ### :bangbang: Important
@@ -63,8 +63,8 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 - :one: Edit config file **~/.swan/provider/config.toml** to solve this.
 - :two: Execute **swan-provider** using one of the following commands
 ```shell
-./swan-provider-0.1.0-rc-unix   #After installation from Option 1
-./build/swan-provider           #After installation from Option 2
+./swan-provider-0.1.0-unix   #After installation from Option 1
+./build/swan-provider        #After installation from Option 2
 ```
 
 
