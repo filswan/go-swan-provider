@@ -2,7 +2,7 @@
 
 CONF_FILE_DIR=${HOME}/.swan/provider
 
-if [ ! -d "${CONF_FILE_DIR}"]; then
+if [ ! -d "${CONF_FILE_DIR}" ]; then
     mkdir ${CONF_FILE_DIR}
 fi
 
