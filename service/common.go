@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"go-swan-provider/common/constants"
 	"go-swan-provider/config"
 	"strings"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/filswan/go-swan-lib/client"
 	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/filswan/go-swan-lib/client/swan"
 )
@@ -48,25 +50,11 @@ var aria2Service = GetAria2Service()
 var lotusService = GetLotusService()
 
 func AdminOfflineDeal() {
-	var err error
-
-	aria2Host := config.GetConfig().Aria2.Aria2Host
-	aria2Port := config.GetConfig().Aria2.Aria2Port
-	aria2Secret := config.GetConfig().Aria2.Aria2Secret
-	aria2Client = client.GetAria2Client(aria2Host, aria2Secret, aria2Port)
-
-	apiUrl := config.GetConfig().Main.SwanApiUrl
-	apiKey := config.GetConfig().Main.SwanApiKey
-	accessToken := config.GetConfig().Main.SwanAccessToken
-	swanClient, err = swan.SwanGetClient(apiUrl, apiKey, accessToken, "")
-	if err != nil {
-		logs.GetLogger().Error(err)
-		logs.GetLogger().Error("Swan provider launch failed.")
-		logs.GetLogger().Info("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
-		return
-	}
+	setAndCheckAria2Config()
+	setAndCheckSwanConfig()
 	checkMinerExists()
 	checkLotusConfig()
+
 	swanService.UpdateBidConf(swanClient)
 	go swanSendHeartbeatRequest()
 	go aria2CheckDownloadStatus()
@@ -75,15 +63,59 @@ func AdminOfflineDeal() {
 	go lotusStartScan()
 }
 
+func setAndCheckAria2Config() {
+	aria2DownloadDir := config.GetConfig().Aria2.Aria2DownloadDir
+	aria2Host := config.GetConfig().Aria2.Aria2Host
+	aria2Port := config.GetConfig().Aria2.Aria2Port
+	aria2Secret := config.GetConfig().Aria2.Aria2Secret
+
+	if utils.IsDirExists(aria2DownloadDir) {
+		err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_download_dir", aria2DownloadDir)
+		logs.GetLogger().Fatal(err)
+	}
+
+	if len(aria2Host) == 0 {
+		logs.GetLogger().Fatal("please set config:aria2->aria2_host")
+	}
+
+	aria2Client = client.GetAria2Client(aria2Host, aria2Secret, aria2Port)
+}
+
+func setAndCheckSwanConfig() {
+	var err error
+	swanApiUrl := config.GetConfig().Main.SwanApiUrl
+	swanApiKey := config.GetConfig().Main.SwanApiKey
+	swanAccessToken := config.GetConfig().Main.SwanAccessToken
+
+	if len(swanApiUrl) == 0 {
+		logs.GetLogger().Fatal("please set config:main->api_url")
+	}
+
+	if len(swanApiKey) == 0 {
+		logs.GetLogger().Fatal("please set config:main->api_key")
+	}
+
+	if len(swanAccessToken) == 0 {
+		logs.GetLogger().Fatal("please set config:main->access_token")
+	}
+
+	swanClient, err = swan.SwanGetClient(swanApiUrl, swanApiKey, swanAccessToken, "")
+	if err != nil {
+		logs.GetLogger().Error(err)
+		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
+		logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
+	}
+}
+
 func checkMinerExists() {
 	err := swanService.SendHeartbeatRequest(swanClient)
 	if err != nil {
 		logs.GetLogger().Info(err)
 		if strings.Contains(err.Error(), "Miner Not found") {
-			logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
 			logs.GetLogger().Error("Cannot find your miner:", swanService.MinerFid)
-			logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
 		}
+		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
+		logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
 	}
 }
 

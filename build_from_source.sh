@@ -10,6 +10,7 @@ if [ -f "${CONF_FILE_PATH}" ]; then
     echo "${CONF_FILE_PATH} exists"
 else
     cp ./config/config.toml.example $CONF_FILE_PATH
+    sed -i 's/%%ARIA2_DOWNLOAD_DIR%%/'${HOME}'/g' $CONF_FILE_PATH   # Set User & Group to value of $USER
     echo "${CONF_FILE_PATH} created"
 fi
 
