@@ -18,6 +18,8 @@ else
 
     if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
         mkdir ${ARIA2_DOWNLOAD_DIR}
+    else
+        echo "${ARIA2_DOWNLOAD_DIR} exists"
     fi
 
     echo "${CONF_FILE_PATH} created"
