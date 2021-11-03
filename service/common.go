@@ -142,7 +142,7 @@ func checkLotusConfig() {
 
 	err := lotusMarket.LotusImportData("bafyreib7azyg2yubucdhzn64gvyekdma7nbrbnfafcqvhsz2mcnvbnkktu", "test")
 
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "no such file or directory") {
 		logs.GetLogger().Fatal(err)
 	}
 
