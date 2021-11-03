@@ -1,7 +1,10 @@
 #!/bin/bash
 
 CONF_FILE_DIR=${HOME}/.swan/provider
-mkdir ${CONF_FILE_DIR}
+
+if [ ! -d "${CONF_FILE_DIR}"]; then
+    mkdir ${CONF_FILE_DIR}
+fi
 
 CONF_FILE_PATH=${CONF_FILE_DIR}/config.toml
 echo $CONF_FILE_PATH
