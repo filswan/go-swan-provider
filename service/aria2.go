@@ -3,22 +3,19 @@ package service
 import (
 	"fmt"
 	"go-swan-provider/common/constants"
-	"go-swan-provider/common/utils"
 	"go-swan-provider/config"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-
 	"time"
 
 	"github.com/filswan/go-swan-lib/client"
-	"github.com/filswan/go-swan-lib/logs"
-
 	"github.com/filswan/go-swan-lib/client/swan"
-
+	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
 )
 
 type Aria2Service struct {
@@ -116,7 +113,7 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 	case ARIA2_TASK_STATUS_ACTIVE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		if deal.Status != DEAL_STATUS_DOWNLOADING {
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADING, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
+			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADING, gid, filePath, strconv.FormatInt(fileSizeDownloaded, 10))
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
 			}
@@ -128,21 +125,21 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 		if fileSizeDownloaded >= 0 {
 			note := fmt.Sprintf("Deal CID: %s downloaded", deal.DealCid)
 			logs.GetLogger().Info(note)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADED, gid, filePath, utils.GetStrFromInt64(fileSizeDownloaded))
+			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADED, gid, filePath, strconv.FormatInt(fileSizeDownloaded, 10))
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
 			}
 		} else {
 			note := fmt.Sprintf("File %s not found on ", filePath)
 			logs.GetLogger().Error(note)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, utils.GetStrFromInt64(fileSize))
+			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, strconv.FormatInt(fileSizeDownloaded, 10))
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
 			}
 		}
 	default:
 		note := fmt.Sprintf("Download failed, cause: %s", result.ErrorMessage)
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, utils.GetStrFromInt64(fileSize))
+		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, strconv.FormatInt(fileSize, 10))
 		if !updated {
 			logs.GetLogger().Error("Failed to update offline deal status")
 		}
