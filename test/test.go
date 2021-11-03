@@ -1,8 +1,9 @@
 package test
 
 import (
-	"swan-provider/logs"
 	"time"
+
+	"github.com/filswan/go-swan-lib/logs"
 )
 
 func GetCurrentEpoch() int {

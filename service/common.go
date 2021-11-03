@@ -1,10 +1,13 @@
 package service
 
 import (
-	"swan-provider/common/client"
-	"swan-provider/config"
-	"swan-provider/logs"
+	"go-swan-provider/common/client"
+	"go-swan-provider/common/constants"
+	"go-swan-provider/config"
+	"strings"
 	"time"
+
+	"github.com/filswan/go-swan-lib/logs"
 
 	"github.com/filswan/go-swan-lib/client/swan"
 )
@@ -56,6 +59,7 @@ func AdminOfflineDeal() {
 		logs.GetLogger().Info("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
 		return
 	}
+	checkMinerExists()
 	checkLotusConfig()
 	swanService.UpdateBidConf(swanClient)
 	go swanSendHeartbeatRequest()
@@ -63,6 +67,18 @@ func AdminOfflineDeal() {
 	go aria2StartDownload()
 	go lotusStartImport()
 	go lotusStartScan()
+}
+
+func checkMinerExists() {
+	err := swanService.SendHeartbeatRequest(swanClient)
+	if err != nil {
+		logs.GetLogger().Info(err)
+		if strings.Contains(err.Error(), "Miner Not found") {
+			logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
+			logs.GetLogger().Error("Cannot find your miner:", swanService.MinerFid)
+			logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
+		}
+	}
 }
 
 func checkLotusConfig() {

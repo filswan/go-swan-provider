@@ -7,7 +7,7 @@ GOGET=$(GOCMD) get
 GOBIN=$(shell pwd)/build
 
 # Binary names
-PROJECT_NAME=swan-provider
+PROJECT_NAME=go-swan-provider
 BINARY_NAME=$(PROJECT_NAME)
 BINARY_UNIX=$(BINARY_NAME)_unix
 

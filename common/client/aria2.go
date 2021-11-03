@@ -3,11 +3,11 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"swan-provider/common/utils"
-	"swan-provider/config"
-	"swan-provider/logs"
+	"go-swan-provider/common/utils"
+	"go-swan-provider/config"
 
 	libclient "github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/logs"
 )
 
 const ADD_URI = "aria2.addUri"

@@ -1,13 +1,12 @@
 package config
 
 import (
-	"log"
 	"os"
 	"path/filepath"
-	"swan-provider/logs"
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/filswan/go-swan-lib/logs"
 )
 
 type Configuration struct {
@@ -61,10 +60,10 @@ func InitConfig() {
 	logs.GetLogger().Info("Your config file is:", configFile)
 
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
-		log.Fatal("error:", err)
+		logs.GetLogger().Fatal("error:", err)
 	} else {
 		if !requiredFieldsAreGiven(metaData) {
-			log.Fatal("required fields not given")
+			logs.GetLogger().Fatal("required fields not given")
 		}
 	}
 }
@@ -110,7 +109,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 
 	for _, v := range requiredFields {
 		if !metaData.IsDefined(v...) {
-			log.Fatal("required conf fields ", v)
+			logs.GetLogger().Fatal("required conf fields ", v)
 		}
 	}
 

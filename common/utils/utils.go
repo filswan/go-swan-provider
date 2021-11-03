@@ -5,8 +5,9 @@ import (
 	"math/big"
 	"os"
 	"strconv"
-	"swan-provider/logs"
 	"time"
+
+	"github.com/filswan/go-swan-lib/logs"
 )
 
 // GetEpochInMillis get current timestamp

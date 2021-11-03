@@ -1,6 +1,6 @@
 package common
 
-import "swan-provider/common/constants"
+import "go-swan-provider/common/constants"
 
 type BasicResponse struct {
 	Status   string      `json:"status"`

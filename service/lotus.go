@@ -2,12 +2,12 @@ package service
 
 import (
 	"fmt"
-	"swan-provider/config"
-	"swan-provider/logs"
+	"go-swan-provider/config"
 	"time"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
+	"github.com/filswan/go-swan-lib/logs"
 )
 
 type LotusService struct {

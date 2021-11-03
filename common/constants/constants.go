@@ -12,4 +12,7 @@ const (
 	HTTP_CODE_400_BAD_REQUEST           = "400" //http.StatusBadRequest
 	HTTP_CODE_401_UNAUTHORIZED          = "401" //http.StatusUnauthorized
 	HTTP_CODE_500_INTERNAL_SERVER_ERROR = "500" //http.StatusInternalServerError
+
+	ERROR_LAUNCH_FAILED   = "Swan provider launch failed."
+	INFO_ON_HOW_TO_CONFIG = "For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider"
 )

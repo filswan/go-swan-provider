@@ -5,7 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"swan-provider/logs"
+
+	"github.com/filswan/go-swan-lib/logs"
 )
 
 func IsFileExists(filePath, fileName string) bool {

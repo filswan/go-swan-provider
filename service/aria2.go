@@ -2,16 +2,19 @@ package service
 
 import (
 	"fmt"
+	"go-swan-provider/common/client"
+	"go-swan-provider/common/constants"
+	"go-swan-provider/common/utils"
+	"go-swan-provider/config"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"swan-provider/common/client"
-	"swan-provider/common/utils"
-	"swan-provider/config"
-	"swan-provider/logs"
+
 	"time"
+
+	"github.com/filswan/go-swan-lib/logs"
 
 	"github.com/filswan/go-swan-lib/client/swan"
 
@@ -31,9 +34,9 @@ func GetAria2Service() *Aria2Service {
 
 	_, err := os.Stat(aria2Service.OutDir)
 	if err != nil {
-		logs.GetLogger().Error("Swan provider launch failed.")
+		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
 		logs.GetLogger().Error("Your download directory:", aria2Service.OutDir, " not exists.")
-		logs.GetLogger().Fatal("For more information about how to config, please check https://docs.filswan.com/run-swan-provider/config-swan-provider")
+		logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
 	}
 
 	return aria2Service
