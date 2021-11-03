@@ -82,11 +82,9 @@ nohup ./swan-provider &
 - **port：** Default 8888, web api port for extension in future
 
 ### [lotus]
-- :bangbang:**api_url:** Url of lotus web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
-- :bangbang:**miner_api_url:** Url of lotus miner web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**
-- :bangbang:**miner_access_token:** Access token of lotus miner web api
-
-:bell:When the market and miner are separated, you need use market api url and access token instead of miner api url and access token
+- :bangbang:**client_api_url:** Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
+- :bangbang:**market_api_url:** Url of lotus market web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**. When market and miner are not separate, it is also the url of miner web api.
+- :bangbang:**market_access_token:** Access token of lotus market web api. When market and miner are not separate, it is also the access token of miner access token.
 
 ### [aria2]
 - **aria2_download_dir:** Directory where offline deal files will be downloaded for importing

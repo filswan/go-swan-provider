@@ -1,5 +1,18 @@
 #!/bin/bash
 
+CONF_FILE_DIR=${HOME}/.swan/provider
+mkdir ${CONF_FILE_DIR}
+
+CONF_FILE_PATH=${CONF_FILE_DIR}/config.toml
+echo $CONF_FILE_PATH
+
+if [ -f "${CONF_FILE_PATH}" ]; then
+    echo "${CONF_FILE_PATH} exists"
+else
+    cp ./config/config.toml.example $CONF_FILE_PATH
+    echo "${CONF_FILE_PATH} created"
+fi
+
 sed -i 's/%%USER%%/'${USER}'/g' ./aria2c.service   # Set User & Group to value of $USER
 
 if [ ! -d "/etc/aria2" ]; then

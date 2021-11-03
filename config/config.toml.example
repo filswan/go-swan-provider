@@ -1,9 +1,9 @@
 port = 8888
 
 [lotus]
-api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus web api, generally the [port] is 1234
-miner_api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus miner web api, generally the [port] is 2345
-miner_access_token=""  # Access token of lotus miner web api
+client_api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus client web api, generally the [port] is 1234
+market_api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus market web api, generally the [port] is 2345, when market and miner are not separate, it is also the url of miner web api
+market_access_token=""                       # Access token of lotus market web api, when market and miner are not separate, it is also the access token of miner web api
 
 [aria2]
 aria2_download_dir = ""   # Directory where offline deal files will be downloaded for importing

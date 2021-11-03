@@ -6,10 +6,26 @@ import (
 	"swan-provider/common/utils"
 	"swan-provider/config"
 	"swan-provider/logs"
+
+	libclient "github.com/filswan/go-swan-lib/client"
 )
 
 const ADD_URI = "aria2.addUri"
 const STATUS = "aria2.tellStatus"
+
+type JsonRpcParams struct {
+	JsonRpc string        `json:"jsonrpc"`
+	Method  string        `json:"method"`
+	Params  []interface{} `json:"params"`
+	Id      int           `json:"id"`
+}
+
+type Aria2Payload struct {
+	JsonRpc string        `json:"jsonrpc"`
+	Id      string        `json:"id"`
+	Method  string        `json:"method"`
+	Params  []interface{} `json:"params"`
+}
 
 type Aria2Client struct {
 	Host      string
@@ -117,7 +133,7 @@ func (aria2Client *Aria2Client) DownloadFile(uri string, outDir, outFilename str
 		utils.RemoveFile(outDir, outFilename)
 	}
 
-	response := HttpPostNoToken(aria2Client.serverUrl, payload)
+	response := libclient.HttpPostNoToken(aria2Client.serverUrl, payload)
 	aria2Download := &Aria2Download{}
 	err := json.Unmarshal([]byte(response), aria2Download)
 	if err != nil {
@@ -144,7 +160,7 @@ func (aria2Client *Aria2Client) GenPayload4Status(gid string) Aria2Payload {
 
 func (aria2Client *Aria2Client) GetDownloadStatus(gid string) *Aria2Status {
 	payload := aria2Client.GenPayload4Status(gid)
-	response := HttpPostNoToken(aria2Client.serverUrl, payload)
+	response := libclient.HttpPostNoToken(aria2Client.serverUrl, payload)
 	//logs.GetLogger().Info(gid, " download status:", response)
 
 	aria2Status := &Aria2Status{}
