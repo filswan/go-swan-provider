@@ -63,8 +63,8 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 - :one: Edit config file **~/.swan/provider/config.toml** to solve this.
 - :two: Execute **swan-provider** using one of the following commands
 ```shell
-./swan-provider-0.1.0-unix   #After installation from Option 1
-./build/swan-provider        #After installation from Option 2
+./go-swan-provider-0.1.0-unix   #After installation from Option 1
+./build/go-swan-provider        #After installation from Option 2
 ```
 
 
