@@ -1,12 +1,12 @@
 package service
 
 import (
-	"go-swan-provider/common/client"
 	"go-swan-provider/common/constants"
 	"go-swan-provider/config"
 	"strings"
 	"time"
 
+	"github.com/filswan/go-swan-lib/client"
 	"github.com/filswan/go-swan-lib/logs"
 
 	"github.com/filswan/go-swan-lib/client/swan"
@@ -40,7 +40,7 @@ const ARIA2_MAX_DOWNLOADING_TASKS = 10
 const LOTUS_IMPORT_NUMNBER = "20" //Max number of deals to be imported at a time
 const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
 
-var aria2Client = client.GetAria2Client()
+var aria2Client *client.Aria2Client
 var swanClient *swan.SwanClient
 
 var swanService = GetSwanService()
@@ -49,6 +49,12 @@ var lotusService = GetLotusService()
 
 func AdminOfflineDeal() {
 	var err error
+
+	aria2Host := config.GetConfig().Aria2.Aria2Host
+	aria2Port := config.GetConfig().Aria2.Aria2Port
+	aria2Secret := config.GetConfig().Aria2.Aria2Secret
+	aria2Client = client.GetAria2Client(aria2Host, aria2Secret, aria2Port)
+
 	apiUrl := config.GetConfig().Main.SwanApiUrl
 	apiKey := config.GetConfig().Main.SwanApiKey
 	accessToken := config.GetConfig().Main.SwanAccessToken
