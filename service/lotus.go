@@ -217,7 +217,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			}
 		}
 
-		msg = fmt.Sprintf("On chain offline_deal message created. Message Body: on_chain_status:%s, on_chain_message:%s.", onChainStatus, message)
+		msg = GetNote("On chain offline_deal message created. Message Body: ", onChainStatus, message)
 		logs.GetLogger().Info(msg)
 	}
 }
