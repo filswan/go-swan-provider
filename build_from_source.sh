@@ -42,6 +42,6 @@ sudo systemctl enable aria2c.service           # Set to start Aria2 automaticall
 sudo systemctl start aria2c.service            # Start Aria2
 
 make
-chmod +x ./build/go-swan-provider
-./build/go-swan-provider                          # Run swan provider
+chmod +x ./build/swan-provider
+./build/swan-provider                          # Run swan provider
 

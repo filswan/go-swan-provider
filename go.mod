@@ -1,4 +1,4 @@
-module go-swan-provider
+module swan-provider
 
 go 1.16
 

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"go-swan-provider/config"
+	"swan-provider/config"
 	"time"
 
 	"github.com/filswan/go-swan-lib/client/swan"

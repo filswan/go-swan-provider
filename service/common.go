@@ -2,9 +2,9 @@ package service
 
 import (
 	"fmt"
-	"go-swan-provider/common/constants"
-	"go-swan-provider/config"
 	"strings"
+	"swan-provider/common/constants"
+	"swan-provider/config"
 	"time"
 
 	"github.com/filswan/go-swan-lib/client"

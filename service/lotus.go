@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"go-swan-provider/config"
+	"swan-provider/config"
 	"time"
 
 	"github.com/filswan/go-swan-lib/client/lotus"

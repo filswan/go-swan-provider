@@ -1,12 +1,12 @@
 package main
 
 import (
-	"go-swan-provider/common/constants"
-	"go-swan-provider/config"
-	"go-swan-provider/routers"
-	"go-swan-provider/service"
 	"os"
 	"strconv"
+	"swan-provider/common/constants"
+	"swan-provider/config"
+	"swan-provider/routers"
+	"swan-provider/service"
 	"time"
 
 	"github.com/gin-gonic/gin"
