@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"swan-provider/common/constants"
 	"swan-provider/config"
-	"swan-provider/logs"
 	"swan-provider/routers"
 	"swan-provider/service"
 	"time"
@@ -13,12 +12,13 @@ import (
 	"github.com/gin-gonic/gin"
 	cors "github.com/itsjamie/gin-cors"
 	"github.com/joho/godotenv"
+
+	"github.com/filswan/go-swan-lib/logs"
 )
 
 func main() {
 	//LoadEnv()
 	//test.Test()
-	logs.InitLogger()
 	//config.InitConfig()
 	service.AdminOfflineDeal()
 	createHttpServer()

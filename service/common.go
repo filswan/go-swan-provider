@@ -1,10 +1,17 @@
 package service
 
 import (
+	"fmt"
 	"strings"
-	"swan-provider/common/client"
-	"swan-provider/logs"
+	"swan-provider/common/constants"
+	"swan-provider/config"
 	"time"
+
+	"github.com/filswan/go-swan-lib/client"
+	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/utils"
+
+	"github.com/filswan/go-swan-lib/client/swan"
 )
 
 const ARIA2_TASK_STATUS_ERROR = "error"
@@ -35,15 +42,19 @@ const ARIA2_MAX_DOWNLOADING_TASKS = 10
 const LOTUS_IMPORT_NUMNBER = "20" //Max number of deals to be imported at a time
 const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
 
-var aria2Client = client.GetAria2Client()
-var swanClient = client.GetSwanClient()
+var aria2Client *client.Aria2Client
+var swanClient *swan.SwanClient
 
 var swanService = GetSwanService()
 var aria2Service = GetAria2Service()
 var lotusService = GetLotusService()
 
 func AdminOfflineDeal() {
+	setAndCheckAria2Config()
+	setAndCheckSwanConfig()
+	checkMinerExists()
 	checkLotusConfig()
+
 	swanService.UpdateBidConf(swanClient)
 	go swanSendHeartbeatRequest()
 	go aria2CheckDownloadStatus()
@@ -52,34 +63,90 @@ func AdminOfflineDeal() {
 	go lotusStartScan()
 }
 
+func setAndCheckAria2Config() {
+	aria2DownloadDir := config.GetConfig().Aria2.Aria2DownloadDir
+	aria2Host := config.GetConfig().Aria2.Aria2Host
+	aria2Port := config.GetConfig().Aria2.Aria2Port
+	aria2Secret := config.GetConfig().Aria2.Aria2Secret
+
+	if !utils.IsDirExists(aria2DownloadDir) {
+		err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_download_dir", aria2DownloadDir)
+		logs.GetLogger().Fatal(err)
+	}
+
+	if len(aria2Host) == 0 {
+		logs.GetLogger().Fatal("please set config:aria2->aria2_host")
+	}
+
+	aria2Client = client.GetAria2Client(aria2Host, aria2Secret, aria2Port)
+}
+
+func setAndCheckSwanConfig() {
+	var err error
+	swanApiUrl := config.GetConfig().Main.SwanApiUrl
+	swanApiKey := config.GetConfig().Main.SwanApiKey
+	swanAccessToken := config.GetConfig().Main.SwanAccessToken
+
+	if len(swanApiUrl) == 0 {
+		logs.GetLogger().Fatal("please set config:main->api_url")
+	}
+
+	if len(swanApiKey) == 0 {
+		logs.GetLogger().Fatal("please set config:main->api_key")
+	}
+
+	if len(swanAccessToken) == 0 {
+		logs.GetLogger().Fatal("please set config:main->access_token")
+	}
+
+	swanClient, err = swan.SwanGetClient(swanApiUrl, swanApiKey, swanAccessToken, "")
+	if err != nil {
+		logs.GetLogger().Error(err)
+		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
+		logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
+	}
+}
+
+func checkMinerExists() {
+	err := swanService.SendHeartbeatRequest(swanClient)
+	if err != nil {
+		logs.GetLogger().Info(err)
+		if strings.Contains(err.Error(), "Miner Not found") {
+			logs.GetLogger().Error("Cannot find your miner:", swanService.MinerFid)
+		}
+		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
+		logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
+	}
+}
+
 func checkLotusConfig() {
 	logs.GetLogger().Info("Start testing lotus config.")
 
-	lotusClient := client.LotusGetClient()
-	if len(lotusClient.ApiUrl) == 0 {
-		logs.GetLogger().Fatal("please set config:lotus->api_url")
+	if lotusService == nil {
+		logs.GetLogger().Fatal("error in config")
 	}
 
-	if len(lotusClient.MinerApiUrl) == 0 {
-		logs.GetLogger().Fatal("please set config:lotus->miner_api_url")
+	lotusMarket := lotusService.LotusMarket
+	lotusClient := lotusService.LotusClient
+	if len(lotusMarket.ApiUrl) == 0 {
+		logs.GetLogger().Fatal("please set config:lotus->market_api_url")
 	}
 
-	if len(lotusClient.MinerAccessToken) == 0 {
-		logs.GetLogger().Fatal("please set config:lotus->miner_access_token")
+	if len(lotusMarket.AccessToken) == 0 {
+		logs.GetLogger().Fatal("please set config:lotus->market_access_token")
 	}
 
-	response := client.LotusImportData("bafyreib7azyg2yubucdhzn64gvyekdma7nbrbnfafcqvhsz2mcnvbnkktu", "test")
-
-	if strings.Contains(response, "no return") {
-		logs.GetLogger().Fatal("please check config:lotus->miner_api_url,lotus->miner_access_token")
+	if len(lotusMarket.ClientApiUrl) == 0 {
+		logs.GetLogger().Fatal("please set config:lotus->client_api_url")
 	}
 
-	if strings.Contains(response, "(need 'write')") {
-		logs.GetLogger().Error("please check config:lotus->miner_access_token")
-		logs.GetLogger().Fatal(response)
+	err := lotusMarket.LotusImportData("bafyreib7azyg2yubucdhzn64gvyekdma7nbrbnfafcqvhsz2mcnvbnkktu", "test")
+
+	if err != nil && !strings.Contains(err.Error(), "no such file or directory") {
+		logs.GetLogger().Fatal(err)
 	}
 
-	currentEpoch := client.LotusGetCurrentEpoch()
+	currentEpoch := lotusClient.LotusGetCurrentEpoch()
 	if currentEpoch < 0 {
 		logs.GetLogger().Fatal("please check config:lotus->api_url")
 	}

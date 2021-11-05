@@ -1,5 +1,30 @@
 #!/bin/bash
 
+CONF_FILE_DIR=${HOME}/.swan/provider
+
+if [ ! -d "${CONF_FILE_DIR}" ]; then
+    mkdir ${CONF_FILE_DIR}
+fi
+
+CONF_FILE_PATH=${CONF_FILE_DIR}/config.toml
+echo $CONF_FILE_PATH
+
+if [ -f "${CONF_FILE_PATH}" ]; then
+    echo "${CONF_FILE_PATH} exists"
+else
+    cp ./config/config.toml.example $CONF_FILE_PATH
+    sed -i 's/%%ARIA2_DOWNLOAD_DIR%%/'${HOME}'/g' $CONF_FILE_PATH   # Set User & Group to value of $USER
+    ARIA2_DOWNLOAD_DIR=${CONF_FILE_DIR}/download
+
+    if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
+        mkdir ${ARIA2_DOWNLOAD_DIR}
+    else
+        echo "${ARIA2_DOWNLOAD_DIR} exists"
+    fi
+
+    echo "${CONF_FILE_PATH} created"
+fi
+
 sed -i 's/%%USER%%/'${USER}'/g' ./aria2c.service   # Set User & Group to value of $USER
 
 if [ ! -d "/etc/aria2" ]; then

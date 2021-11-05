@@ -1,6 +1,8 @@
 package common
 
-import "swan-provider/common/constants"
+import (
+	libconstants "github.com/filswan/go-swan-lib/constants"
+)
 
 type BasicResponse struct {
 	Status   string      `json:"status"`
@@ -26,15 +28,14 @@ type MixedResponse struct {
 
 func CreateSuccessResponse(_data interface{}) BasicResponse {
 	return BasicResponse{
-		Status: constants.HTTP_STATUS_SUCCESS,
-		Code:   constants.HTTP_CODE_200_OK,
+		Status: libconstants.SWAN_API_STATUS_SUCCESS,
 		Data:   _data,
 	}
 }
 
 func CreateErrorResponse(_errCode, _errMsg string) BasicResponse {
 	return BasicResponse{
-		Status:  constants.HTTP_STATUS_ERROR,
+		Status:  libconstants.SWAN_API_STATUS_FAIL,
 		Code:    _errCode,
 		Message: _errMsg,
 	}
