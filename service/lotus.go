@@ -100,7 +100,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			if !updated {
 				logs.GetLogger().Error(GetLog(deal, "failed to update offline deal status"))
 			} else {
-				logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, ""))
+				logs.GetLogger().Warn(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, ""))
 			}
 		case ONCHAIN_DEAL_STATUS_ACTIVE:
 			note := GetNote("Deal is active before importing.", onChainStatus, onChainMessage)
@@ -139,8 +139,9 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 				updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 				if !updated {
 					logs.GetLogger().Error(GetLog(deal, "failed to update offline deal status"))
+				} else {
+					logs.GetLogger().Warn(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, ""))
 				}
-				logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, ""))
 				continue
 			}
 
@@ -157,26 +158,29 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 				updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, err.Error())
 				if !updated {
 					logs.GetLogger().Error(GetLog(deal, "failed to update offline deal status"))
+				} else {
+					logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, ""))
 				}
 				logs.GetLogger().Warn(GetLog(deal, "import deal failed. error:"+err.Error()))
-				logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, ""))
 				continue
 			}
 
 			updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORTED)
 			if !updated {
 				logs.GetLogger().Error(GetLog(deal, "failed to update offline deal status"))
+			} else {
+				logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_IMPORTED, ""))
 			}
 			logs.GetLogger().Info(GetLog(deal, "deal imported"))
-			logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_IMPORTED, ""))
 		default:
 			note := GetNote("Deal is already imported.", onChainStatus, onChainMessage)
 			logs.GetLogger().Info(GetLog(deal, note))
 			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORTED, note)
 			if !updated {
 				logs.GetLogger().Error(GetLog(deal, "failed to update offline deal status"))
+			} else {
+				logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_IMPORTED, ""))
 			}
-			logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_IMPORTED, ""))
 		}
 
 		logs.GetLogger().Info("Sleeping...")
@@ -218,16 +222,18 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
+			} else {
+				logs.GetLogger().Warn(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, ""))
 			}
-			logs.GetLogger().Warn(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, ""))
 		case ONCHAIN_DEAL_STATUS_ACTIVE:
 			note := GetNote("Deal has been completed.", onChainStatus, onChainMessage)
 			logs.GetLogger().Info(note)
 			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_ACTIVE, note)
 			if !updated {
 				logs.GetLogger().Error("Failed to update offline deal status")
+			} else {
+				logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_ACTIVE, ""))
 			}
-			logs.GetLogger().Info(GetLogFromStatus(deal, DEAL_STATUS_ACTIVE, ""))
 		case ONCHAIN_DEAL_STATUS_AWAITING:
 			currentEpoch := lotusService.LotusClient.LotusGetCurrentEpoch()
 			if currentEpoch < 0 {
@@ -240,8 +246,9 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 				updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
 				if !updated {
 					logs.GetLogger().Error("Failed to update offline deal status")
+				} else {
+					logs.GetLogger().Warn(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, "on chain status bug"))
 				}
-				logs.GetLogger().Warn(GetLogFromStatus(deal, DEAL_STATUS_IMPORT_FAILED, "on chain status bug"))
 			}
 		}
 	}
