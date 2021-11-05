@@ -41,20 +41,19 @@ The created token located at $LOTUS_STORAGE_PATH/token
 Reference: [Lotus: API tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ## Installation
-### Option 1.  **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
+### Option 1. **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ```shell
 wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
 
-### Option 2.  Source Code
+### Option 2. Source Code
 :bell:**go 1.16+** is required
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
 git checkout <release_branch>
-chmod +x ./build_from_source.sh
 ./build_from_source.sh
 ```
 
