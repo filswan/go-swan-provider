@@ -1,16 +1,12 @@
 package service
 
 import (
-	"fmt"
-	"strings"
-	"swan-provider/common/constants"
 	"swan-provider/config"
 	"time"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
 	"github.com/filswan/go-swan-lib/logs"
-	"github.com/filswan/go-swan-lib/model"
 )
 
 type LotusService struct {
@@ -146,52 +142,4 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			}
 		}
 	}
-}
-
-func UpdateStatusAndLog(deal model.OfflineDeal, newSwanStatus string, messages ...string) {
-	note := GetNote(messages...)
-	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED {
-		logs.GetLogger().Warn(GetLog(deal, note))
-	} else {
-		logs.GetLogger().Info(GetLog(deal, note))
-	}
-
-	if deal.Status == newSwanStatus && deal.Note == note {
-		return
-	}
-
-	updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note)
-	if !updated {
-		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
-	} else {
-		if newSwanStatus == DEAL_STATUS_IMPORT_FAILED {
-			logs.GetLogger().Warn(GetLogFromStatus(deal, newSwanStatus, note))
-		} else {
-			logs.GetLogger().Info(GetLogFromStatus(deal, newSwanStatus, note))
-		}
-	}
-}
-
-func GetLogFromStatus(deal model.OfflineDeal, status, note string) string {
-	msg := fmt.Sprintf("deal id%d, CID:%s, set deal status to:%s, set deal note to:%s", deal.Id, deal.DealCid, status, note)
-	return msg
-}
-
-func GetLog(deal model.OfflineDeal, messages ...string) string {
-	text := GetNote(messages...)
-	msg := fmt.Sprintf("deal id%d, CID:%s, %s", deal.Id, deal.DealCid, text)
-	return msg
-}
-
-func GetNote(messages ...string) string {
-	result := ""
-	if messages == nil {
-		return result
-	}
-	for _, message := range messages {
-		result = result + "," + message
-	}
-
-	result = strings.TrimPrefix(result, ",")
-	return result
 }

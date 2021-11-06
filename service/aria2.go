@@ -53,97 +53,50 @@ func (aria2Service *Aria2Service) findNextDealReady2Download(swanClient *swan.Sw
 	return nil
 }
 
-func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.Aria2Client, swanClient *swan.SwanClient, deal *libmodel.OfflineDeal, gid string) {
+func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.Aria2Client, swanClient *swan.SwanClient, deal libmodel.OfflineDeal, gid string) {
 	aria2Status := aria2Client.GetDownloadStatus(gid)
 	if aria2Status == nil {
-		note := fmt.Sprintf("Get status for %s failed, no response", gid)
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-		if !updated {
-			logs.GetLogger().Error("Failed to update offline deal status")
-		}
-		logs.GetLogger().Error(note)
+		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "get download status failed for gid:"+gid, "no response from aria2")
 		return
 	}
 
 	if aria2Status.Error != nil {
-		note := fmt.Sprintf("Get status for %s failed, code:%d, message:%s", gid, aria2Status.Error.Code, aria2Status.Error.Message)
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-		if !updated {
-			logs.GetLogger().Error("Failed to update offline deal status")
-		}
-		logs.GetLogger().Error(note)
+		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "get download status failed for gid:"+gid, aria2Status.Error.Message)
 		return
 	}
 
 	if len(aria2Status.Result.Files) != 1 {
-		note := "Wrong file amount"
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-		if !updated {
-			logs.GetLogger().Error("Failed to update offline deal status")
-		}
-		logs.GetLogger().Error(note)
+		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "get download status failed for gid:"+gid, "wrong file amount")
 		return
 	}
 
 	result := aria2Status.Result
-	code := result.ErrorCode
-	message := result.ErrorMessage
-	status := result.Status
 	file := result.Files[0]
 	filePath := file.Path
 	fileSize := utils.GetInt64FromStr(file.Length)
-	completedLen := utils.GetInt64FromStr(file.CompletedLength)
-	var completePercent float64 = 0
-	if fileSize > 0 {
-		completePercent = float64(completedLen) / float64(fileSize) * 100
-	}
-	downloadSpeed := utils.GetInt64FromStr(result.DownloadSpeed) / 1000
 
-	switch status {
+	switch result.Status {
 	case ARIA2_TASK_STATUS_ERROR:
-		note := fmt.Sprintf("Deal:%s status for %s, code:%s, message:%s, status:%s", deal.DealCid, gid, code, message, status)
-		if !utils.IsFileExistsFullPath(aria2Service.OutDir) {
-			note = fmt.Sprintf("%s.aria2 download directory: %s not exists", note, aria2Service.OutDir)
-		}
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-		if !updated {
-			logs.GetLogger().Error("Failed to update offline deal status")
-		}
-		logs.GetLogger().Error(note)
+		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "download error for gid:"+gid, result.ErrorMessage)
 	case ARIA2_TASK_STATUS_ACTIVE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
-		if deal.Status != DEAL_STATUS_DOWNLOADING {
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADING, gid, filePath, strconv.FormatInt(fileSizeDownloaded, 10))
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
+		completedLen := utils.GetInt64FromStr(file.CompletedLength)
+		var completePercent float64 = 0
+		if fileSize > 0 {
+			completePercent = float64(completedLen) / float64(fileSize) * 100
 		}
-		msg := fmt.Sprintf("Deal downloading, CID: %s, complete: %.2f%%, speed: %dKiB", deal.DealCid, completePercent, downloadSpeed)
-		logs.GetLogger().Info(msg)
+		downloadSpeed := utils.GetInt64FromStr(result.DownloadSpeed) / 1000
+		note := fmt.Sprintf("downloading, complete: %.2f%%, speed: %dKiB", completePercent, downloadSpeed)
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADING, &filePath, &fileSizeDownloaded, note)
 	case ARIA2_TASK_STATUS_COMPLETE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		if fileSizeDownloaded >= 0 {
-			note := fmt.Sprintf("Deal CID: %s downloaded", deal.DealCid)
-			logs.GetLogger().Info(note)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOADED, gid, filePath, strconv.FormatInt(fileSizeDownloaded, 10))
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
+			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, &fileSizeDownloaded, gid)
 		} else {
-			note := fmt.Sprintf("File %s not found on ", filePath)
-			logs.GetLogger().Error(note)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, strconv.FormatInt(fileSizeDownloaded, 10))
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
+			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, &fileSizeDownloaded, "file not found on its download path")
 		}
 	default:
-		note := fmt.Sprintf("Download failed, cause: %s", result.ErrorMessage)
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note, filePath, strconv.FormatInt(fileSize, 10))
-		if !updated {
-			logs.GetLogger().Error("Failed to update offline deal status")
-		}
-		logs.GetLogger().Error(note, " dealId:", strconv.Itoa(deal.Id))
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, &fileSize, result.ErrorMessage)
 	}
 }
 
@@ -151,33 +104,21 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2C
 	downloadingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_DOWNLOADING)
 
 	for _, deal := range downloadingDeals {
-		gid := deal.Note
-		if len(gid) <= 0 {
-			note := "Download gid not found in offline_deals.note"
-			if note != deal.Note {
-				updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-				if !updated {
-					logs.GetLogger().Error("Failed to update offline deal status")
-				}
-			}
+		gid := strings.Trim(deal.Note, " ")
+		if gid == "" {
+			UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "download gid not found in offline_deals.note")
 			continue
 		}
 
-		aria2Service.CheckDownloadStatus4Deal(aria2Client, swanClient, &deal, gid)
+		aria2Service.CheckDownloadStatus4Deal(aria2Client, swanClient, deal, gid)
 	}
 }
 
-func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal, aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
+func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	logs.GetLogger().Info("start downloading deal id ", deal.Id)
 	urlInfo, err := url.Parse(deal.FileSourceUrl)
 	if err != nil {
-		msg := fmt.Sprintf("parse source file url error:%s", err)
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, msg)
-		if !updated {
-			logs.GetLogger().Error("Failed to update offline deal status")
-		}
-		msg = fmt.Sprintf("Deal:%s, %s", deal.DealCid, msg)
-		logs.GetLogger().Error(msg)
+		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "parse source file url error,", err.Error())
 		return
 	}
 
@@ -195,32 +136,17 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 	aria2Download := aria2Client.DownloadFile(deal.FileSourceUrl, outDir, outFilename)
 
 	if aria2Download == nil {
-		note := "No response when asking aria2 to download"
-		logs.GetLogger().Error(note)
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-		if !updated {
-			logs.GetLogger().Error("Failed to update offline deal status")
-		}
+		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "no response when asking aria2 to download")
 		return
 	}
 
 	if aria2Download.Error != nil {
-		note := fmt.Sprintf("Error: code(%d), %s", aria2Download.Error.Code, aria2Download.Error.Message)
-		logs.GetLogger().Error(note)
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-		if !updated {
-			logs.GetLogger().Error("Failed to update offline deal status")
-		}
+		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, aria2Download.Error.Message)
 		return
 	}
 
 	if aria2Download.Gid == "" {
-		note := "Error: no gid returned"
-		logs.GetLogger().Error(note)
-		updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_DOWNLOAD_FAILED, note)
-		if !updated {
-			logs.GetLogger().Error("Failed to update offline deal status")
-		}
+		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "no gid returned when asking aria2 to download")
 		return
 	}
 
@@ -242,7 +168,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
-		aria2Service.StartDownload4Deal(deal2Download, aria2Client, swanClient)
+		aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
 		time.Sleep(1 * time.Second)
 	}
 }
