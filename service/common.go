@@ -203,7 +203,7 @@ func lotusStartScan() {
 
 func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, filesize *int64, messages ...string) {
 	note := GetNote(messages...)
-	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED {
+	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
 		logs.GetLogger().Warn(GetLog(deal, note))
 	} else {
 		logs.GetLogger().Info(GetLog(deal, note))
@@ -214,6 +214,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	if filefullpath != nil && filesize != nil {
 		filesizeStr := strconv.FormatInt(*filesize, 10)
 		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath && deal.FileSize == filesizeStr {
+			logs.GetLogger().Info(GetLog(deal, "no need to update deal status in swan"))
 			return
 		}
 
@@ -221,6 +222,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath, filesizeStr)
 	} else if filefullpath != nil {
 		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath {
+			logs.GetLogger().Info(GetLog(deal, "no need to update deal status in swan"))
 			return
 		}
 
@@ -228,6 +230,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath)
 	} else {
 		if deal.Status == newSwanStatus && deal.Note == note {
+			logs.GetLogger().Info(GetLog(deal, "no need to update deal status in swan"))
 			return
 		}
 
@@ -238,7 +241,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	if !updated {
 		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
 	} else {
-		if newSwanStatus == DEAL_STATUS_IMPORT_FAILED {
+		if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
 			logs.GetLogger().Warn(msg)
 		} else {
 			logs.GetLogger().Info(msg)
