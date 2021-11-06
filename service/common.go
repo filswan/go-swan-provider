@@ -252,7 +252,7 @@ func UpdateStatusAndLog(deal model.OfflineDeal, newSwanStatus string, messages .
 
 func GetLog(deal model.OfflineDeal, messages ...string) string {
 	text := GetNote(messages...)
-	msg := fmt.Sprintf("deal id%d, CID:%s, %s", deal.Id, deal.DealCid, text)
+	msg := fmt.Sprintf("deal id:%d,CID:%s,%s", deal.Id, deal.DealCid, text)
 	return msg
 }
 
@@ -266,5 +266,6 @@ func GetNote(messages ...string) string {
 	}
 
 	result = strings.TrimPrefix(result, ",")
+	result = strings.TrimSuffix(result, ",")
 	return result
 }
