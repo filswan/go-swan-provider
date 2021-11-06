@@ -91,7 +91,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 				continue
 			}
 
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTING, onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTING, "importing deal")
 
 			err := lotusService.LotusMarket.LotusImportData(deal.DealCid, deal.FilePath)
 
