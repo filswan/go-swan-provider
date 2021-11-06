@@ -39,7 +39,7 @@ func createHttpServer() {
 	v1 := r.Group("/api/v1")
 	routers.HostManager(v1.Group(constants.URL_HOST_GET_COMMON))
 
-	err := r.Run(":" + strconv.Itoa(config.GetConfig().Port))
+	err := r.Run("0.0.0.0:" + strconv.Itoa(config.GetConfig().Port))
 	if err != nil {
 		logs.GetLogger().Fatal(err)
 	}
