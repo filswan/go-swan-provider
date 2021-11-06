@@ -209,23 +209,35 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		logs.GetLogger().Info(GetLog(deal, note))
 	}
 
-	if deal.Status == newSwanStatus && deal.Note == note {
-		return
-	}
-
 	var updated bool
+	var msg string
 	if filefullpath != nil && filesize != nil {
-		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath, strconv.FormatInt(*filesize, 10))
+		filesizeStr := strconv.FormatInt(*filesize, 10)
+		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath && deal.FileSize == filesizeStr {
+			return
+		}
+
+		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+*filefullpath, "set filesize to:"+filesizeStr)
+		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath, filesizeStr)
 	} else if filefullpath != nil {
+		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath {
+			return
+		}
+
+		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+*filefullpath)
 		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath)
 	} else {
+		if deal.Status == newSwanStatus && deal.Note == note {
+			return
+		}
+
+		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note)
 		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note)
 	}
 
 	if !updated {
 		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
 	} else {
-		msg := fmt.Sprintf("deal id%d, CID:%s, set deal status to:%s, set deal note to:%s", deal.Id, deal.DealCid, newSwanStatus, note)
 		if newSwanStatus == DEAL_STATUS_IMPORT_FAILED {
 			logs.GetLogger().Warn(msg)
 		} else {

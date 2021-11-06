@@ -115,7 +115,7 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2C
 }
 
 func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
-	logs.GetLogger().Info("start downloading deal id ", deal.Id)
+	logs.GetLogger().Info(GetLog(deal, "start downloading"))
 	urlInfo, err := url.Parse(deal.FileSourceUrl)
 	if err != nil {
 		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "parse source file url error,", err.Error())

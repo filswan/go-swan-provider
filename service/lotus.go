@@ -61,7 +61,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if len(onChainStatus) == 0 {
-			logs.GetLogger().Error(GetLog(deal, "failed to get on chain status"))
+			logs.GetLogger().Error(GetLog(deal, "failed to get on chain status, please check if lotus-miner is running properly"))
 			continue
 		}
 
@@ -120,7 +120,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 	}
 
 	for _, deal := range deals {
-		logs.GetLogger().Info(GetLog(deal, deal.Status, deal.Note))
+		logs.GetLogger().Info(GetLog(deal, "current status in swan:"+deal.Status, "current note in swan:"+deal.Note))
 
 		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatusFromDeals(lotusDeals, deal.DealCid)
 		if len(onChainStatus) == 0 {
