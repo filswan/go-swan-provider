@@ -26,6 +26,7 @@ func main() {
 
 func createHttpServer() {
 	r := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
 	r.Use(cors.Middleware(cors.Config{
 		Origins:         "*",
 		Methods:         "GET, PUT, POST, DELETE",
@@ -39,7 +40,7 @@ func createHttpServer() {
 	v1 := r.Group("/api/v1")
 	routers.HostManager(v1.Group(constants.URL_HOST_GET_COMMON))
 
-	err := r.Run("0.0.0.0:" + strconv.Itoa(config.GetConfig().Port))
+	err := r.Run(":" + strconv.Itoa(config.GetConfig().Port))
 	if err != nil {
 		logs.GetLogger().Fatal(err)
 	}
