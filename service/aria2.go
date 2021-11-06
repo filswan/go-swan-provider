@@ -19,20 +19,20 @@ import (
 )
 
 type Aria2Service struct {
-	MinerFid string
-	OutDir   string
+	MinerFid    string
+	DownloadDir string
 }
 
 func GetAria2Service() *Aria2Service {
 	aria2Service := &Aria2Service{
-		MinerFid: config.GetConfig().Main.MinerFid,
-		OutDir:   config.GetConfig().Aria2.Aria2DownloadDir,
+		MinerFid:    config.GetConfig().Main.MinerFid,
+		DownloadDir: config.GetConfig().Aria2.Aria2DownloadDir,
 	}
 
-	_, err := os.Stat(aria2Service.OutDir)
+	_, err := os.Stat(aria2Service.DownloadDir)
 	if err != nil {
 		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
-		logs.GetLogger().Error("Your download directory:", aria2Service.OutDir, " not exists.")
+		logs.GetLogger().Error("Your download directory:", aria2Service.DownloadDir, " not exists.")
 		logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
 	}
 
@@ -131,7 +131,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, 
 
 	today := time.Now()
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
-	outDir := filepath.Join(aria2Service.OutDir, strconv.Itoa(deal.UserId), timeStr)
+	outDir := filepath.Join(aria2Service.DownloadDir, strconv.Itoa(deal.UserId), timeStr)
 
 	aria2Download := aria2Client.DownloadFile(deal.FileSourceUrl, outDir, outFilename)
 
