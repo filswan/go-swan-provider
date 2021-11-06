@@ -214,7 +214,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	if filefullpath != nil && filesize != nil {
 		filesizeStr := strconv.FormatInt(*filesize, 10)
 		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath && deal.FileSize == filesizeStr {
-			logs.GetLogger().Info(GetLog(deal, "no need to update deal status in swan"))
+			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 			return
 		}
 
@@ -222,7 +222,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath, filesizeStr)
 	} else if filefullpath != nil {
 		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath {
-			logs.GetLogger().Info(GetLog(deal, "no need to update deal status in swan"))
+			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 			return
 		}
 
@@ -230,7 +230,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath)
 	} else {
 		if deal.Status == newSwanStatus && deal.Note == note {
-			logs.GetLogger().Info(GetLog(deal, "no need to update deal status in swan"))
+			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 			return
 		}
 
