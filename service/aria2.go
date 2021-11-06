@@ -124,7 +124,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, 
 
 	outFilename := urlInfo.Path
 	if strings.HasPrefix(urlInfo.RawQuery, "filename=") {
-		outFilename = strings.TrimLeft(urlInfo.RawQuery, "filename=")
+		outFilename = strings.TrimPrefix(urlInfo.RawQuery, "filename=")
 		outFilename = filepath.Join(urlInfo.Path, outFilename)
 	}
 	outFilename = strings.TrimLeft(outFilename, "/")
@@ -162,7 +162,6 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 
 	for i := 1; i <= ARIA2_MAX_DOWNLOADING_TASKS-countDownloadingDeals; i++ {
 		deal2Download := aria2Service.findNextDealReady2Download(swanClient)
-
 		if deal2Download == nil {
 			logs.GetLogger().Info("No offline deal to download")
 			break
