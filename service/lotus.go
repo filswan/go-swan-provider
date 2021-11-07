@@ -79,6 +79,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 		case ONCHAIN_DEAL_STATUS_WAITTING:
 			currentEpoch := lotusService.LotusClient.LotusGetCurrentEpoch()
 			if currentEpoch < 0 {
+				UpdateStatusAndLog(deal, deal.Status, "failed to get current epoch", onChainStatus, onChainMessage)
 				continue
 			}
 
@@ -128,8 +129,6 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			continue
 		}
 
-		logs.GetLogger().Info(GetLog(deal, onChainStatus, onChainMessage))
-
 		switch onChainStatus {
 		case ONCHAIN_DEAL_STATUS_ERROR:
 			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error when scan", onChainStatus, onChainMessage)
@@ -137,9 +136,18 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", onChainStatus, onChainMessage)
 		case ONCHAIN_DEAL_STATUS_AWAITING:
 			currentEpoch := lotusService.LotusClient.LotusGetCurrentEpoch()
-			if currentEpoch >= 0 && currentEpoch > deal.StartEpoch {
-				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "sector is proved and active, on chain status bug", onChainStatus, onChainMessage)
+			if currentEpoch < 0 {
+				UpdateStatusAndLog(deal, deal.Status, "failed to get current epoch", onChainStatus, onChainMessage)
+				continue
 			}
+
+			if currentEpoch > deal.StartEpoch {
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "sector is proved and active, on chain status bug", onChainStatus, onChainMessage)
+			} else {
+				UpdateStatusAndLog(deal, deal.Status, onChainStatus, onChainMessage)
+			}
+		default:
+			UpdateStatusAndLog(deal, deal.Status, onChainStatus, onChainMessage)
 		}
 	}
 }
