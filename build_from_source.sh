@@ -19,6 +19,7 @@ else
 
     if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
         mkdir ${ARIA2_DOWNLOAD_DIR}
+        echo "${ARIA2_DOWNLOAD_DIR} created"
     else
         echo "${ARIA2_DOWNLOAD_DIR} exists"
     fi
