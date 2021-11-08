@@ -85,20 +85,21 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 		if fileSize > 0 {
 			completePercent = float64(completedLen) / float64(fileSize) * 100
 		}
-		downloadSpeed := utils.GetInt64FromStr(result.DownloadSpeed) / 1000
-		note := fmt.Sprintf("downloading, complete: %.2f%%, speed: %dKiB", completePercent, downloadSpeed)
+		downloadSpeed := utils.GetInt64FromStr(result.DownloadSpeed) / 1024
+		fileSizeDownloaded = fileSizeDownloaded / 1024
+		note := fmt.Sprintf("downloading, complete: %.2f%%, speed: %dKiB, downloaded:%dKiB", completePercent, downloadSpeed, fileSizeDownloaded)
 		logs.GetLogger().Info(GetLog(deal, note))
-		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADING, &filePath, &fileSizeDownloaded, gid)
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADING, &filePath, gid)
 	case ARIA2_TASK_STATUS_COMPLETE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		logs.GetLogger().Info(GetLog(deal, "downloaded"))
 		if fileSizeDownloaded >= 0 {
-			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, &fileSizeDownloaded, gid)
+			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, gid)
 		} else {
-			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, &fileSizeDownloaded, "file not found on its download path")
+			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, "file not found on its download path")
 		}
 	default:
-		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, &fileSize, result.ErrorMessage)
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, result.ErrorMessage)
 	}
 }
 
