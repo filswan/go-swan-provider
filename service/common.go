@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
@@ -201,7 +200,7 @@ func lotusStartScan() {
 	}
 }
 
-func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, filesize *int64, messages ...string) {
+func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
 	note := GetNote(messages...)
 	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
 		logs.GetLogger().Warn(GetLog(deal, note))
@@ -211,16 +210,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 
 	var updated bool
 	var msg string
-	if filefullpath != nil && filesize != nil {
-		filesizeStr := strconv.FormatInt(*filesize, 10)
-		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath && deal.FileSize == filesizeStr {
-			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
-			return
-		}
-
-		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+*filefullpath, "set filesize to:"+filesizeStr)
-		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath, filesizeStr)
-	} else if filefullpath != nil {
+	if filefullpath != nil {
 		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath {
 			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 			return
@@ -250,7 +240,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 }
 
 func UpdateStatusAndLog(deal model.OfflineDeal, newSwanStatus string, messages ...string) {
-	UpdateDealInfoAndLog(deal, newSwanStatus, nil, nil, messages...)
+	UpdateDealInfoAndLog(deal, newSwanStatus, nil, messages...)
 }
 
 func GetLog(deal model.OfflineDeal, messages ...string) string {
