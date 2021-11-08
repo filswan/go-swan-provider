@@ -87,9 +87,11 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 		}
 		downloadSpeed := utils.GetInt64FromStr(result.DownloadSpeed) / 1000
 		note := fmt.Sprintf("downloading, complete: %.2f%%, speed: %dKiB", completePercent, downloadSpeed)
-		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADING, &filePath, &fileSizeDownloaded, note)
+		logs.GetLogger().Info(GetLog(deal, note))
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADING, &filePath, &fileSizeDownloaded, gid)
 	case ARIA2_TASK_STATUS_COMPLETE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
+		logs.GetLogger().Info(GetLog(deal, "downloaded"))
 		if fileSizeDownloaded >= 0 {
 			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, &fileSizeDownloaded, gid)
 		} else {
