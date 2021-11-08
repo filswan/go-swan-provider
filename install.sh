@@ -14,7 +14,16 @@ if [ -f "${CONF_FILE_PATH}" ]; then
     echo "${CONF_FILE_PATH} exists"
 else
     cp ./config.toml.example $CONF_FILE_PATH
-    sed -i 's/%%ARIA2_DOWNLOAD_DIR%%/'${HOME}'/g' $CONF_FILE_PATH   # Set User & Group to value of $USER
+    ARIA2_DOWNLOAD_DIR=${CONF_FILE_DIR}/download
+    sed -i 's@%%ARIA2_DOWNLOAD_DIR%%@'${ARIA2_DOWNLOAD_DIR}'@g' $CONF_FILE_PATH   # Set aria2 download dir
+
+    if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
+        mkdir ${ARIA2_DOWNLOAD_DIR}
+        echo "${ARIA2_DOWNLOAD_DIR} created"
+    else
+        echo "${ARIA2_DOWNLOAD_DIR} exists"
+    fi
+
     echo "${CONF_FILE_PATH} created"
 fi
 

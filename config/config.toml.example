@@ -6,7 +6,7 @@ market_api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus market web api, gene
 market_access_token=""                       # Access token of lotus market web api, when market and miner are not separate, it is also the access token of miner web api
 
 [aria2]
-aria2_download_dir = "%%ARIA2_DOWNLOAD_DIR%%/.swan/provider/download"   # Directory where offline deal files will be downloaded for importing
+aria2_download_dir = "%%ARIA2_DOWNLOAD_DIR%%"   # Directory where offline deal files will be downloaded for importing
 aria2_host = "127.0.0.1"  # Aria2 server address
 aria2_port = 6800         # Aria2 server port
 aria2_secret = "my_aria2_secret"  # Must be the same value as rpc-secure in aria2.conf
