@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"swan-provider/config"
 	"time"
 
@@ -50,105 +49,57 @@ func GetLotusService() *LotusService {
 	return lotusService
 }
 
-func GetNote(message, onChainStatus, onChainMessage string) string {
-	result := fmt.Sprintf("%sOn chain status:%s", message, onChainStatus)
-	if onChainMessage != "" {
-		result = result + ", message:" + onChainMessage
-	}
-	return result
-}
-
 func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 	deals := swanClient.SwanGetOfflineDeals(lotusService.MinerFid, DEAL_STATUS_IMPORT_READY, LOTUS_IMPORT_NUMNBER)
 	if len(deals) == 0 {
-		logs.GetLogger().Info("No pending offline deals found.")
+		logs.GetLogger().Info("no pending offline deals found")
 		return
 	}
 
 	for _, deal := range deals {
-		msg := fmt.Sprintf("Deal ID: %d, Deal CID: %s. File Path: %s", deal.Id, deal.DealCid, deal.FilePath)
-		logs.GetLogger().Info(msg)
+		logs.GetLogger().Info(GetLog(deal, "filepath:"+deal.FilePath))
 
-		onChainStatus, message := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
-
+		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if len(onChainStatus) == 0 {
-			logs.GetLogger().Error("Failed to get on chain status for :", deal.DealCid)
+			logs.GetLogger().Error(GetLog(deal, "failed to get on chain status, please check if lotus-miner is running properly"))
 			continue
 		}
 
-		logs.GetLogger().Info("Deal on chain status: ", onChainStatus)
+		logs.GetLogger().Info(GetLog(deal, onChainStatus, onChainMessage))
 
 		switch onChainStatus {
 		case ONCHAIN_DEAL_STATUS_ERROR:
-			note := GetNote("Deal is error before importing.", onChainStatus, message)
-			logs.GetLogger().Warn("Deal id:", deal.Id, " CID: ", deal.DealCid, " ", note)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal is error before importing", onChainStatus, onChainMessage)
 		case ONCHAIN_DEAL_STATUS_ACTIVE:
-			note := GetNote("Deal is active before importing.", onChainStatus, message)
-			logs.GetLogger().Info(note)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_ACTIVE, note)
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
+			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal is active before importing", onChainStatus, onChainMessage)
 		case ONCHAIN_DEAL_STATUS_ACCEPT:
-			logs.GetLogger().Info("Deal on chain status is ", ONCHAIN_DEAL_STATUS_ACCEPT, ". Deal will be ready shortly.")
+			UpdateStatusAndLog(deal, deal.Status, "deal will be ready shortly", onChainStatus, onChainMessage)
 		case ONCHAIN_DEAL_STATUS_NOTFOUND:
-			note := GetNote("Deal not found.", onChainStatus, message)
-			logs.GetLogger().Info(note)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal not found", onChainStatus, onChainMessage)
 		case ONCHAIN_DEAL_STATUS_WAITTING:
 			currentEpoch := lotusService.LotusClient.LotusGetCurrentEpoch()
 			if currentEpoch < 0 {
-				return
-			}
-
-			if deal.StartEpoch-currentEpoch < lotusService.ExpectedSealingTime {
-				note := GetNote("Deal expired before importing.", onChainStatus, message)
-				updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
-				if !updated {
-					logs.GetLogger().Error("Failed to update offline deal status")
-				}
-				note = fmt.Sprintf("Deal id:%d, CID:%s, Deal will start too soon. Do not import this deal.", deal.Id, deal.DealCid)
-				logs.GetLogger().Warn(note)
+				UpdateStatusAndLog(deal, deal.Status, "failed to get current epoch", onChainStatus, onChainMessage)
 				continue
 			}
 
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORTING)
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
+			if deal.StartEpoch-currentEpoch < lotusService.ExpectedSealingTime {
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal expired before importing", onChainStatus, onChainMessage)
+				continue
 			}
+
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTING, "importing deal")
 
 			err := lotusService.LotusMarket.LotusImportData(deal.DealCid, deal.FilePath)
 
 			if err != nil { //There should be no output if everything goes well
-				updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, err.Error())
-				if !updated {
-					logs.GetLogger().Error("Failed to update offline deal status")
-				}
-				msg = fmt.Sprintf("Import deal failed. id: %s. Error message: %s", deal.DealCid, err.Error())
-				logs.GetLogger().Warn(msg)
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "import deal failed", err.Error())
 				continue
 			}
 
-			updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORTED)
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
-			msg = fmt.Sprintf("Deal CID %s imported.", deal.DealCid)
-			logs.GetLogger().Info(msg)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal imported")
 		default:
-			note := GetNote("Deal is already imported.", onChainStatus, message)
-			logs.GetLogger().Info("Deal CID:", deal.DealCid, " ", note)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORTED, note)
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal is already imported", onChainStatus, onChainMessage)
 		}
 
 		logs.GetLogger().Info("Sleeping...")
@@ -158,66 +109,45 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 	deals := swanClient.SwanGetOfflineDeals(lotusService.MinerFid, DEAL_STATUS_IMPORTED, LOTUS_SCAN_NUMBER)
-
 	if len(deals) == 0 {
-		logs.GetLogger().Info("No ongoing offline deals found.")
+		logs.GetLogger().Info("no ongoing offline deals found")
 		return
 	}
 
 	lotusDeals := lotusService.LotusMarket.LotusGetDeals()
 	if len(lotusDeals) == 0 {
-		logs.GetLogger().Error("Failed to get deals from lotus.")
+		logs.GetLogger().Error("failed to get deals from lotus")
 		return
 	}
 
 	for _, deal := range deals {
-		msg := fmt.Sprintf("ID: %d. Deal CID: %s. Deal Status: %s.", deal.Id, deal.DealCid, deal.Status)
-		logs.GetLogger().Info(msg)
+		logs.GetLogger().Info(GetLog(deal, "current status in swan:"+deal.Status, "current note in swan:"+deal.Note))
 
-		onChainStatus, message := lotusService.LotusMarket.LotusGetDealOnChainStatusFromDeals(lotusDeals, deal.DealCid)
-
+		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatusFromDeals(lotusDeals, deal.DealCid)
 		if len(onChainStatus) == 0 {
-			logs.GetLogger().Error("Failed to get on chain status for :", deal.DealCid)
+			logs.GetLogger().Error(GetLog(deal, "failed to get on chain status"))
 			continue
 		}
 
-		logs.GetLogger().Info("Deal on chain status: ", onChainStatus)
-
 		switch onChainStatus {
 		case ONCHAIN_DEAL_STATUS_ERROR:
-			note := GetNote("Deal error when scan.", onChainStatus, message)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
-			msg = fmt.Sprintf("Setting deal %s status as %s", deal.DealCid, DEAL_STATUS_IMPORT_FAILED)
-			logs.GetLogger().Info(msg)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error when scan", onChainStatus, onChainMessage)
 		case ONCHAIN_DEAL_STATUS_ACTIVE:
-			note := GetNote("Deal has been completed.", onChainStatus, message)
-			updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_ACTIVE, note)
-			if !updated {
-				logs.GetLogger().Error("Failed to update offline deal status")
-			}
-			msg = fmt.Sprintf("Setting deal %s status as %s", deal.DealCid, DEAL_STATUS_ACTIVE)
-			logs.GetLogger().Info(msg)
+			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", onChainStatus, onChainMessage)
 		case ONCHAIN_DEAL_STATUS_AWAITING:
 			currentEpoch := lotusService.LotusClient.LotusGetCurrentEpoch()
 			if currentEpoch < 0 {
-				return
+				UpdateStatusAndLog(deal, deal.Status, "failed to get current epoch", onChainStatus, onChainMessage)
+				continue
 			}
 
 			if currentEpoch > deal.StartEpoch {
-				note := GetNote("Sector is proved and active.", onChainStatus, message)
-				updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED, note)
-				if !updated {
-					logs.GetLogger().Error("Failed to update offline deal status")
-				}
-				msg = fmt.Sprintf("Setting deal %s status as ImportFailed due to on chain status bug.", deal.DealCid)
-				logs.GetLogger().Info(msg)
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "sector is proved and active, on chain status bug", onChainStatus, onChainMessage)
+			} else {
+				UpdateStatusAndLog(deal, deal.Status, onChainStatus, onChainMessage)
 			}
+		default:
+			UpdateStatusAndLog(deal, deal.Status, onChainStatus, onChainMessage)
 		}
-
-		msg = GetNote("On chain offline_deal message created. Message Body: ", onChainStatus, message)
-		logs.GetLogger().Info(msg)
 	}
 }

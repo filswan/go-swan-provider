@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/filswan/go-swan-lib/client"
 	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/filswan/go-swan-lib/client/swan"
@@ -197,4 +199,76 @@ func lotusStartScan() {
 		logs.GetLogger().Info("Sleeping...")
 		time.Sleep(lotusService.ScanIntervalSecond)
 	}
+}
+
+func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, filesize *int64, messages ...string) {
+	note := GetNote(messages...)
+	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
+		logs.GetLogger().Warn(GetLog(deal, note))
+	} else {
+		logs.GetLogger().Info(GetLog(deal, note))
+	}
+
+	var updated bool
+	var msg string
+	if filefullpath != nil && filesize != nil {
+		filesizeStr := strconv.FormatInt(*filesize, 10)
+		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath && deal.FileSize == filesizeStr {
+			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
+			return
+		}
+
+		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+*filefullpath, "set filesize to:"+filesizeStr)
+		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath, filesizeStr)
+	} else if filefullpath != nil {
+		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath {
+			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
+			return
+		}
+
+		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+*filefullpath)
+		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath)
+	} else {
+		if deal.Status == newSwanStatus && deal.Note == note {
+			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
+			return
+		}
+
+		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note)
+		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note)
+	}
+
+	if !updated {
+		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
+	} else {
+		if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
+			logs.GetLogger().Warn(msg)
+		} else {
+			logs.GetLogger().Info(msg)
+		}
+	}
+}
+
+func UpdateStatusAndLog(deal model.OfflineDeal, newSwanStatus string, messages ...string) {
+	UpdateDealInfoAndLog(deal, newSwanStatus, nil, nil, messages...)
+}
+
+func GetLog(deal model.OfflineDeal, messages ...string) string {
+	text := GetNote(messages...)
+	msg := fmt.Sprintf("deal(id=%d):%s,%s", deal.Id, deal.DealCid, text)
+	return msg
+}
+
+func GetNote(messages ...string) string {
+	result := ""
+	if messages == nil {
+		return result
+	}
+	for _, message := range messages {
+		result = result + "," + message
+	}
+
+	result = strings.TrimPrefix(result, ",")
+	result = strings.TrimSuffix(result, ",")
+	return result
 }
