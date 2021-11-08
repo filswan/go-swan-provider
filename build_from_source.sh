@@ -14,7 +14,7 @@ if [ -f "${CONF_FILE_PATH}" ]; then
 else
     cp ./config/config.toml.example $CONF_FILE_PATH
     ARIA2_DOWNLOAD_DIR=${CONF_FILE_DIR}/download
-    sed -i "s/%%ARIA2_DOWNLOAD_DIR%%/${ARIA2_DOWNLOAD_DIR}/g" $CONF_FILE_PATH   # Set User & Group to value of $USER
+    sed -i 's@%%ARIA2_DOWNLOAD_DIR%%@'${ARIA2_DOWNLOAD_DIR}'@g' $CONF_FILE_PATH   # Set User & Group to value of $USER
 
     if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
         mkdir ${ARIA2_DOWNLOAD_DIR}
