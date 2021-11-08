@@ -1,7 +1,6 @@
 #!/bin/bash
 
-HOME_DIR=${HOME}
-CONF_FILE_DIR=${HOME_DIR}/.swan/provider
+CONF_FILE_DIR=${HOME}/.swan/provider
 
 if [ ! -d "${CONF_FILE_DIR}" ]; then
     mkdir ${CONF_FILE_DIR}
@@ -14,8 +13,8 @@ if [ -f "${CONF_FILE_PATH}" ]; then
     echo "${CONF_FILE_PATH} exists"
 else
     cp ./config/config.toml.example $CONF_FILE_PATH
-    sed -i 's/%%ARIA2_DOWNLOAD_DIR%%/'${HOME_DIR}'/g' $CONF_FILE_PATH   # Set User & Group to value of $USER
     ARIA2_DOWNLOAD_DIR=${CONF_FILE_DIR}/download
+    sed -i "s/%%ARIA2_DOWNLOAD_DIR%%/${ARIA2_DOWNLOAD_DIR}/g" $CONF_FILE_PATH   # Set User & Group to value of $USER
 
     if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
         mkdir ${ARIA2_DOWNLOAD_DIR}
