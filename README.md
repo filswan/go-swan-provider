@@ -81,9 +81,9 @@ nohup ./swan-provider &
 - **port：** Default 8888, web api port for extension in future
 
 ### [lotus]
-- :bangbang:**client_api_url:** Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**
-- :bangbang:**market_api_url:** Url of lotus market web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**. When market and miner are not separate, it is also the url of miner web api.
-- :bangbang:**market_access_token:** Access token of lotus market web api. When market and miner are not separate, it is also the access token of miner access token.
+- :bangbang:**client_api_url:** Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/
+- :bangbang:**market_api_url:** Url of lotus market web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**. When market and miner are not separate, it is also the url of miner web api. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/
+- :bangbang:**market_access_token:** Access token of lotus market web api. When market and miner are not separate, it is also the access token of miner access token. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [aria2]
 - **aria2_download_dir:** Directory where offline deal files will be downloaded for importing
