@@ -143,7 +143,7 @@ func checkLotusConfig() {
 
 	err := lotusMarket.LotusImportData("bafyreib7azyg2yubucdhzn64gvyekdma7nbrbnfafcqvhsz2mcnvbnkktu", "test")
 
-	if err != nil && !strings.Contains(err.Error(), "no such file or directory") {
+	if err != nil && !strings.Contains(err.Error(), "no such file or directory") && !strings.Contains(err.Error(), "datastore: key not found") {
 		logs.GetLogger().Fatal(err)
 	}
 

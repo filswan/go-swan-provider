@@ -3,7 +3,7 @@
 CONF_FILE_DIR=${HOME}/.swan/provider
 
 if [ ! -d "${CONF_FILE_DIR}" ]; then
-    mkdir ${CONF_FILE_DIR}
+    mkdir -p ${CONF_FILE_DIR}
 fi
 
 CONF_FILE_PATH=${CONF_FILE_DIR}/config.toml
@@ -17,7 +17,7 @@ else
     sed -i 's@%%ARIA2_DOWNLOAD_DIR%%@'${ARIA2_DOWNLOAD_DIR}'@g' $CONF_FILE_PATH   # Set aria2 download dir
 
     if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
-        mkdir ${ARIA2_DOWNLOAD_DIR}
+        mkdir -p ${ARIA2_DOWNLOAD_DIR}
         echo "${ARIA2_DOWNLOAD_DIR} created"
     else
         echo "${ARIA2_DOWNLOAD_DIR} exists"
