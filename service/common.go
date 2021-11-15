@@ -56,7 +56,7 @@ func AdminOfflineDeal() {
 	checkMinerExists()
 	checkLotusConfig()
 
-	logs.GetLogger().Info("swan token:", swanClient.SwanToken)
+	//logs.GetLogger().Info("swan token:", swanClient.SwanToken)
 	swanService.UpdateBidConf(swanClient)
 	go swanSendHeartbeatRequest()
 	go aria2CheckDownloadStatus()
