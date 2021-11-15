@@ -65,7 +65,8 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			continue
 		}
 
-		logs.GetLogger().Info("cost computed:", dealCost.CostComputed, ", funds reserved:", dealCost.ReserveClientFunds, ", funds released:", dealCost.DealProposalAccepted)
+		msg := GetLog(deal, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+		logs.GetLogger().Info(msg)
 
 		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if len(onChainStatus) == 0 {
@@ -112,7 +113,8 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 				continue
 			}
 
-			logs.GetLogger().Info("cost computed:", dealCost.CostComputed, ", funds reserved:", dealCost.ReserveClientFunds, ", funds released:", dealCost.DealProposalAccepted)
+			msg := GetLog(deal, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+			logs.GetLogger().Info(msg)
 		default:
 			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal is already imported", onChainStatus, onChainMessage)
 		}
