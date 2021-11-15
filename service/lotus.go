@@ -116,6 +116,14 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			msg := GetLog(deal, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
 			logs.GetLogger().Info(msg)
 		default:
+			dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+
+			msg := GetLog(deal, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+			logs.GetLogger().Info(msg)
 			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal is already imported", onChainStatus, onChainMessage)
 		}
 
