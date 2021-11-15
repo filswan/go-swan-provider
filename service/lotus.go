@@ -59,6 +59,14 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 	for _, deal := range deals {
 		logs.GetLogger().Info(GetLog(deal, "filepath:"+deal.FilePath))
 
+		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			continue
+		}
+
+		logs.GetLogger().Info("cost computed:", dealCost.CostComputed, ", funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+
 		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if len(onChainStatus) == 0 {
 			logs.GetLogger().Error(GetLog(deal, "failed to get on chain status, please check if lotus-miner is running properly"))
