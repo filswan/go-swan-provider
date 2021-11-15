@@ -200,7 +200,7 @@ func lotusStartScan() {
 	}
 }
 
-func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
+func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, cost *string, messages ...string) {
 	note := GetNote(messages...)
 	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
 		logs.GetLogger().Warn(GetLog(deal, note))
@@ -210,7 +210,15 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 
 	var updated bool
 	var msg string
-	if filefullpath != nil {
+	if filefullpath != nil && cost != nil {
+		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath && deal.Cost == *cost {
+			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
+			return
+		}
+
+		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+*filefullpath)
+		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath, "", *cost)
+	} else if filefullpath != nil {
 		if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == *filefullpath {
 			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 			return
@@ -218,6 +226,14 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 
 		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+*filefullpath)
 		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, *filefullpath)
+	} else if cost != nil {
+		if deal.Status == newSwanStatus && deal.Note == note && deal.Cost == *cost {
+			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
+			return
+		}
+
+		msg = GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set cost to:"+*cost)
+		updated = swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, "", "", *cost)
 	} else {
 		if deal.Status == newSwanStatus && deal.Note == note {
 			logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
@@ -240,7 +256,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 }
 
 func UpdateStatusAndLog(deal model.OfflineDeal, newSwanStatus string, messages ...string) {
-	UpdateDealInfoAndLog(deal, newSwanStatus, nil, messages...)
+	UpdateDealInfoAndLog(deal, newSwanStatus, nil, nil, messages...)
 }
 
 func GetLog(deal model.OfflineDeal, messages ...string) string {
