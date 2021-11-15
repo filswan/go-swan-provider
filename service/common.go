@@ -141,7 +141,7 @@ func checkLotusConfig() {
 		logs.GetLogger().Fatal("please set config:lotus->client_api_url")
 	}
 
-	err := lotusMarket.LotusImportData("bafyreib7azyg2yubucdhzn64gvyekdma7nbrbnfafcqvhsz2mcnvbnkitu", "/home/peware/swan_dora/go-swan-provider/build/test")
+	err := lotusMarket.LotusImportData("bafyreib7azyg2yubucdhzn64gvyekdma7nbrbnfafcqvhsz2mcnvbnkitu", "test")
 
 	if err != nil && !strings.Contains(err.Error(), "no such file or directory") && !strings.Contains(err.Error(), "datastore: key not found") {
 		logs.GetLogger().Fatal(err)
