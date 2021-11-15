@@ -69,11 +69,12 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 
 ### Note
 - Logs are in directory ./logs
-- You can add **nohup** before **./swan-provider** to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
-- You can add **&** after **./swan-provider** to let the program run in background.
+- You can add `nohup` before `./swan-provider` to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
+- You can add `>> swan-provider.log` in the command to let all the logs output to `swan-provider.log`.
+- You can add `&` at the end of the command to let the program run in background.
 - Such as:
 ```shell
-nohup ./swan-provider &
+nohup ./swan-provider >> swan-provider.log &
 ```
 
 
