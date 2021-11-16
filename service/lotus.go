@@ -96,42 +96,14 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "import deal failed", err.Error())
 				continue
 			}
-
-			dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal imported")
-				continue
-			}
-
-			cost := getDealCost(*dealCost)
-			UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORTED, nil, &cost, "deal imported", "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal imported")
 		default:
-			dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
-			}
-
-			cost := getDealCost(*dealCost)
-			UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORTED, nil, &cost, "deal already imported", onChainStatus, onChainMessage, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal already imported", onChainStatus, onChainMessage)
 		}
 
 		logs.GetLogger().Info("Sleeping...")
 		time.Sleep(lotusService.ImportIntervalSecond)
 	}
-}
-
-func getDealCost(dealCost lotus.ClientDealCost) string {
-	if dealCost.DealProposalAccepted != "" {
-		return dealCost.DealProposalAccepted
-	}
-
-	if dealCost.ReserveClientFunds != "" {
-		return dealCost.ReserveClientFunds
-	}
-
-	return dealCost.CostComputed
 }
 
 func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
