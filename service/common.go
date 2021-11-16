@@ -218,12 +218,12 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	note := GetNote(messages...)
 
 	cost := ""
-	if newSwanStatus != DEAL_STATUS_DOWNLOADING {
-		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
-		if err != nil {
-			logs.GetLogger().Error(err)
-		} else {
-			cost = getDealCost(*dealCost)
+	dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
+	if err != nil {
+		logs.GetLogger().Error(err)
+	} else {
+		cost = getDealCost(*dealCost)
+		if newSwanStatus != DEAL_STATUS_DOWNLOADING {
 			note = GetNote(note, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
 		}
 	}
