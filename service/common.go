@@ -217,14 +217,16 @@ func getDealCost(dealCost lotus.ClientDealCost) string {
 func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
 	note := GetNote(messages...)
 
-	cost := ""
-	dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
-	if err != nil {
-		logs.GetLogger().Error(err)
-	} else {
-		cost = getDealCost(*dealCost)
-		if newSwanStatus != DEAL_STATUS_DOWNLOADING {
-			note = GetNote(note, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+	cost := deal.Cost
+	if deal.DealCid != "" {
+		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		} else {
+			cost = getDealCost(*dealCost)
+			if newSwanStatus != DEAL_STATUS_DOWNLOADING {
+				note = GetNote(note, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+			}
 		}
 	}
 
@@ -234,7 +236,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		logs.GetLogger().Info(GetLog(deal, note))
 	}
 
-	filefullpathTemp := ""
+	filefullpathTemp := deal.FilePath
 	if filefullpath != nil {
 		filefullpathTemp = *filefullpath
 	}
