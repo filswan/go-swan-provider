@@ -223,7 +223,9 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		logs.GetLogger().Error(err)
 	} else {
 		cost = getDealCost(*dealCost)
-		note = GetNote(note, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+		if newSwanStatus != DEAL_STATUS_DOWNLOADING {
+			note = GetNote(note, "cost computed:"+dealCost.CostComputed, "funds reserved:", dealCost.ReserveClientFunds, "funds released:", dealCost.DealProposalAccepted)
+		}
 	}
 
 	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
