@@ -75,7 +75,7 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 - Such as:
 ```shell
 nohup ./swan-provider-0.2.0-rc1-unix >> swan-provider.log &   #After installation from Option 1
-nohup ./build/swan-provider >> swan-provider.log &   #After installation from Option 1
+nohup ./build/swan-provider >> swan-provider.log &            #After installation from Option 1
 ```
 
 
