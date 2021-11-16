@@ -40,12 +40,32 @@ else
 fi
 
 sudo chown $USER:$USER /etc/aria2/             # Change user authority to current user
-sudo touch /etc/aria2/aria2.session            # Create a session file
-sudo cp ./aria2.conf /etc/aria2/               # Copy config file
-sudo cp ./aria2c.service /etc/systemd/system/    # Copy service file
+
+ARIA2_SESSION=/etc/aria2/aria2.session
+if [ -f "${ARIA2_SESSION}" ]; then
+    echo ${ARIA2_SESSION} exists
+else
+    sudo touch ${ARIA2_SESSION}            # Create a session file
+fi
+
+ARIA2_CONF=/etc/aria2/aria2.conf
+if [ -f "${ARIA2_CONF}" ]; then
+    echo ${ARIA2_CONF} exists
+else
+    sudo cp ./aria2.conf /etc/aria2/               # Copy config file
+fi
+
+ARIA2_SERVICE=/etc/systemd/system/aria2c.service
+if [ -f "${ARIA2_SERVICE}" ]; then
+    echo ${ARIA2_SERVICE} exists
+else
+    sudo cp ./aria2c.service /etc/systemd/system/    # Copy service file
+fi
+
 sudo systemctl enable aria2c.service           # Set to start Aria2 automatically
-sudo systemctl start aria2c.service            # Start Aria2
+sudo systemctl restart aria2c.service            # Start Aria2
 
 chmod +x ./${BINARY_NAME}
 ./${BINARY_NAME}               # Run swan provider
+
 
