@@ -9,7 +9,7 @@ GOBIN=$(shell pwd)/build
 # Binary names
 PROJECT_NAME=swan-provider
 BINARY_NAME=$(PROJECT_NAME)
-BINARY_UNIX=$(BINARY_NAME)_unix
+BINARY_UNIX=$(BINARY_NAME)-unix
 
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
