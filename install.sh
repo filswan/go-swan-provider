@@ -1,8 +1,8 @@
 #!/bin/bash
 
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0/swan-provider-0.1.0-unix
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0/aria2.conf
-wget https://github.com/filswan/go-swan-provider/releases/download/release-0.1.0/aria2c.service
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.2.0-rc1/swan-provider-0.2.0-rc1-unix
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.2.0-rc1/aria2.conf
+wget https://github.com/filswan/go-swan-provider/releases/download/release-0.2.0-rc1/aria2c.service
 
 CONF_FILE_DIR=${HOME}/.swan/provider
 mkdir -p ${CONF_FILE_DIR}
@@ -43,6 +43,6 @@ sudo cp ./aria2c.service /etc/systemd/system/    # Copy service file
 sudo systemctl enable aria2c.service           # Set to start Aria2 automatically
 sudo systemctl start aria2c.service            # Start Aria2
 
-chmod +x ./swan-provider-0.1.0-unix
-./swan-provider-0.1.0-unix                     # Run swan provider
+chmod +x ./swan-provider-0.2.0-rc1-unix
+./swan-provider-0.2.0-rc1-unix                 # Run swan provider
 
