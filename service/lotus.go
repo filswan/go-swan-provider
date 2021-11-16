@@ -98,7 +98,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			}
 			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal imported")
 		default:
-			UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORTED, nil, "deal already imported", onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal already imported", onChainStatus, onChainMessage)
 		}
 
 		logs.GetLogger().Info("Sleeping...")
