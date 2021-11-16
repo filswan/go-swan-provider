@@ -221,7 +221,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	if deal.DealCid != "" {
 		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
 		if err != nil {
-			logs.GetLogger().Error(err)
+			logs.GetLogger().Info(err)
 		} else {
 			cost = getDealCost(*dealCost)
 			if newSwanStatus != DEAL_STATUS_DOWNLOADING {
