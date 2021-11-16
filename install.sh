@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BINARY_NAME=swan-provider-0.2.0-rc2-unix
+BINARY_NAME=swan-provider-0.2.2-unix
 TAG_NAME=v0.2.2
 
 wget https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/${BINARY_NAME}
