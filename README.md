@@ -43,6 +43,8 @@ Reference: [Lotus: API tokens](https://docs.filecoin.io/build/lotus/api-tokens/#
 ## Installation
 ### Option:one: **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ```shell
+mkdir swan-provider
+cd swan-provider
 wget https://github.com/filswan/go-swan-provider/releases/download/v0.2.2/install.sh
 chmod +x ./install.sh
 ./install.sh
