@@ -45,7 +45,7 @@ Reference: [Lotus: API tokens](https://docs.filecoin.io/build/lotus/api-tokens/#
 ```shell
 mkdir swan-provider
 cd swan-provider
-wget https://github.com/filswan/go-swan-provider/releases/download/v0.2.2/install.sh
+wget https://github.com/filswan/go-swan-provider/releases/download/v0.2.0-rc2/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
@@ -64,8 +64,8 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 - :one: Edit config file **~/.swan/provider/config.toml** to solve this.
 - :two: Execute **swan-provider** using one of the following commands
 ```shell
-./swan-provider-0.2.2-unix   #After installation from Option 1
-./build/swan-provider        #After installation from Option 2
+./swan-provider-0.2.0-rc2-unix   #After installation from Option 1
+./build/swan-provider            #After installation from Option 2
 ```
 
 
@@ -76,24 +76,24 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 - You can add `&` at the end of the command to let the program run in background.
 - Such as:
 ```shell
-nohup ./swan-provider-0.2.2-unix >> swan-provider.log &   #After installation from Option 1
+nohup ./swan-provider-0.2.0-rc2-unix >> swan-provider.log &   #After installation from Option 1
 nohup ./build/swan-provider >> swan-provider.log &        #After installation from Option 2
 ```
 
 
 ## Config
-- **port：** Default 8888, web api port for extension in future
+- **port：** Default `8888`, web api port for extension in future
 
 ### [lotus]
-- :bangbang:**client_api_url:** Url of lotus client web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **1234**. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/)
-- :bangbang:**market_api_url:** Url of lotus market web api, such as: **http://[ip]:[port]/rpc/v0**, generally the [port] is **2345**. When market and miner are not separate, it is also the url of miner web api. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/)
+- :bangbang:**client_api_url:** Url of lotus client web api, such as: `http://[ip]:[port]/rpc/v0`, generally the `[port]` is `1234`. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/)
+- :bangbang:**market_api_url:** Url of lotus market web api, such as: `http://[ip]:[port]/rpc/v0`, generally the `[port]` is `2345`. When market and miner are not separate, it is also the url of miner web api. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/)
 - :bangbang:**market_access_token:** Access token of lotus market web api. When market and miner are not separate, it is also the access token of miner access token. See [Obtaining Tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
 ### [aria2]
 - **aria2_download_dir:** Directory where offline deal files will be downloaded for importing
 - **aria2_host:** Aria2 server address
 - **aria2_port:** Aria2 server port
-- **aria2_secret:** Must be the same value as rpc-secure in aria2.conf
+- **aria2_secret:** Must be the same value as rpc-secure in `aria2.conf`
 
 ### [main]
 - **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com"
