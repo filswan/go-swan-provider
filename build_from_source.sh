@@ -48,7 +48,7 @@ ARIA2_CONF=/etc/aria2/aria2.conf
 if [ -f "${ARIA2_CONF}" ]; then
     echo ${ARIA2_CONF} exists
 else
-    sudo cp ./aria2.conf /etc/aria2/               # Copy config file
+    sudo cp ./config/aria2.conf /etc/aria2/               # Copy config file
 fi
 
 ARIA2_SERVICE=/etc/systemd/system/aria2c.service
