@@ -65,7 +65,7 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 - :two: Execute **swan-provider** using one of the following commands
 ```shell
 ./swan-provider-0.2.0-rc2-unix   #After installation from Option 1
-./build/swan-provider        #After installation from Option 2
+./build/swan-provider            #After installation from Option 2
 ```
 
 
@@ -77,7 +77,7 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 - Such as:
 ```shell
 nohup ./swan-provider-0.2.0-rc2-unix >> swan-provider.log &   #After installation from Option 1
-nohup ./build/swan-provider >> swan-provider.log &        #After installation from Option 2
+nohup ./build/swan-provider >> swan-provider.log &            #After installation from Option 2
 ```
 
 
