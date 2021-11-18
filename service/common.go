@@ -245,7 +245,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		return
 	}
 
-	msg := GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+filefullpathTemp)
+	msg := GetLog(deal, "set status to:"+newSwanStatus+", set note to:"+note+", set filepath to:"+filefullpathTemp)
 	updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, filefullpathTemp, "", cost)
 
 	if !updated {
