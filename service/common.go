@@ -226,7 +226,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	}
 	note := GetNote(messages...)
 	if newSwanStatus != DEAL_STATUS_DOWNLOADING {
-		note = note + noteFunds
+		note = GetNote(note, noteFunds)
 	}
 
 	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
