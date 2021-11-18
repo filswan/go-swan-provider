@@ -202,7 +202,7 @@ func lotusStartScan() {
 	}
 }
 
-func getDealCost(dealCost lotus.ClientDealCost) string {
+func getDealCost(dealCost lotus.ClientDealCostStatus) string {
 	if dealCost.DealProposalAccepted != "" {
 		return dealCost.DealProposalAccepted
 	}
