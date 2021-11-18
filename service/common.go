@@ -224,9 +224,12 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 			noteFunds = GetNote("funds computed:"+dealCost.CostComputed, "funds reserved:"+dealCost.ReserveClientFunds, "funds released:"+dealCost.DealProposalAccepted)
 		}
 	}
-	note := GetNote(messages...)
+	note := ""
 	if newSwanStatus != DEAL_STATUS_DOWNLOADING {
+		note = GetNote(messages...)
 		note = GetNote(note, noteFunds)
+	} else {
+		note = messages[0]
 	}
 
 	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
