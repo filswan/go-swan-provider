@@ -276,12 +276,12 @@ func GetNote(messages ...string) string {
 	}
 	for _, message := range messages {
 		if message != "" {
-			result = result + "," + message
+			result = result + "." + message
 		}
 	}
 
-	result = strings.TrimPrefix(result, ",")
-	result = strings.TrimSuffix(result, ",")
+	result = strings.TrimPrefix(result, ".")
+	result = strings.TrimSuffix(result, ".")
 
 	result = utils.Convert2Title(result)
 	return result
