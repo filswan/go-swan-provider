@@ -10,11 +10,12 @@ import (
 )
 
 type Configuration struct {
-	Port  int   `toml:"port"`
-	Lotus lotus `toml:"lotus"`
-	Aria2 aria2 `toml:"aria2"`
-	Main  main  `toml:"main"`
-	Bid   bid   `toml:"bid"`
+	Port    int   `toml:"port"`
+	Release bool  `toml:"release"`
+	Lotus   lotus `toml:"lotus"`
+	Aria2   aria2 `toml:"aria2"`
+	Main    main  `toml:"main"`
+	Bid     bid   `toml:"bid"`
 }
 
 type lotus struct {
@@ -78,6 +79,7 @@ func GetConfig() Configuration {
 func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	requiredFields := [][]string{
 		{"port"},
+		{"release"},
 
 		{"lotus"},
 		{"aria2"},

@@ -1,4 +1,5 @@
 port = 8888
+release = true              # when work in release mode: set this to true, otherwise to false
 
 [lotus]
 client_api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus client web api, generally the [port] is 1234
