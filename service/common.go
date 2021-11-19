@@ -229,6 +229,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		note = GetNote(messages...)
 		note = GetNote(note, noteFunds)
 		note = utils.Convert2Title(note)
+		note = strings.TrimSuffix(note, ".")
 	} else {
 		note = messages[0]
 	}
