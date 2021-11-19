@@ -20,14 +20,12 @@ func main() {
 	//LoadEnv()
 	//test.Test()
 	//config.InitConfig()
-	os.Setenv("GIN_MODE", "release")
 	service.AdminOfflineDeal()
 	createHttpServer()
 }
 
 func createHttpServer() {
 	r := gin.Default()
-	//gin.SetMode(gin.ReleaseMode)
 	r.Use(cors.Middleware(cors.Config{
 		Origins:         "*",
 		Methods:         "GET, PUT, POST, DELETE",
