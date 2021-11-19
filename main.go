@@ -25,7 +25,11 @@ func main() {
 }
 
 func createHttpServer() {
-	gin.SetMode(gin.ReleaseMode)
+	//logs.GetLogger().Info("release mode:", config.GetConfig().Release)
+	if config.GetConfig().Release {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	r := gin.Default()
 	r.Use(cors.Middleware(cors.Config{
 		Origins:         "*",
