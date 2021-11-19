@@ -77,7 +77,7 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 
 	switch result.Status {
 	case ARIA2_TASK_STATUS_ERROR:
-		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, result.Status, gid, result.ErrorCode, result.ErrorMessage)
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, result.Status, "download gid:"+gid, result.ErrorCode, result.ErrorMessage)
 	case ARIA2_TASK_STATUS_ACTIVE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		completedLen := utils.GetInt64FromStr(file.CompletedLength)
@@ -87,19 +87,19 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 		}
 		downloadSpeed := utils.GetInt64FromStr(result.DownloadSpeed) / 1024
 		fileSizeDownloaded = fileSizeDownloaded / 1024
-		note := fmt.Sprintf("downloading, complete: %.2f%%, speed: %dKiB, downloaded:%dKiB,%s,%s", completePercent, downloadSpeed, fileSizeDownloaded, result.Status, gid)
+		note := fmt.Sprintf("downloading, complete: %.2f%%, speed: %dKiB, downloaded:%dKiB, %s, download gid:%s", completePercent, downloadSpeed, fileSizeDownloaded, result.Status, gid)
 		logs.GetLogger().Info(GetLog(deal, note))
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADING, &filePath, gid)
 	case ARIA2_TASK_STATUS_COMPLETE:
 		fileSizeDownloaded := utils.GetFileSize(filePath)
 		logs.GetLogger().Info(GetLog(deal, "downloaded"))
 		if fileSizeDownloaded >= 0 {
-			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, gid)
+			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, "download gid:"+gid)
 		} else {
-			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, "file not found on its download path")
+			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, "file not found on its download path", "download gid:"+gid)
 		}
 	default:
-		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, result.Status, gid, result.ErrorCode, result.ErrorMessage)
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, result.Status, "download gid:"+gid, result.ErrorCode, result.ErrorMessage)
 	}
 }
 

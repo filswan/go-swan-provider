@@ -224,9 +224,13 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 			noteFunds = GetNote("funds computed:"+dealCost.CostComputed, "funds reserved:"+dealCost.ReserveClientFunds, "funds released:"+dealCost.DealProposalAccepted)
 		}
 	}
-	note := GetNote(messages...)
+	note := ""
 	if newSwanStatus != DEAL_STATUS_DOWNLOADING {
+		note = GetNote(messages...)
 		note = GetNote(note, noteFunds)
+		note = utils.Convert2Title(note)
+	} else {
+		note = messages[0]
 	}
 
 	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
@@ -244,13 +248,12 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 		return
 	}
-
-	msg := GetLog(deal, "set status to:"+newSwanStatus+", set note to:"+note+", set filepath to:"+filefullpathTemp)
 	updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, filefullpathTemp, "", cost)
 
 	if !updated {
 		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
 	} else {
+		msg := GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+filefullpathTemp)
 		if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
 			logs.GetLogger().Warn(msg)
 		} else {
@@ -270,19 +273,18 @@ func GetLog(deal model.OfflineDeal, messages ...string) string {
 }
 
 func GetNote(messages ...string) string {
+	separator := ","
 	result := ""
 	if messages == nil {
 		return result
 	}
 	for _, message := range messages {
 		if message != "" {
-			result = result + "," + message
+			result = result + separator + message
 		}
 	}
 
-	result = strings.TrimPrefix(result, ",")
-	result = strings.TrimSuffix(result, ",")
-
-	result = utils.Convert2Title(result)
+	result = strings.TrimPrefix(result, separator)
+	result = strings.TrimSuffix(result, separator)
 	return result
 }
