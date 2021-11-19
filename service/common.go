@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/filswan/go-swan-lib/client"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
@@ -143,15 +144,18 @@ func checkLotusConfig() {
 		logs.GetLogger().Fatal("please set config:lotus->client_api_url")
 	}
 
-	err := lotusMarket.LotusImportData("bafyreib7azyg2yubucdhzn64gvyekdma7nbrbnfafcqvhsz2mcnvbnkitu", "test")
-
-	if err != nil && !strings.Contains(err.Error(), "no such file or directory") && !strings.Contains(err.Error(), "datastore: key not found") {
+	isWriteAuth, err := lotus.LotusCheckAuth(lotusMarket.ApiUrl, lotusMarket.AccessToken, libconstants.LOTUS_AUTH_WRITE)
+	if err != nil {
 		logs.GetLogger().Fatal(err)
+	}
+
+	if !isWriteAuth {
+		logs.GetLogger().Fatal("market access token should have write access right")
 	}
 
 	currentEpoch := lotusClient.LotusGetCurrentEpoch()
 	if currentEpoch < 0 {
-		logs.GetLogger().Fatal("please check config:lotus->api_url")
+		logs.GetLogger().Fatal("please check config:lotus->client_api_url")
 	}
 
 	logs.GetLogger().Info("Pass testing lotus config.")
@@ -228,8 +232,7 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	if newSwanStatus != DEAL_STATUS_DOWNLOADING {
 		note = GetNote(messages...)
 		note = GetNote(note, noteFunds)
-		note = utils.Convert2Title(note)
-		note = strings.TrimSuffix(note, ".")
+		note = utils.FirstLetter2Upper(note)
 	} else {
 		note = messages[0]
 	}
