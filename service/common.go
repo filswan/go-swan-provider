@@ -232,7 +232,8 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	if newSwanStatus != DEAL_STATUS_DOWNLOADING {
 		note = GetNote(messages...)
 		note = GetNote(note, noteFunds)
-		note = utils.FirstLetter2Upper(note)
+		note = utils.Convert2Title(note)
+		note = strings.Trim(note, ".")
 	} else {
 		note = messages[0]
 	}
