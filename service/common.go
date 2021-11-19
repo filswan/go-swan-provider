@@ -248,13 +248,12 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 		return
 	}
-
-	msg := GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+filefullpathTemp)
 	updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, filefullpathTemp, "", cost)
 
 	if !updated {
 		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
 	} else {
+		msg := GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+filefullpathTemp)
 		if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
 			logs.GetLogger().Warn(msg)
 		} else {
