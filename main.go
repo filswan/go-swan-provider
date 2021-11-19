@@ -26,6 +26,7 @@ func main() {
 
 func createHttpServer() {
 	r := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
 	r.Use(cors.Middleware(cors.Config{
 		Origins:         "*",
 		Methods:         "GET, PUT, POST, DELETE",
