@@ -232,6 +232,8 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		note = messages[0]
 	}
 
+	note = utils.Convert2Title(note)
+
 	if newSwanStatus == DEAL_STATUS_IMPORT_FAILED || newSwanStatus == DEAL_STATUS_DOWNLOAD_FAILED {
 		logs.GetLogger().Warn(GetLog(deal, note))
 	} else {
@@ -273,19 +275,18 @@ func GetLog(deal model.OfflineDeal, messages ...string) string {
 }
 
 func GetNote(messages ...string) string {
+	separator := ","
 	result := ""
 	if messages == nil {
 		return result
 	}
 	for _, message := range messages {
 		if message != "" {
-			result = result + "." + message
+			result = result + separator + message
 		}
 	}
 
-	result = strings.TrimPrefix(result, ".")
-	result = strings.TrimSuffix(result, ".")
-
-	result = utils.Convert2Title(result)
+	result = strings.TrimPrefix(result, separator)
+	result = strings.TrimSuffix(result, separator)
 	return result
 }
