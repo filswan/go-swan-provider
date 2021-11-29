@@ -18,6 +18,7 @@ import (
 )
 
 const ARIA2_TASK_STATUS_ERROR = "error"
+const ARIA2_TASK_STATUS_WAITING = "waiting"
 const ARIA2_TASK_STATUS_ACTIVE = "active"
 const ARIA2_TASK_STATUS_COMPLETE = "complete"
 

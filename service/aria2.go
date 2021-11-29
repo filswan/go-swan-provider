@@ -75,6 +75,8 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 	filePath := file.Path
 	fileSize := utils.GetInt64FromStr(file.Length)
 
+	msg := fmt.Sprintf("current status:,%s,%s", result.Status, result.ErrorMessage)
+	logs.GetLogger().Info(GetLog(deal, msg))
 	switch result.Status {
 	case ARIA2_TASK_STATUS_ERROR:
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, result.Status, "download gid:"+gid, result.ErrorCode, result.ErrorMessage)
@@ -98,6 +100,9 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 		} else {
 			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, "file not found on its download path", "download gid:"+gid)
 		}
+	case ARIA2_TASK_STATUS_WAITING:
+		msg := fmt.Sprintf("waiting to download,%s,%s", result.Status, result.ErrorMessage)
+		logs.GetLogger().Info(GetLog(deal, msg))
 	default:
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, result.Status, "download gid:"+gid, result.ErrorCode, result.ErrorMessage)
 	}
