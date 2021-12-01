@@ -83,6 +83,7 @@ nohup ./build/swan-provider >> swan-provider.log &            #After installatio
 
 ## Config
 - **port：** Default `8888`, web api port for extension in future
+- **release** Default `true`, when work in release mode: set this to true, otherwise to false and enviornment variable GIN_MODE not to release
 
 ### [lotus]
 - :bangbang:**client_api_url:** Url of lotus client web api, such as: `http://[ip]:[port]/rpc/v0`, generally the `[port]` is `1234`. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/)
