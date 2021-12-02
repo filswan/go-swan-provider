@@ -60,12 +60,12 @@ func AdminOfflineDeal() {
 	checkLotusConfig()
 
 	//logs.GetLogger().Info("swan token:", swanClient.SwanToken)
-	swanService.UpdateBidConf(swanClient)
-	go swanSendHeartbeatRequest()
+	//swanService.UpdateBidConf(swanClient)
+	//go swanSendHeartbeatRequest()
 	go aria2CheckDownloadStatus()
 	go aria2StartDownload()
-	go lotusStartImport()
-	go lotusStartScan()
+	//go lotusStartImport()
+	//go lotusStartScan()
 }
 
 func setAndCheckAria2Config() {
