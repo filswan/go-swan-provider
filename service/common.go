@@ -56,8 +56,8 @@ var lotusService = GetLotusService()
 func AdminOfflineDeal() {
 	setAndCheckAria2Config()
 	setAndCheckSwanConfig()
-	checkMinerExists()
-	checkLotusConfig()
+	//checkMinerExists()
+	//checkLotusConfig()
 
 	//logs.GetLogger().Info("swan token:", swanClient.SwanToken)
 	//swanService.UpdateBidConf(swanClient)
