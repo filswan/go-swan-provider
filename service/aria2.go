@@ -164,7 +164,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, 
 
 func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	downloadingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_DOWNLOADING)
-	logs.GetLogger().Info("Swan Client ApiUrl:" + swanClient.ApiUrl)
+
 	countDownloadingDeals := len(downloadingDeals)
 	if countDownloadingDeals >= ARIA2_MAX_DOWNLOADING_TASKS {
 		return
@@ -177,7 +177,14 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
-		aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
+		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+
+		logs.GetLogger().Info(deal2Download.DealCid, onChainStatus, onChainMessage)
+
+		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+			aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
+		}
+
 		time.Sleep(1 * time.Second)
 	}
 }
