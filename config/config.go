@@ -56,7 +56,7 @@ func InitConfig() {
 		logs.GetLogger().Fatal("Cannot get home directory.")
 	}
 
-	configFile := filepath.Join(homedir, ".swan/provider/config.toml")
+	configFile := filepath.Join(homedir, ".swan/provider/config_test.toml")
 
 	logs.GetLogger().Info("Your config file is:", configFile)
 
