@@ -164,6 +164,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, 
 
 func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	downloadingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_DOWNLOADING)
+	logs.GetLogger().Info("Swan Client ApiUrl:" + swanClient.ApiUrl)
 	countDownloadingDeals := len(downloadingDeals)
 	if countDownloadingDeals >= ARIA2_MAX_DOWNLOADING_TASKS {
 		return
