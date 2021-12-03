@@ -124,9 +124,21 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2C
 }
 
 func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
-	suspendingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_SUSPENDING)
+	created_suspendingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_CREATED_SUSPENDING)
 
-	for _, deal := range suspendingDeals {
+	for _, deal := range created_suspendingDeals {
+		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+
+		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+			swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_CREATED)
+		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+			swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED)
+		}
+	}
+
+	waiting_suspendingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_WAITING_SUSPENDING)
+
+	for _, deal := range waiting_suspendingDeals {
 		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
@@ -198,7 +210,12 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 			swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_IMPORT_FAILED)
 		} else {
-			swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_SUSPENDING)
+			switch deal2Download.Status {
+			case DEAL_STATUS_CREATED:
+				swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_CREATED_SUSPENDING)
+			case DEAL_STATUS_WAITING:
+				swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_WAITING_SUSPENDING)
+			}
 		}
 
 		time.Sleep(1 * time.Second)
