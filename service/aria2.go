@@ -179,10 +179,15 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 
 		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 
-		logs.GetLogger().Info(deal2Download.DealCid, onChainStatus, onChainMessage)
+		logs.GetLogger().Info("Deal Cid" + deal2Download.DealCid + " with status=" + onChainStatus + " and Message:" + onChainMessage)
+		logs.GetLogger().Info("ApiUrl:" + swanClient.ApiUrl + " Token:" + swanClient.SwanToken)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
+		}
+
+		if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+			// Update the database -- DEAL_STATUS_IMPORT_FAILED
 		}
 
 		time.Sleep(1 * time.Second)
