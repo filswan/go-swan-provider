@@ -176,7 +176,7 @@ func aria2CheckDownloadStatus() {
 	for {
 		logs.GetLogger().Info("Start...")
 		aria2Service.CheckDownloadStatus(aria2Client, swanClient)
-		aria2Service.CheckandRestoreSuspendingStatus(aria2Client, swanClient)
+		aria2Service.CheckAndRestoreSuspendingStatus(aria2Client, swanClient)
 		logs.GetLogger().Info("Sleeping...")
 		time.Sleep(time.Minute)
 	}

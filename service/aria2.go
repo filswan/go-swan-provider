@@ -123,10 +123,10 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2C
 	}
 }
 
-func (aria2Service *Aria2Service) CheckandRestoreSuspendingStatus(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
-	downloadingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_SUSPENDING)
+func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
+	suspendingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_SUSPENDING)
 
-	for _, deal := range downloadingDeals {
+	for _, deal := range suspendingDeals {
 		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
@@ -191,10 +191,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
-		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
-
-		logs.GetLogger().Info("Deal Cid" + deal2Download.DealCid + " with status=" + onChainStatus + " and Message:" + onChainMessage)
-		logs.GetLogger().Info("ApiUrl:" + swanClient.ApiUrl + " Token:" + swanClient.SwanToken)
+		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
