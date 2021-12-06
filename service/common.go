@@ -24,6 +24,7 @@ const ARIA2_TASK_STATUS_COMPLETE = "complete"
 
 const DEAL_STATUS_CREATED = "Created"
 const DEAL_STATUS_WAITING = "Waiting"
+const DEAL_STATUS_SUSPENDING = "Suspending"
 
 const DEAL_STATUS_DOWNLOADING = "Downloading"
 const DEAL_STATUS_DOWNLOADED = "Downloaded"
@@ -174,6 +175,7 @@ func swanSendHeartbeatRequest() {
 func aria2CheckDownloadStatus() {
 	for {
 		logs.GetLogger().Info("Start...")
+		aria2Service.CheckAndRestoreSuspendingStatus(aria2Client, swanClient)
 		aria2Service.CheckDownloadStatus(aria2Client, swanClient)
 		logs.GetLogger().Info("Sleeping...")
 		time.Sleep(time.Minute)
