@@ -11,6 +11,7 @@ import (
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
 	"github.com/filswan/go-swan-lib/model"
+	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
@@ -44,8 +45,8 @@ const ONCHAIN_DEAL_STATUS_ACCEPT = "StorageDealAcceptWait"
 const ONCHAIN_DEAL_STATUS_AWAITING = "StorageDealAwaitingPreCommit"
 
 const ARIA2_MAX_DOWNLOADING_TASKS = 10
-const LOTUS_IMPORT_NUMNBER = "20" //Max number of deals to be imported at a time
-const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
+const LOTUS_IMPORT_NUMNBER = 20 //Max number of deals to be imported at a time
+const LOTUS_SCAN_NUMBER = 100   //Max number of deals to be scanned at a time
 
 var aria2Client *client.Aria2Client
 var swanClient *swan.SwanClient
@@ -105,7 +106,7 @@ func setAndCheckSwanConfig() {
 		logs.GetLogger().Fatal("please set config:main->access_token")
 	}
 
-	swanClient, err = swan.SwanGetClient(swanApiUrl, swanApiKey, swanAccessToken, "")
+	swanClient, err = swan.GetClient("", swanApiUrl, swanApiKey, swanAccessToken, "")
 	if err != nil {
 		logs.GetLogger().Error(err)
 		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
@@ -221,7 +222,7 @@ func getDealCost(dealCost lotus.ClientDealCostStatus) string {
 	return dealCost.CostComputed
 }
 
-func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
+func UpdateDealInfoAndLog(deal *model.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
 	noteFunds := ""
 	cost := deal.Cost
 	if deal.DealCid != "" {
@@ -255,9 +256,9 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 		return
 	}
-	updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, filefullpathTemp, "", cost)
 
-	if !updated {
+	err := UpdateOfflineDeal(swanClient, deal.Id, newSwanStatus, &note, &filefullpathTemp)
+	if err != nil {
 		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
 	} else {
 		msg := GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+filefullpathTemp)
@@ -269,11 +270,11 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	}
 }
 
-func UpdateStatusAndLog(deal model.OfflineDeal, newSwanStatus string, messages ...string) {
+func UpdateStatusAndLog(deal *model.OfflineDeal, newSwanStatus string, messages ...string) {
 	UpdateDealInfoAndLog(deal, newSwanStatus, nil, messages...)
 }
 
-func GetLog(deal model.OfflineDeal, messages ...string) string {
+func GetLog(deal *model.OfflineDeal, messages ...string) string {
 	text := GetNote(messages...)
 	msg := fmt.Sprintf("deal(id=%d):%s,%s", deal.Id, deal.DealCid, text)
 	return msg
@@ -294,4 +295,63 @@ func GetNote(messages ...string) string {
 	result = strings.TrimPrefix(result, separator)
 	result = strings.TrimSuffix(result, separator)
 	return result
+}
+
+func GetOfflineDeals(swanClient *swan.SwanClient, dealStatus string, minerFid string, limit *int) []*libmodel.OfflineDeal {
+	pageNum := 1
+	offlineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, &minerFid, nil, &pageNum, limit)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	return offlineDeals
+}
+
+func GetOfflineDeal(swanClient *swan.SwanClient, dealStatus string, minerFid string) *libmodel.OfflineDeal {
+	pageNum := 1
+	pageSize := 1
+	offlineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, &minerFid, nil, &pageNum, &pageSize)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	if len(offlineDeals) > 0 {
+		return offlineDeals[0]
+	}
+
+	return nil
+}
+
+func UpdateOfflineDeal(swanClient *swan.SwanClient, dealId int, status string, note, filePath *string) error {
+	params := &swan.UpdateOfflineDealParams{
+		DealId:   dealId,
+		Status:   status,
+		Note:     note,
+		FilePath: filePath,
+	}
+
+	err := swanClient.UpdateOfflineDeal(*params)
+	if err != nil {
+		logs.GetLogger().Error()
+		return err
+	}
+
+	return nil
+}
+
+func UpdateOfflineDealStatus(swanClient *swan.SwanClient, dealId int, status string) error {
+	params := &swan.UpdateOfflineDealParams{
+		DealId: dealId,
+		Status: status,
+	}
+
+	err := swanClient.UpdateOfflineDeal(*params)
+	if err != nil {
+		logs.GetLogger().Error()
+		return err
+	}
+
+	return nil
 }

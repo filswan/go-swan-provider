@@ -40,20 +40,23 @@ func GetAria2Service() *Aria2Service {
 }
 
 func (aria2Service *Aria2Service) findNextDealReady2Download(swanClient *swan.SwanClient) *libmodel.OfflineDeal {
-	deals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_CREATED, "1")
-	if len(deals) == 0 {
-		deals = swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_WAITING, "1")
+	pageNum := 1
+	pageSize := 1
+	deals, err := swanClient.GetOfflineDealsByStatus(DEAL_STATUS_CREATED, &aria2Service.MinerFid, nil, &pageNum, &pageSize)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
 	}
 
 	if len(deals) > 0 {
 		offlineDeal := deals[0]
-		return &offlineDeal
+		return offlineDeal
 	}
 
 	return nil
 }
 
-func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.Aria2Client, swanClient *swan.SwanClient, deal libmodel.OfflineDeal, gid string) {
+func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.Aria2Client, swanClient *swan.SwanClient, deal *libmodel.OfflineDeal, gid string) {
 	aria2Status := aria2Client.GetDownloadStatus(gid)
 	if aria2Status == nil {
 		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "get download status failed for gid:"+gid, "no response from aria2")
@@ -110,7 +113,7 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 }
 
 func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
-	downloadingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_DOWNLOADING)
+	downloadingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_DOWNLOADING, aria2Service.MinerFid, nil)
 
 	for _, deal := range downloadingDeals {
 		gid := strings.Trim(deal.Note, " ")
@@ -124,20 +127,26 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2C
 }
 
 func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
-	suspendingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_SUSPENDING)
+	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_DOWNLOADING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
 		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
-			swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_WAITING)
+			err := UpdateOfflineDealStatus(swanClient, deal.Id, DEAL_STATUS_WAITING)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			}
 		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED)
+			err := UpdateOfflineDealStatus(swanClient, deal.Id, DEAL_STATUS_IMPORT_FAILED)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			}
 		}
 	}
 }
 
-func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
+func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal, aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	logs.GetLogger().Info(GetLog(deal, "start downloading"))
 	urlInfo, err := url.Parse(deal.FileSourceUrl)
 	if err != nil {
@@ -177,7 +186,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, 
 }
 
 func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
-	downloadingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_DOWNLOADING)
+	downloadingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_DOWNLOADING, aria2Service.MinerFid, nil)
 
 	countDownloadingDeals := len(downloadingDeals)
 	if countDownloadingDeals >= ARIA2_MAX_DOWNLOADING_TASKS {
@@ -194,11 +203,17 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
-			aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
+			aria2Service.StartDownload4Deal(deal2Download, aria2Client, swanClient)
 		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_IMPORT_FAILED)
+			err := UpdateOfflineDealStatus(swanClient, deal2Download.Id, DEAL_STATUS_IMPORT_FAILED)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			}
 		} else {
-			swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_SUSPENDING)
+			err := UpdateOfflineDealStatus(swanClient, deal2Download.Id, DEAL_STATUS_SUSPENDING)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			}
 		}
 
 		time.Sleep(1 * time.Second)

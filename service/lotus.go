@@ -50,7 +50,8 @@ func GetLotusService() *LotusService {
 }
 
 func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
-	deals := swanClient.SwanGetOfflineDeals(lotusService.MinerFid, DEAL_STATUS_IMPORT_READY, LOTUS_IMPORT_NUMNBER)
+	maxImportNum := LOTUS_IMPORT_NUMNBER
+	deals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORT_READY, aria2Service.MinerFid, &maxImportNum)
 	if len(deals) == 0 {
 		logs.GetLogger().Info("no pending offline deals found")
 		return
@@ -107,7 +108,8 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 }
 
 func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
-	deals := swanClient.SwanGetOfflineDeals(lotusService.MinerFid, DEAL_STATUS_IMPORTED, LOTUS_SCAN_NUMBER)
+	maxScanNum := LOTUS_SCAN_NUMBER
+	deals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORTED, aria2Service.MinerFid, &maxScanNum)
 	if len(deals) == 0 {
 		logs.GetLogger().Info("no ongoing offline deals found")
 		return
