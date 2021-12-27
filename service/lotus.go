@@ -7,6 +7,7 @@ import (
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
 	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/utils"
 )
 
 type LotusService struct {
@@ -58,48 +59,50 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 	}
 
 	for _, deal := range deals {
-		logs.GetLogger().Info(GetLog(deal, "filepath:"+deal.FilePath))
+		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
 
-		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
-		if len(onChainStatus) == 0 {
-			logs.GetLogger().Error(GetLog(deal, "failed to get on chain status, please check if lotus-miner is running properly"))
+		if utils.IsStrEmpty(onChainStatus) {
+			logs.GetLogger().Error(GetLog(deal, "failed to get on chain status, please check if lotus miner is running properly"))
 			continue
 		}
 
-		logs.GetLogger().Info(GetLog(deal, onChainStatus, onChainMessage))
+		logs.GetLogger().Info(GetLog(deal, *onChainStatus, *onChainMessage))
 
-		switch onChainStatus {
+		switch *onChainStatus {
 		case ONCHAIN_DEAL_STATUS_ERROR:
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal is error before importing", onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal is error before importing", *onChainStatus, *onChainMessage)
 		case ONCHAIN_DEAL_STATUS_ACTIVE:
-			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal is active before importing", onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal is active before importing", *onChainStatus, *onChainMessage)
 		case ONCHAIN_DEAL_STATUS_ACCEPT:
-			UpdateStatusAndLog(deal, deal.Status, "deal will be ready shortly", onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, deal.Status, "deal will be ready shortly", *onChainStatus, *onChainMessage)
 		case ONCHAIN_DEAL_STATUS_NOTFOUND:
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal not found", onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal not found", *onChainStatus, *onChainMessage)
 		case ONCHAIN_DEAL_STATUS_WAITTING:
-			currentEpoch := lotusService.LotusClient.LotusGetCurrentEpoch()
-			if currentEpoch < 0 {
-				UpdateStatusAndLog(deal, deal.Status, "failed to get current epoch", onChainStatus, onChainMessage)
-				continue
+			currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
 			}
 
-			if deal.StartEpoch-currentEpoch < lotusService.ExpectedSealingTime {
-				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal expired before importing", onChainStatus, onChainMessage)
+			if int64(deal.StartEpoch)-*currentEpoch < int64(lotusService.ExpectedSealingTime) {
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal expired before importing", *onChainStatus, *onChainMessage)
 				continue
 			}
 
 			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTING, "importing deal")
 
-			err := lotusService.LotusMarket.LotusImportData(deal.DealCid, deal.FilePath)
-
+			err = lotusService.LotusMarket.LotusImportData(deal.DealCid, deal.FilePath)
 			if err != nil { //There should be no output if everything goes well
 				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "import deal failed", err.Error())
 				continue
 			}
 			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal imported")
 		default:
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal already imported", onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal already imported", *onChainStatus, *onChainMessage)
 		}
 
 		logs.GetLogger().Info("Sleeping...")
@@ -115,39 +118,49 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 		return
 	}
 
-	lotusDeals := lotusService.LotusMarket.LotusGetDeals()
+	lotusDeals, err := lotusService.LotusMarket.LotusGetDeals()
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+
 	if len(lotusDeals) == 0 {
-		logs.GetLogger().Error("failed to get deals from lotus")
+		logs.GetLogger().Error("no deals returned from lotus")
 		return
 	}
 
 	for _, deal := range deals {
 		//logs.GetLogger().Info(GetLog(deal, "current status in swan:"+deal.Status, "current note in swan:"+deal.Note))
-		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatusFromDeals(lotusDeals, deal.DealCid)
-		if len(onChainStatus) == 0 {
-			logs.GetLogger().Error(GetLog(deal, "failed to get on chain status"))
+		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatusFromDeals(lotusDeals, deal.DealCid)
+		if err != nil {
+			logs.GetLogger().Error(GetLog(deal, err.Error()))
+			return
+		}
+
+		if utils.IsStrEmpty(onChainStatus) {
+			logs.GetLogger().Error(GetLog(deal, "on chain status is empty"))
 			continue
 		}
 
-		switch onChainStatus {
+		switch *onChainStatus {
 		case ONCHAIN_DEAL_STATUS_ERROR:
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error when scan", onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error when scan", *onChainStatus, *onChainMessage)
 		case ONCHAIN_DEAL_STATUS_ACTIVE:
-			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", *onChainStatus, *onChainMessage)
 		case ONCHAIN_DEAL_STATUS_AWAITING:
-			currentEpoch := lotusService.LotusClient.LotusGetCurrentEpoch()
-			if currentEpoch < 0 {
-				UpdateStatusAndLog(deal, deal.Status, "failed to get current epoch", onChainStatus, onChainMessage)
-				continue
+			currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
+			if err != nil {
+				logs.GetLogger().Error(GetLog(deal, err.Error()))
+				return
 			}
 
-			if currentEpoch > deal.StartEpoch {
-				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "sector is proved and active, on chain status bug", onChainStatus, onChainMessage)
+			if *currentEpoch > int64(deal.StartEpoch) {
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "sector is proved and active, on chain status bug", *onChainStatus, *onChainMessage)
 			} else {
-				UpdateStatusAndLog(deal, deal.Status, onChainStatus, onChainMessage)
+				UpdateStatusAndLog(deal, deal.Status, *onChainStatus, *onChainMessage)
 			}
 		default:
-			UpdateStatusAndLog(deal, deal.Status, onChainStatus, onChainMessage)
+			UpdateStatusAndLog(deal, deal.Status, *onChainStatus, *onChainMessage)
 		}
 	}
 }

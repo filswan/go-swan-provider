@@ -106,7 +106,7 @@ func setAndCheckSwanConfig() {
 		logs.GetLogger().Fatal("please set config:main->access_token")
 	}
 
-	swanClient, err = swan.GetClient("", swanApiUrl, swanApiKey, swanAccessToken, "")
+	swanClient, err = swan.GetClient(swanApiUrl, swanApiKey, swanAccessToken, "")
 	if err != nil {
 		logs.GetLogger().Error(err)
 		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
@@ -135,32 +135,35 @@ func checkLotusConfig() {
 
 	lotusMarket := lotusService.LotusMarket
 	lotusClient := lotusService.LotusClient
-	if len(lotusMarket.ApiUrl) == 0 {
+	if utils.IsStrEmpty(&lotusMarket.ApiUrl) {
 		logs.GetLogger().Fatal("please set config:lotus->market_api_url")
 	}
 
-	if len(lotusMarket.AccessToken) == 0 {
+	if utils.IsStrEmpty(&lotusMarket.AccessToken) {
 		logs.GetLogger().Fatal("please set config:lotus->market_access_token")
 	}
 
-	if len(lotusMarket.ClientApiUrl) == 0 {
+	if utils.IsStrEmpty(&lotusMarket.ClientApiUrl) {
 		logs.GetLogger().Fatal("please set config:lotus->client_api_url")
 	}
 
 	isWriteAuth, err := lotus.LotusCheckAuth(lotusMarket.ApiUrl, lotusMarket.AccessToken, libconstants.LOTUS_AUTH_WRITE)
 	if err != nil {
-		logs.GetLogger().Fatal(err)
+		logs.GetLogger().Error(err)
+		logs.GetLogger().Fatal("please check config:lotus->market_api_url, lotus->market_access_token")
 	}
 
 	if !isWriteAuth {
 		logs.GetLogger().Fatal("market access token should have write access right")
 	}
 
-	currentEpoch := lotusClient.LotusGetCurrentEpoch()
-	if currentEpoch < 0 {
+	currentEpoch, err := lotusClient.LotusGetCurrentEpoch()
+	if err != nil {
+		logs.GetLogger().Error(err)
 		logs.GetLogger().Fatal("please check config:lotus->client_api_url")
 	}
 
+	logs.GetLogger().Info("current epoch:", *currentEpoch)
 	logs.GetLogger().Info("Pass testing lotus config.")
 }
 
@@ -224,11 +227,9 @@ func getDealCost(dealCost lotus.ClientDealCostStatus) string {
 
 func UpdateDealInfoAndLog(deal *model.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
 	noteFunds := ""
-	cost := deal.Cost
 	if deal.DealCid != "" {
 		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
 		if err == nil {
-			cost = getDealCost(*dealCost)
 			noteFunds = GetNote("funds computed:"+dealCost.CostComputed, "funds reserved:"+dealCost.ReserveClientFunds, "funds released:"+dealCost.DealProposalAccepted)
 		}
 	}
@@ -252,7 +253,7 @@ func UpdateDealInfoAndLog(deal *model.OfflineDeal, newSwanStatus string, fileful
 		filefullpathTemp = *filefullpath
 	}
 
-	if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == filefullpathTemp && deal.Cost == cost {
+	if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == filefullpathTemp {
 		logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 		return
 	}

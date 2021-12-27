@@ -130,14 +130,17 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_DOWNLOADING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
-		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		onChainStatus, _, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		}
 
-		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			err := UpdateOfflineDealStatus(swanClient, deal.Id, DEAL_STATUS_WAITING)
 			if err != nil {
 				logs.GetLogger().Error(err)
 			}
-		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 			err := UpdateOfflineDealStatus(swanClient, deal.Id, DEAL_STATUS_IMPORT_FAILED)
 			if err != nil {
 				logs.GetLogger().Error(err)
@@ -148,7 +151,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 
 func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal, aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	logs.GetLogger().Info(GetLog(deal, "start downloading"))
-	urlInfo, err := url.Parse(deal.FileSourceUrl)
+	urlInfo, err := url.Parse(deal.CarFileUrl)
 	if err != nil {
 		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "parse source file url error,", err.Error())
 		return
@@ -165,7 +168,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
 	outDir := filepath.Join(aria2Service.DownloadDir, strconv.Itoa(deal.UserId), timeStr)
 
-	aria2Download := aria2Client.DownloadFile(deal.FileSourceUrl, outDir, outFilename)
+	aria2Download := aria2Client.DownloadFile(deal.CarFileUrl, outDir, outFilename)
 
 	if aria2Download == nil {
 		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "no response when asking aria2 to download")
@@ -200,11 +203,14 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
-		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+		onChainStatus, _, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		}
 
-		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(deal2Download, aria2Client, swanClient)
-		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 			err := UpdateOfflineDealStatus(swanClient, deal2Download.Id, DEAL_STATUS_IMPORT_FAILED)
 			if err != nil {
 				logs.GetLogger().Error(err)
