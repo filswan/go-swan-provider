@@ -10,7 +10,7 @@ import (
 	"github.com/filswan/go-swan-lib/client"
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
-	"github.com/filswan/go-swan-lib/model"
+	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
@@ -44,8 +44,8 @@ const ONCHAIN_DEAL_STATUS_ACCEPT = "StorageDealAcceptWait"
 const ONCHAIN_DEAL_STATUS_AWAITING = "StorageDealAwaitingPreCommit"
 
 const ARIA2_MAX_DOWNLOADING_TASKS = 10
-const LOTUS_IMPORT_NUMNBER = "20" //Max number of deals to be imported at a time
-const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
+const LOTUS_IMPORT_NUMNBER = 20 //Max number of deals to be imported at a time
+const LOTUS_SCAN_NUMBER = 100   //Max number of deals to be scanned at a time
 
 var aria2Client *client.Aria2Client
 var swanClient *swan.SwanClient
@@ -105,7 +105,7 @@ func setAndCheckSwanConfig() {
 		logs.GetLogger().Fatal("please set config:main->access_token")
 	}
 
-	swanClient, err = swan.SwanGetClient(swanApiUrl, swanApiKey, swanAccessToken, "")
+	swanClient, err = swan.GetClient(swanApiUrl, swanApiKey, swanAccessToken, "")
 	if err != nil {
 		logs.GetLogger().Error(err)
 		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
@@ -134,32 +134,35 @@ func checkLotusConfig() {
 
 	lotusMarket := lotusService.LotusMarket
 	lotusClient := lotusService.LotusClient
-	if len(lotusMarket.ApiUrl) == 0 {
+	if utils.IsStrEmpty(&lotusMarket.ApiUrl) {
 		logs.GetLogger().Fatal("please set config:lotus->market_api_url")
 	}
 
-	if len(lotusMarket.AccessToken) == 0 {
+	if utils.IsStrEmpty(&lotusMarket.AccessToken) {
 		logs.GetLogger().Fatal("please set config:lotus->market_access_token")
 	}
 
-	if len(lotusMarket.ClientApiUrl) == 0 {
+	if utils.IsStrEmpty(&lotusMarket.ClientApiUrl) {
 		logs.GetLogger().Fatal("please set config:lotus->client_api_url")
 	}
 
 	isWriteAuth, err := lotus.LotusCheckAuth(lotusMarket.ApiUrl, lotusMarket.AccessToken, libconstants.LOTUS_AUTH_WRITE)
 	if err != nil {
-		logs.GetLogger().Fatal(err)
+		logs.GetLogger().Error(err)
+		logs.GetLogger().Fatal("please check config:lotus->market_api_url, lotus->market_access_token")
 	}
 
 	if !isWriteAuth {
 		logs.GetLogger().Fatal("market access token should have write access right")
 	}
 
-	currentEpoch := lotusClient.LotusGetCurrentEpoch()
-	if currentEpoch < 0 {
+	currentEpoch, err := lotusClient.LotusGetCurrentEpoch()
+	if err != nil {
+		logs.GetLogger().Error(err)
 		logs.GetLogger().Fatal("please check config:lotus->client_api_url")
 	}
 
+	logs.GetLogger().Info("current epoch:", *currentEpoch)
 	logs.GetLogger().Info("Pass testing lotus config.")
 }
 
@@ -209,25 +212,11 @@ func lotusStartScan() {
 	}
 }
 
-func getDealCost(dealCost lotus.ClientDealCostStatus) string {
-	if dealCost.DealProposalAccepted != "" {
-		return dealCost.DealProposalAccepted
-	}
-
-	if dealCost.ReserveClientFunds != "" {
-		return dealCost.ReserveClientFunds
-	}
-
-	return dealCost.CostComputed
-}
-
-func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
+func UpdateDealInfoAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
 	noteFunds := ""
-	cost := deal.Cost
 	if deal.DealCid != "" {
 		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
 		if err == nil {
-			cost = getDealCost(*dealCost)
 			noteFunds = GetNote("funds computed:"+dealCost.CostComputed, "funds reserved:"+dealCost.ReserveClientFunds, "funds released:"+dealCost.DealProposalAccepted)
 		}
 	}
@@ -251,13 +240,13 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		filefullpathTemp = *filefullpath
 	}
 
-	if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == filefullpathTemp && deal.Cost == cost {
+	if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == filefullpathTemp {
 		logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 		return
 	}
-	updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, filefullpathTemp, "", cost)
 
-	if !updated {
+	err := UpdateOfflineDeal(swanClient, deal.Id, newSwanStatus, &note, &filefullpathTemp)
+	if err != nil {
 		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
 	} else {
 		msg := GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+filefullpathTemp)
@@ -269,11 +258,11 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 	}
 }
 
-func UpdateStatusAndLog(deal model.OfflineDeal, newSwanStatus string, messages ...string) {
+func UpdateStatusAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, messages ...string) {
 	UpdateDealInfoAndLog(deal, newSwanStatus, nil, messages...)
 }
 
-func GetLog(deal model.OfflineDeal, messages ...string) string {
+func GetLog(deal *libmodel.OfflineDeal, messages ...string) string {
 	text := GetNote(messages...)
 	msg := fmt.Sprintf("deal(id=%d):%s,%s", deal.Id, deal.DealCid, text)
 	return msg
@@ -294,4 +283,63 @@ func GetNote(messages ...string) string {
 	result = strings.TrimPrefix(result, separator)
 	result = strings.TrimSuffix(result, separator)
 	return result
+}
+
+func GetOfflineDeals(swanClient *swan.SwanClient, dealStatus string, minerFid string, limit *int) []*libmodel.OfflineDeal {
+	pageNum := 1
+	offlineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, &minerFid, nil, &pageNum, limit)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	return offlineDeals
+}
+
+func GetOfflineDeal(swanClient *swan.SwanClient, dealStatus string, minerFid string) *libmodel.OfflineDeal {
+	pageNum := 1
+	pageSize := 1
+	offlineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, &minerFid, nil, &pageNum, &pageSize)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil
+	}
+
+	if len(offlineDeals) > 0 {
+		return offlineDeals[0]
+	}
+
+	return nil
+}
+
+func UpdateOfflineDeal(swanClient *swan.SwanClient, dealId int, status string, note, filePath *string) error {
+	params := &swan.UpdateOfflineDealParams{
+		DealId:   dealId,
+		Status:   status,
+		Note:     note,
+		FilePath: filePath,
+	}
+
+	err := swanClient.UpdateOfflineDeal(*params)
+	if err != nil {
+		logs.GetLogger().Error()
+		return err
+	}
+
+	return nil
+}
+
+func UpdateOfflineDealStatus(swanClient *swan.SwanClient, dealId int, status string) error {
+	params := &swan.UpdateOfflineDealParams{
+		DealId: dealId,
+		Status: status,
+	}
+
+	err := swanClient.UpdateOfflineDeal(*params)
+	if err != nil {
+		logs.GetLogger().Error()
+		return err
+	}
+
+	return nil
 }
