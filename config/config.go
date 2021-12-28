@@ -45,7 +45,7 @@ type bid struct {
 	BidMode             int `toml:"bid_mode"`
 	ExpectedSealingTime int `toml:"expected_sealing_time"`
 	StartEpoch          int `toml:"start_epoch"`
-	AutoBidTaskPerDay   int `toml:"auto_bid_task_per_day"`
+	AutoBidDealPerDay   int `toml:"auto_bid_deal_per_day"`
 }
 
 var config *Configuration
@@ -106,7 +106,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"bid", "bid_mode"},
 		{"bid", "expected_sealing_time"},
 		{"bid", "start_epoch"},
-		{"bid", "auto_bid_task_per_day"},
+		{"bid", "auto_bid_deal_per_day"},
 	}
 
 	for _, v := range requiredFields {
