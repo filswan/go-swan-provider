@@ -287,29 +287,20 @@ func GetNote(messages ...string) string {
 
 func GetOfflineDeals(swanClient *swan.SwanClient, dealStatus string, minerFid string, limit *int) []*libmodel.OfflineDeal {
 	pageNum := 1
-	offlineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, &minerFid, nil, &pageNum, limit)
+	params := swan.GetOfflineDealsByStatusParams{
+		DealStatus: dealStatus,
+		MinerFid:   &minerFid,
+		PageNum:    &pageNum,
+		PageSize:   limit,
+	}
+
+	offlineDeals, err := swanClient.GetOfflineDealsByStatus(params)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil
 	}
 
 	return offlineDeals
-}
-
-func GetOfflineDeal(swanClient *swan.SwanClient, dealStatus string, minerFid string) *libmodel.OfflineDeal {
-	pageNum := 1
-	pageSize := 1
-	offlineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, &minerFid, nil, &pageNum, &pageSize)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil
-	}
-
-	if len(offlineDeals) > 0 {
-		return offlineDeals[0]
-	}
-
-	return nil
 }
 
 func UpdateOfflineDeal(swanClient *swan.SwanClient, dealId int, status string, note, filePath *string) error {
