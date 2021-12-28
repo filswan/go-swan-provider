@@ -39,7 +39,7 @@ func GetAria2Service() *Aria2Service {
 	return aria2Service
 }
 
-func (aria2Service *Aria2Service) findNextDealReady2Download(swanClient *swan.SwanClient) *libmodel.OfflineDeal {
+func (aria2Service *Aria2Service) FindNextDealReady2Download(swanClient *swan.SwanClient) *libmodel.OfflineDeal {
 	pageNum := 1
 	pageSize := 1
 	params := swan.GetOfflineDealsByStatusParams{
@@ -203,7 +203,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 	}
 
 	for i := 1; i <= ARIA2_MAX_DOWNLOADING_TASKS-countDownloadingDeals; i++ {
-		deal2Download := aria2Service.findNextDealReady2Download(swanClient)
+		deal2Download := aria2Service.FindNextDealReady2Download(swanClient)
 		if deal2Download == nil {
 			logs.GetLogger().Info("No offline deal to download")
 			break
