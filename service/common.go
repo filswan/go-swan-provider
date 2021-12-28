@@ -10,7 +10,6 @@ import (
 	"github.com/filswan/go-swan-lib/client"
 	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/logs"
-	"github.com/filswan/go-swan-lib/model"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
 
@@ -213,19 +212,7 @@ func lotusStartScan() {
 	}
 }
 
-func getDealCost(dealCost lotus.ClientDealCostStatus) string {
-	if dealCost.DealProposalAccepted != "" {
-		return dealCost.DealProposalAccepted
-	}
-
-	if dealCost.ReserveClientFunds != "" {
-		return dealCost.ReserveClientFunds
-	}
-
-	return dealCost.CostComputed
-}
-
-func UpdateDealInfoAndLog(deal *model.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
+func UpdateDealInfoAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
 	noteFunds := ""
 	if deal.DealCid != "" {
 		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
@@ -271,11 +258,11 @@ func UpdateDealInfoAndLog(deal *model.OfflineDeal, newSwanStatus string, fileful
 	}
 }
 
-func UpdateStatusAndLog(deal *model.OfflineDeal, newSwanStatus string, messages ...string) {
+func UpdateStatusAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, messages ...string) {
 	UpdateDealInfoAndLog(deal, newSwanStatus, nil, messages...)
 }
 
-func GetLog(deal *model.OfflineDeal, messages ...string) string {
+func GetLog(deal *libmodel.OfflineDeal, messages ...string) string {
 	text := GetNote(messages...)
 	msg := fmt.Sprintf("deal(id=%d):%s,%s", deal.Id, deal.DealCid, text)
 	return msg
