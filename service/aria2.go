@@ -44,6 +44,7 @@ func (aria2Service *Aria2Service) FindNextDealReady2Download(swanClient *swan.Sw
 	pageSize := 1
 	params := swan.GetOfflineDealsByStatusParams{
 		DealStatus: DEAL_STATUS_CREATED,
+		ForMiner:   true,
 		MinerFid:   &aria2Service.MinerFid,
 		PageNum:    &pageNum,
 		PageSize:   &pageSize,

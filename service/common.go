@@ -293,6 +293,7 @@ func GetOfflineDeals(swanClient *swan.SwanClient, dealStatus string, minerFid st
 	pageNum := 1
 	params := swan.GetOfflineDealsByStatusParams{
 		DealStatus: dealStatus,
+		ForMiner:   true,
 		MinerFid:   &minerFid,
 		PageNum:    &pageNum,
 		PageSize:   limit,
