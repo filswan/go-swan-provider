@@ -1,37 +1,21 @@
 package test
 
 import (
-	"time"
+	"swan-provider/service"
 
 	"github.com/filswan/go-swan-lib/logs"
 )
 
-func GetCurrentEpoch() int {
-	currentNanoSec := time.Now().UnixNano()
-	currentEpoch := (currentNanoSec/1e9 - 1598306471) / 30
-	logs.GetLogger().Info(currentEpoch)
-	return int(currentEpoch)
+func Test() {
+	TestFindNextDealReady2Download()
 }
 
-//func TestAriaClient() {
-//	swanClient := client.GetSwanClient()
-//
-//	aria2Client := client.GetAria2Client()
-//	offlineDeal := &models.OfflineDeal{
-//		Id:            163,
-//		UserId:        163,
-//		SourceFileUrl: "https://file-examples-com.github.io/uploads/2020/03/file_example_WEBP_500kB.webp",
-//	}
-//
-//	aria2Service := service.GetAria2Service()
-//	aria2Service.StartDownload4Deal(offlineDeal, aria2Client, swanClient)
-//	aria2Client.GetDownloadStatus("f80d913a4dff40651")
-//}
-
-//func TestDownloader() {
-//	aria2Client := client.GetAria2Client()
-//	swanClient := client.GetSwanClient()
-//	aria2Service := service.GetAria2Service()
-//	aria2Service.StartDownload(aria2Client, swanClient)
-//	aria2Service.CheckDownloadStatus(aria2Client, swanClient)
-//}
+func TestFindNextDealReady2Download() {
+	//aria2Client := service.SetAndCheckAria2Config()
+	swanClient := service.SetAndCheckSwanConfig()
+	aria2Service := service.GetAria2Service()
+	offlineDeal := aria2Service.FindNextDealReady2Download(swanClient)
+	if offlineDeal != nil {
+		logs.GetLogger().Info(*offlineDeal)
+	}
+}
