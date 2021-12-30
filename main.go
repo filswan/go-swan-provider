@@ -7,7 +7,6 @@ import (
 	"swan-provider/config"
 	"swan-provider/routers"
 	"swan-provider/service"
-	"swan-provider/test"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +18,7 @@ import (
 
 func main() {
 	//LoadEnv()
-	test.Test()
+	//test.Test()
 	//config.InitConfig()
 	service.AdminOfflineDeal()
 	createHttpServer()
