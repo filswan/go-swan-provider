@@ -210,7 +210,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
-		logs.GetLogger().Info("deal:", deal2Download.Id, " ", deal2Download.DealCid, deal2Download)
+		//logs.GetLogger().Info("deal:", deal2Download.Id, " ", deal2Download.DealCid, deal2Download)
 		onChainStatus, _, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
