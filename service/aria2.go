@@ -213,6 +213,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		onChainStatus, _, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
+			break
 		}
 
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
