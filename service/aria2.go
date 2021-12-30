@@ -42,22 +42,28 @@ func GetAria2Service() *Aria2Service {
 func (aria2Service *Aria2Service) FindNextDealReady2Download(swanClient *swan.SwanClient) *libmodel.OfflineDeal {
 	pageNum := 1
 	pageSize := 1
-	params := swan.GetOfflineDealsByStatusParams{
-		DealStatus: DEAL_STATUS_CREATED,
-		ForMiner:   true,
-		MinerFid:   &aria2Service.MinerFid,
-		PageNum:    &pageNum,
-		PageSize:   &pageSize,
-	}
-	deals, err := swanClient.GetOfflineDealsByStatus(params)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil
-	}
+	statuses := []string{}
+	statuses = append(statuses, DEAL_STATUS_CREATED)
+	statuses = append(statuses, DEAL_STATUS_WAITING)
 
-	if len(deals) > 0 {
-		offlineDeal := deals[0]
-		return offlineDeal
+	for _, status := range statuses {
+		params := swan.GetOfflineDealsByStatusParams{
+			DealStatus: status,
+			ForMiner:   true,
+			MinerFid:   &aria2Service.MinerFid,
+			PageNum:    &pageNum,
+			PageSize:   &pageSize,
+		}
+		deals, err := swanClient.GetOfflineDealsByStatus(params)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil
+		}
+
+		if len(deals) > 0 {
+			offlineDeal := deals[0]
+			return offlineDeal
+		}
 	}
 
 	return nil
