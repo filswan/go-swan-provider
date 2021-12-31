@@ -217,17 +217,9 @@ func lotusStartScan() {
 }
 
 func UpdateDealInfoAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
-	noteFunds := ""
-	if deal.DealCid != "" {
-		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
-		if err == nil {
-			noteFunds = GetNote("funds computed:"+dealCost.CostComputed, "funds reserved:"+dealCost.ReserveClientFunds, "funds released:"+dealCost.DealProposalAccepted)
-		}
-	}
 	note := ""
 	if newSwanStatus != DEAL_STATUS_DOWNLOADING {
 		note = GetNote(messages...)
-		note = GetNote(note, noteFunds)
 		note = utils.FirstLetter2Upper(note)
 	} else {
 		note = messages[0]
