@@ -143,15 +143,15 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_SUSPENDING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
-		onChainStatus, _, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 		}
 
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
-			UpdateStatusAndLog(deal, DEAL_STATUS_WAITING)
+			UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, *onChainMessage)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, *onChainMessage)
 		}
 	}
 }
