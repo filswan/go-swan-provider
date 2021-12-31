@@ -39,18 +39,31 @@ func GetAria2Service() *Aria2Service {
 	return aria2Service
 }
 
-func (aria2Service *Aria2Service) findNextDealReady2Download(swanClient *swan.SwanClient) *libmodel.OfflineDeal {
-	pageNum := 1
+func (aria2Service *Aria2Service) FindNextDealReady2Download(swanClient *swan.SwanClient) *libmodel.OfflineDeal {
+	pageNum := 0
 	pageSize := 1
-	deals, err := swanClient.GetOfflineDealsByStatus(DEAL_STATUS_CREATED, &aria2Service.MinerFid, nil, &pageNum, &pageSize)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil
-	}
+	statuses := []string{}
+	statuses = append(statuses, DEAL_STATUS_CREATED)
+	statuses = append(statuses, DEAL_STATUS_WAITING)
 
-	if len(deals) > 0 {
-		offlineDeal := deals[0]
-		return offlineDeal
+	for _, status := range statuses {
+		params := swan.GetOfflineDealsByStatusParams{
+			DealStatus: status,
+			ForMiner:   true,
+			MinerFid:   &aria2Service.MinerFid,
+			PageNum:    &pageNum,
+			PageSize:   &pageSize,
+		}
+		deals, err := swanClient.GetOfflineDealsByStatus(params)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return nil
+		}
+
+		if len(deals) > 0 {
+			offlineDeal := deals[0]
+			return offlineDeal
+		}
 	}
 
 	return nil
@@ -127,24 +140,18 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2C
 }
 
 func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
-	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_DOWNLOADING, aria2Service.MinerFid, nil)
+	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_SUSPENDING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
-		onChainStatus, _, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 		}
 
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
-			err := UpdateOfflineDealStatus(swanClient, deal.Id, DEAL_STATUS_WAITING)
-			if err != nil {
-				logs.GetLogger().Error(err)
-			}
+			UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", *onChainStatus, *onChainMessage)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			err := UpdateOfflineDealStatus(swanClient, deal.Id, DEAL_STATUS_IMPORT_FAILED)
-			if err != nil {
-				logs.GetLogger().Error(err)
-			}
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", *onChainMessage)
 		}
 	}
 }
@@ -197,29 +204,25 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 	}
 
 	for i := 1; i <= ARIA2_MAX_DOWNLOADING_TASKS-countDownloadingDeals; i++ {
-		deal2Download := aria2Service.findNextDealReady2Download(swanClient)
+		deal2Download := aria2Service.FindNextDealReady2Download(swanClient)
 		if deal2Download == nil {
 			logs.GetLogger().Info("No offline deal to download")
 			break
 		}
 
-		onChainStatus, _, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+		//logs.GetLogger().Info("deal:", deal2Download.Id, " ", deal2Download.DealCid, deal2Download)
+		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
+			break
 		}
 
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(deal2Download, aria2Client, swanClient)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			err := UpdateOfflineDealStatus(swanClient, deal2Download.Id, DEAL_STATUS_IMPORT_FAILED)
-			if err != nil {
-				logs.GetLogger().Error(err)
-			}
+			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "deal error before downloading", *onChainStatus, *onChainMessage)
 		} else {
-			err := UpdateOfflineDealStatus(swanClient, deal2Download.Id, DEAL_STATUS_SUSPENDING)
-			if err != nil {
-				logs.GetLogger().Error(err)
-			}
+			UpdateStatusAndLog(deal2Download, DEAL_STATUS_SUSPENDING, "deal not ready for downloading", *onChainStatus, *onChainMessage)
 		}
 
 		time.Sleep(1 * time.Second)

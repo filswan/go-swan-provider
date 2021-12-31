@@ -55,8 +55,8 @@ var aria2Service = GetAria2Service()
 var lotusService = GetLotusService()
 
 func AdminOfflineDeal() {
-	setAndCheckAria2Config()
-	setAndCheckSwanConfig()
+	aria2Client = SetAndCheckAria2Config()
+	swanClient = SetAndCheckSwanConfig()
 	checkMinerExists()
 	checkLotusConfig()
 
@@ -69,7 +69,7 @@ func AdminOfflineDeal() {
 	go lotusStartScan()
 }
 
-func setAndCheckAria2Config() {
+func SetAndCheckAria2Config() *client.Aria2Client {
 	aria2DownloadDir := config.GetConfig().Aria2.Aria2DownloadDir
 	aria2Host := config.GetConfig().Aria2.Aria2Host
 	aria2Port := config.GetConfig().Aria2.Aria2Port
@@ -85,9 +85,11 @@ func setAndCheckAria2Config() {
 	}
 
 	aria2Client = client.GetAria2Client(aria2Host, aria2Secret, aria2Port)
+
+	return aria2Client
 }
 
-func setAndCheckSwanConfig() {
+func SetAndCheckSwanConfig() *swan.SwanClient {
 	var err error
 	swanApiUrl := config.GetConfig().Main.SwanApiUrl
 	swanApiKey := config.GetConfig().Main.SwanApiKey
@@ -105,12 +107,14 @@ func setAndCheckSwanConfig() {
 		logs.GetLogger().Fatal("please set config:main->access_token")
 	}
 
-	swanClient, err = swan.GetClient(swanApiUrl, swanApiKey, swanAccessToken, "")
+	swanClient, err := swan.GetClient(swanApiUrl, swanApiKey, swanAccessToken, "")
 	if err != nil {
 		logs.GetLogger().Error(err)
 		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
 		logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
 	}
+
+	return swanClient
 }
 
 func checkMinerExists() {
@@ -213,17 +217,9 @@ func lotusStartScan() {
 }
 
 func UpdateDealInfoAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
-	noteFunds := ""
-	if deal.DealCid != "" {
-		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
-		if err == nil {
-			noteFunds = GetNote("funds computed:"+dealCost.CostComputed, "funds reserved:"+dealCost.ReserveClientFunds, "funds released:"+dealCost.DealProposalAccepted)
-		}
-	}
 	note := ""
 	if newSwanStatus != DEAL_STATUS_DOWNLOADING {
 		note = GetNote(messages...)
-		note = GetNote(note, noteFunds)
 		note = utils.FirstLetter2Upper(note)
 	} else {
 		note = messages[0]
@@ -287,29 +283,21 @@ func GetNote(messages ...string) string {
 
 func GetOfflineDeals(swanClient *swan.SwanClient, dealStatus string, minerFid string, limit *int) []*libmodel.OfflineDeal {
 	pageNum := 1
-	offlineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, &minerFid, nil, &pageNum, limit)
+	params := swan.GetOfflineDealsByStatusParams{
+		DealStatus: dealStatus,
+		ForMiner:   true,
+		MinerFid:   &minerFid,
+		PageNum:    &pageNum,
+		PageSize:   limit,
+	}
+
+	offlineDeals, err := swanClient.GetOfflineDealsByStatus(params)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil
 	}
 
 	return offlineDeals
-}
-
-func GetOfflineDeal(swanClient *swan.SwanClient, dealStatus string, minerFid string) *libmodel.OfflineDeal {
-	pageNum := 1
-	pageSize := 1
-	offlineDeals, err := swanClient.GetOfflineDealsByStatus(dealStatus, &minerFid, nil, &pageNum, &pageSize)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil
-	}
-
-	if len(offlineDeals) > 0 {
-		return offlineDeals[0]
-	}
-
-	return nil
 }
 
 func UpdateOfflineDeal(swanClient *swan.SwanClient, dealId int, status string, note, filePath *string) error {
