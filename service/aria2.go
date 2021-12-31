@@ -149,9 +149,9 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 		}
 
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
-			UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, *onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", *onChainStatus, *onChainMessage)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, *onChainMessage)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", *onChainMessage)
 		}
 	}
 }
@@ -211,7 +211,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		}
 
 		//logs.GetLogger().Info("deal:", deal2Download.Id, " ", deal2Download.DealCid, deal2Download)
-		onChainStatus, _, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			break
@@ -220,9 +220,9 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(deal2Download, aria2Client, swanClient)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED)
+			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "deal error before downloading", *onChainStatus, *onChainMessage)
 		} else {
-			UpdateStatusAndLog(deal2Download, DEAL_STATUS_SUSPENDING)
+			UpdateStatusAndLog(deal2Download, DEAL_STATUS_SUSPENDING, "deal not ready for downloading", *onChainStatus, *onChainMessage)
 		}
 
 		time.Sleep(1 * time.Second)
