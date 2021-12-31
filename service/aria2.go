@@ -40,7 +40,7 @@ func GetAria2Service() *Aria2Service {
 }
 
 func (aria2Service *Aria2Service) FindNextDealReady2Download(swanClient *swan.SwanClient) *libmodel.OfflineDeal {
-	pageNum := 1
+	pageNum := 0
 	pageSize := 1
 	statuses := []string{}
 	statuses = append(statuses, DEAL_STATUS_CREATED)
