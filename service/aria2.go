@@ -140,7 +140,7 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2C
 }
 
 func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
-	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_DOWNLOADING, aria2Service.MinerFid, nil)
+	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_SUSPENDING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
 		onChainStatus, _, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
@@ -149,15 +149,9 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 		}
 
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
-			err := UpdateOfflineDealStatus(swanClient, deal.Id, DEAL_STATUS_WAITING)
-			if err != nil {
-				logs.GetLogger().Error(err)
-			}
+			UpdateStatusAndLog(deal, DEAL_STATUS_WAITING)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			err := UpdateOfflineDealStatus(swanClient, deal.Id, DEAL_STATUS_IMPORT_FAILED)
-			if err != nil {
-				logs.GetLogger().Error(err)
-			}
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED)
 		}
 	}
 }
@@ -226,15 +220,9 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(deal2Download, aria2Client, swanClient)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			err := UpdateOfflineDealStatus(swanClient, deal2Download.Id, DEAL_STATUS_IMPORT_FAILED)
-			if err != nil {
-				logs.GetLogger().Error(err)
-			}
+			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED)
 		} else {
-			err := UpdateOfflineDealStatus(swanClient, deal2Download.Id, DEAL_STATUS_SUSPENDING)
-			if err != nil {
-				logs.GetLogger().Error(err)
-			}
+			UpdateStatusAndLog(deal2Download, DEAL_STATUS_SUSPENDING)
 		}
 
 		time.Sleep(1 * time.Second)
