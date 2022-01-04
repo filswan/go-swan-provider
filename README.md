@@ -109,7 +109,7 @@ nohup ./build/swan-provider >> swan-provider.log &            #After installatio
 - **bid_mode:** 0: manual, 1: auto
 - **expected_sealing_time:** 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
 - **start_epoch:** 2880 epoch or 24 hours. Relative value to current epoch
-- **auto_bid_task_per_day:** auto-bid task limit per day for your miner defined above
+- **auto_bid_deal_per_day:** auto-bid deal limit per day for your miner defined above
 
 
 ## License
