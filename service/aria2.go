@@ -216,6 +216,7 @@ func (aria2Service *Aria2Service) PurgeDownloadFile(aria2Client *client.Aria2Cli
 	importFailedDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_IMPORT_FAILED)
 	for _, deal := range importFailedDeals {
 		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		GetLog(deal, "lotus deal status is "+onChainStatus)
 		if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 			DeleteFile(&deal)
 		}
@@ -225,23 +226,24 @@ func (aria2Service *Aria2Service) PurgeDownloadFile(aria2Client *client.Aria2Cli
 func DeleteFile(deal *libmodel.OfflineDeal) {
 	filePath := deal.FilePath
 	if filePath == "" {
-		logs.GetLogger().Error("file path for DealCid", deal.DealCid, " is blank.")
+		GetLog(*deal, "file path is blank.")
 		return
+	}
+
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		GetLog(*deal, "car file does not exist.")
 	} else {
-		fileInfo, err := os.Stat(filePath)
-		if err != nil {
-			logs.GetLogger().Error("car file for DealCid:", deal.DealCid, " does not exist.")
-		} else {
-			if !fileInfo.IsDir() {
-				err := os.Remove(filePath)
-				if err != nil {
-					logs.GetLogger().Error(err)
-				} else {
-					logs.GetLogger().Info("car file for DealCid:", deal.DealCid, " has been deleted.")
-				}
+		if !fileInfo.IsDir() {
+			err := os.Remove(filePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
 			} else {
-				logs.GetLogger().Error("directory ", filePath, " cannot be deleted.")
+				GetLog(*deal, "car file has successfully been deleted.")
 			}
+		} else {
+			GetLog(*deal, "filepath is a directory and cannot be removed.")
 		}
 	}
+
 }

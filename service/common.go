@@ -48,6 +48,7 @@ const ONCHAIN_DEAL_STATUS_AWAITING = "StorageDealAwaitingPreCommit"
 const ARIA2_MAX_DOWNLOADING_TASKS = 10
 const LOTUS_IMPORT_NUMNBER = "20" //Max number of deals to be imported at a time
 const LOTUS_SCAN_NUMBER = "100"   //Max number of deals to be scanned at a time
+const PURGE_FILE_INTERVAL = 60 * time.Second
 
 var aria2Client *client.Aria2Client
 var swanClient *swan.SwanClient
@@ -198,7 +199,7 @@ func aria2PurgeDownload() {
 		logs.GetLogger().Info("Start...")
 		aria2Service.PurgeDownloadFile(aria2Client, swanClient)
 		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(time.Minute)
+		time.Sleep(PURGE_FILE_INTERVAL)
 	}
 }
 
