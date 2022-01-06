@@ -195,11 +195,12 @@ func aria2StartDownload() {
 }
 
 func aria2PurgeDownload() {
+	purgeIntervalSecond := config.GetConfig().Main.PurgeFileInterval * time.Second
 	for {
 		logs.GetLogger().Info("Start...")
 		aria2Service.PurgeDownloadFile(aria2Client, swanClient)
 		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(config.GetConfig().Main.PurgeFileInterval)
+		time.Sleep(purgeIntervalSecond)
 	}
 }
 
