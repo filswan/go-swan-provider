@@ -154,8 +154,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, 
 
 	today := time.Now()
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
-	outDir := filepath.Join(aria2Service.DownloadDir, strconv.Itoa(deal.UserId), timeStr)
-
+	outDir := filepath.Join(aria2Service.DownloadDir, strconv.Itoa(deal.UserId), strconv.Itoa(deal.Id), timeStr)
 	aria2Download := aria2Client.DownloadFile(deal.FileSourceUrl, outDir, outFilename)
 
 	if aria2Download == nil {
@@ -202,5 +201,47 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		}
 
 		time.Sleep(1 * time.Second)
+	}
+}
+
+func (aria2Service *Aria2Service) PurgeDownloadFile(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
+	completedDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_COMPLETED)
+	for _, deal := range completedDeals {
+		DeleteFile(&deal)
+	}
+	expiredDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_EXPIRED)
+	for _, deal := range expiredDeals {
+		DeleteFile(&deal)
+	}
+	importFailedDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_IMPORT_FAILED)
+	for _, deal := range importFailedDeals {
+		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+			DeleteFile(&deal)
+		}
+	}
+}
+
+func DeleteFile(deal *libmodel.OfflineDeal) {
+	filePath := deal.FilePath
+	if filePath == "" {
+		logs.GetLogger().Error("file path for DealCid", deal.DealCid, " is blank.")
+		return
+	} else {
+		fileInfo, err := os.Stat(filePath)
+		if err != nil {
+			logs.GetLogger().Error("car file for DealCid:", deal.DealCid, " does not exist.")
+		} else {
+			if !fileInfo.IsDir() {
+				err := os.Remove(filePath)
+				if err != nil {
+					logs.GetLogger().Error(err)
+				} else {
+					logs.GetLogger().Info("car file for DealCid:", deal.DealCid, " has been deleted.")
+				}
+			} else {
+				logs.GetLogger().Error("directory ", filePath, " cannot be deleted.")
+			}
+		}
 	}
 }
