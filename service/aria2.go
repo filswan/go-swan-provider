@@ -123,6 +123,20 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2C
 	}
 }
 
+func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
+	suspendingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_SUSPENDING)
+
+	for _, deal := range suspendingDeals {
+		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+
+		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+			swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_WAITING)
+		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+			swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED)
+		}
+	}
+}
+
 func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	logs.GetLogger().Info(GetLog(deal, "start downloading"))
 	urlInfo, err := url.Parse(deal.FileSourceUrl)
@@ -164,6 +178,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, 
 
 func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	downloadingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_DOWNLOADING)
+
 	countDownloadingDeals := len(downloadingDeals)
 	if countDownloadingDeals >= ARIA2_MAX_DOWNLOADING_TASKS {
 		return
@@ -176,7 +191,16 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
-		aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
+		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+
+		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+			aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
+		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+			swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_IMPORT_FAILED)
+		} else {
+			swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_SUSPENDING)
+		}
+
 		time.Sleep(1 * time.Second)
 	}
 }

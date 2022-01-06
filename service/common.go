@@ -24,6 +24,7 @@ const ARIA2_TASK_STATUS_COMPLETE = "complete"
 
 const DEAL_STATUS_CREATED = "Created"
 const DEAL_STATUS_WAITING = "Waiting"
+const DEAL_STATUS_SUSPENDING = "Suspending"
 
 const DEAL_STATUS_DOWNLOADING = "Downloading"
 const DEAL_STATUS_DOWNLOADED = "Downloaded"
