@@ -24,6 +24,9 @@ const ARIA2_TASK_STATUS_COMPLETE = "complete"
 
 const DEAL_STATUS_CREATED = "Created"
 const DEAL_STATUS_WAITING = "Waiting"
+const DEAL_STATUS_SUSPENDING = "Suspending"
+const DEAL_STATUS_COMPLETED = "Completed"
+const DEAL_STATUS_EXPIRED = "DealExpired"
 
 const DEAL_STATUS_DOWNLOADING = "Downloading"
 const DEAL_STATUS_DOWNLOADED = "Downloaded"
@@ -64,6 +67,7 @@ func AdminOfflineDeal() {
 	go swanSendHeartbeatRequest()
 	go aria2CheckDownloadStatus()
 	go aria2StartDownload()
+	go aria2PurgeDownload()
 	go lotusStartImport()
 	go lotusStartScan()
 }
@@ -75,7 +79,7 @@ func setAndCheckAria2Config() {
 	aria2Secret := config.GetConfig().Aria2.Aria2Secret
 
 	if !utils.IsDirExists(aria2DownloadDir) {
-		err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_download_dir", aria2DownloadDir)
+		err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_download_dir")
 		logs.GetLogger().Fatal(err)
 	}
 
@@ -186,6 +190,16 @@ func aria2StartDownload() {
 		aria2Service.StartDownload(aria2Client, swanClient)
 		logs.GetLogger().Info("Sleeping...")
 		time.Sleep(time.Minute)
+	}
+}
+
+func aria2PurgeDownload() {
+	purgeIntervalSecond := config.GetConfig().Main.PurgeFileInterval * time.Second
+	for {
+		logs.GetLogger().Info("Start...")
+		aria2Service.PurgeDownloadFile(aria2Client, swanClient)
+		logs.GetLogger().Info("Sleeping...")
+		time.Sleep(purgeIntervalSecond)
 	}
 }
 

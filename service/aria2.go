@@ -123,6 +123,20 @@ func (aria2Service *Aria2Service) CheckDownloadStatus(aria2Client *client.Aria2C
 	}
 }
 
+func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
+	suspendingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_SUSPENDING)
+
+	for _, deal := range suspendingDeals {
+		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+
+		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+			swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_WAITING)
+		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+			swanClient.SwanUpdateOfflineDealStatus(deal.Id, DEAL_STATUS_IMPORT_FAILED)
+		}
+	}
+}
+
 func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	logs.GetLogger().Info(GetLog(deal, "start downloading"))
 	urlInfo, err := url.Parse(deal.FileSourceUrl)
@@ -140,8 +154,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, 
 
 	today := time.Now()
 	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
-	outDir := filepath.Join(aria2Service.DownloadDir, strconv.Itoa(deal.UserId), timeStr)
-
+	outDir := filepath.Join(aria2Service.DownloadDir, strconv.Itoa(deal.UserId), strconv.Itoa(deal.Id), timeStr)
 	aria2Download := aria2Client.DownloadFile(deal.FileSourceUrl, outDir, outFilename)
 
 	if aria2Download == nil {
@@ -164,6 +177,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal libmodel.OfflineDeal, 
 
 func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	downloadingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_DOWNLOADING)
+
 	countDownloadingDeals := len(downloadingDeals)
 	if countDownloadingDeals >= ARIA2_MAX_DOWNLOADING_TASKS {
 		return
@@ -176,7 +190,60 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
-		aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
+		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+
+		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+			aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
+		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_IMPORT_FAILED, "Updating status to import failed", onChainStatus, onChainMessage)
+		} else {
+			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_SUSPENDING, "Updating status to suspending", onChainStatus, onChainMessage)
+		}
+
 		time.Sleep(1 * time.Second)
 	}
+}
+
+func (aria2Service *Aria2Service) PurgeDownloadFile(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
+	completedDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_COMPLETED)
+	for _, deal := range completedDeals {
+		DeleteFile(&deal)
+	}
+	expiredDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_EXPIRED)
+	for _, deal := range expiredDeals {
+		DeleteFile(&deal)
+	}
+	importFailedDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_IMPORT_FAILED)
+	for _, deal := range importFailedDeals {
+		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		GetLog(deal, "lotus deal status is "+onChainStatus)
+		if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+			DeleteFile(&deal)
+		}
+	}
+}
+
+func DeleteFile(deal *libmodel.OfflineDeal) {
+	filePath := deal.FilePath
+	if filePath == "" {
+		logs.GetLogger().Info("filepath for dealcid:", deal.DealCid+" is blank.")
+		return
+	}
+
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		logs.GetLogger().Info("car file for dealcid:", deal.DealCid+" does not exist.")
+	} else {
+		if !fileInfo.IsDir() {
+			err := os.Remove(filePath)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			} else {
+				GetLog(*deal, "car file has successfully been deleted.")
+			}
+		} else {
+			GetLog(*deal, "filepath is a directory and cannot be removed.")
+		}
+	}
+
 }
