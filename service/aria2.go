@@ -232,7 +232,7 @@ func DeleteFile(deal *libmodel.OfflineDeal) {
 
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		logs.GetLogger().Info("car file does not exist.")
+		logs.GetLogger().Info("car file for dealcid:", deal.DealCid, " does not exist.")
 	} else {
 		if !fileInfo.IsDir() {
 			err := os.Remove(filePath)
