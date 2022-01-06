@@ -20,6 +20,7 @@ miner_fid = "f0xxxx"          # Your filecoin Miner ID
 import_interval = 600         # 600 seconds or 10 minutes. Importing interval between each deal.
 scan_interval = 600           # 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
 api_heartbeat_interval = 300  # 300 seconds or 5 minutes. Time interval to send heartbeat.
+purge_interval = 600          # 600 seconds or 10 minutes. Purge downloaded car file
 
 [bid]
 bid_mode = 1                  # 0: manual, 1: auto

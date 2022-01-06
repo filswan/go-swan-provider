@@ -195,9 +195,9 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
 		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_IMPORT_FAILED)
+			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_IMPORT_FAILED, "Lotus deal has error status")
 		} else {
-			swanClient.SwanUpdateOfflineDealStatus(deal2Download.Id, DEAL_STATUS_SUSPENDING)
+			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_SUSPENDING)
 		}
 
 		time.Sleep(1 * time.Second)
@@ -232,7 +232,7 @@ func DeleteFile(deal *libmodel.OfflineDeal) {
 
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		GetLog(*deal, "car file does not exist.")
+		logs.GetLogger().Info("car file does not exist.")
 	} else {
 		if !fileInfo.IsDir() {
 			err := os.Remove(filePath)

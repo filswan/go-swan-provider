@@ -199,7 +199,7 @@ func aria2PurgeDownload() {
 		logs.GetLogger().Info("Start...")
 		aria2Service.PurgeDownloadFile(aria2Client, swanClient)
 		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(PURGE_FILE_INTERVAL)
+		time.Sleep(config.GetConfig().Main.PurgeFileInterval)
 	}
 }
 

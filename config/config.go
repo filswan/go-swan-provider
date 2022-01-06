@@ -39,6 +39,7 @@ type main struct {
 	MinerFid                 string        `toml:"miner_fid"`
 	LotusImportInterval      time.Duration `toml:"import_interval"`
 	LotusScanInterval        time.Duration `toml:"scan_interval"`
+	PurgeFileInterval        time.Duration `toml:"purge_interval"`
 }
 
 type bid struct {
@@ -102,6 +103,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "api_key"},
 		{"main", "access_token"},
 		{"main", "api_heartbeat_interval"},
+		{"main", "purge_interval"},
 
 		{"bid", "bid_mode"},
 		{"bid", "expected_sealing_time"},
