@@ -190,14 +190,14 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
-		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(*deal2Download, aria2Client, swanClient)
 		} else if onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_IMPORT_FAILED, "Lotus deal has error status")
+			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_IMPORT_FAILED, "Updating status to import failed", onChainStatus, onChainMessage)
 		} else {
-			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_SUSPENDING)
+			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_SUSPENDING, "Updating status to suspending", onChainStatus, onChainMessage)
 		}
 
 		time.Sleep(1 * time.Second)
@@ -226,13 +226,13 @@ func (aria2Service *Aria2Service) PurgeDownloadFile(aria2Client *client.Aria2Cli
 func DeleteFile(deal *libmodel.OfflineDeal) {
 	filePath := deal.FilePath
 	if filePath == "" {
-		GetLog(*deal, "file path is blank.")
+		logs.GetLogger().Info("filepath for dealcid:", deal.DealCid+" is blank.")
 		return
 	}
 
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		logs.GetLogger().Info("car file for dealcid:", deal.DealCid, " does not exist.")
+		logs.GetLogger().Info("car file for dealcid:", deal.DealCid+" does not exist.")
 	} else {
 		if !fileInfo.IsDir() {
 			err := os.Remove(filePath)
