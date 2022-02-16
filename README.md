@@ -94,7 +94,7 @@ nohup ./build/swan-provider >> swan-provider.log &            #After installatio
 - **aria2_download_dir:** Directory where offline deal files will be downloaded for importing
 - **aria2_host:** Aria2 server address
 - **aria2_port:** Aria2 server port
-- **aria2_secret:** Must be the same value as rpc-secure in `aria2.conf`
+- **aria2_secret:** Must be the same value as rpc-secret in `aria2.conf`
 
 ### [main]
 - **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com"
