@@ -113,10 +113,14 @@ nohup ./build/swan-provider >> swan-provider.log &            #After installatio
 
 # Common Isuse and solutions
 * My aria is not downloaded
-Please check if aria2 is running
-ps -ef|grep aria2
+
+  Please check if aria2 is running
+  ps -ef|grep aria2
+
 * error msg="no response from swan platform”
-Please check your API endpiont is correct, it should be 
+
+  Please check your API endpiont is correct, it should be https://api.filswan.com/
+
 ## License
 
 [Apache](https://github.com/filswan/go-swan-provider/blob/main/LICENSE)
