@@ -3,7 +3,7 @@
 [![Chat on discord](https://discord.com/assets/cb48d2a8d4991281d7a6a95d2f58195e.svg)](https://discord.com/invite/KKGhy8ZqzK)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 
-- Join us on our [public Slack channel](https://filswan.slack.com) for news, discussions, and status updates. 
+- Join us on our [public discord channel](https://discord.com/invite/KKGhy8ZqzK) for news, discussions, and status updates. 
 - [Check out our medium](https://filswan.medium.com) for the latest posts and announcements.
 
 ## Table of Contents
