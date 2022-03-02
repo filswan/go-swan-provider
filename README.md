@@ -111,7 +111,12 @@ nohup ./build/swan-provider >> swan-provider.log &            #After installatio
 - **start_epoch:** 2880 epoch or 24 hours. Relative value to current epoch
 - **auto_bid_deal_per_day:** auto-bid deal limit per day for your miner defined above
 
-
+# Common Isuse and solutions
+* My aria is not downloaded
+Please check if aria2 is running
+ps -ef|grep aria2
+* error msg="no response from swan platform”
+Please check your API endpiont is correct, it should be 
 ## License
 
 [Apache](https://github.com/filswan/go-swan-provider/blob/main/LICENSE)
