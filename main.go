@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"swan-provider/common/constants"
@@ -17,11 +18,39 @@ import (
 )
 
 func main() {
-	//LoadEnv()
-	//test.Test()
-	//config.InitConfig()
-	service.AdminOfflineDeal()
-	createHttpServer()
+	if len(os.Args) < 2 {
+		printUsage()
+		return
+	}
+
+	subCmd := os.Args[1]
+	switch subCmd {
+	case "version":
+		printVersion()
+	case "daemon":
+		service.AdminOfflineDeal()
+		createHttpServer()
+	default:
+		printUsage()
+	}
+}
+
+func printVersion() {
+	fmt.Println(getVersion())
+}
+
+func getVersion() string {
+	return "2.1.0"
+}
+
+func printUsage() {
+	fmt.Println("NAME:")
+	fmt.Println("    swan-client")
+	fmt.Println("VERSION:")
+	fmt.Println("    " + getVersion())
+	fmt.Println("USAGE:")
+	fmt.Println("    swan-client version")
+	fmt.Println("    swan-client daemon")
 }
 
 func createHttpServer() {
