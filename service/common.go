@@ -50,11 +50,15 @@ const LOTUS_SCAN_NUMBER = 100   //Max number of deals to be scanned at a time
 var aria2Client *client.Aria2Client
 var swanClient *swan.SwanClient
 
-var swanService = GetSwanService()
-var aria2Service = GetAria2Service()
-var lotusService = GetLotusService()
+var swanService *SwanService
+var aria2Service *Aria2Service
+var lotusService *LotusService
 
 func AdminOfflineDeal() {
+	swanService = GetSwanService()
+	aria2Service = GetAria2Service()
+	lotusService = GetLotusService()
+
 	aria2Client = SetAndCheckAria2Config()
 	swanClient = SetAndCheckSwanConfig()
 	checkMinerExists()
