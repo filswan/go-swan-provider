@@ -115,7 +115,9 @@ nohup ./build/swan-provider daemon >> swan-provider.log &            #After inst
 * My aria is not downloaded
 
   Please check if aria2 is running
-  ps -ef|grep aria2
+  ```shell
+  ps -ef | grep aria2
+  ```
 
 * error msg="no response from swan platform”
 
