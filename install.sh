@@ -67,6 +67,6 @@ sudo systemctl enable aria2c.service           # Set to start Aria2 automaticall
 sudo systemctl restart aria2c.service            # Start Aria2
 
 chmod +x ./${BINARY_NAME}
-./${BINARY_NAME}               # Run swan provider
+./${BINARY_NAME}  daemon             # Run swan provider
 
 

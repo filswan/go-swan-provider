@@ -66,5 +66,5 @@ BINARY_NAME=swan-provider
 
 make
 chmod +x ./build/${BINARY_NAME}
-./build/${BINARY_NAME}                         # Run swan provider
+./build/${BINARY_NAME}  daemon                       # Run swan provider
 
