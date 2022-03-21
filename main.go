@@ -45,12 +45,12 @@ func getVersion() string {
 
 func printUsage() {
 	fmt.Println("NAME:")
-	fmt.Println("    swan-client")
+	fmt.Println("    swan-provider")
 	fmt.Println("VERSION:")
 	fmt.Println("    " + getVersion())
 	fmt.Println("USAGE:")
-	fmt.Println("    swan-client version")
-	fmt.Println("    swan-client daemon")
+	fmt.Println("    swan-provider version")
+	fmt.Println("    swan-provider daemon")
 }
 
 func createHttpServer() {
