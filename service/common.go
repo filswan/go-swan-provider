@@ -188,6 +188,9 @@ func aria2StartDownload() {
 	for {
 		logs.GetLogger().Info("Start...")
 		aria2Service.StartDownload(aria2Client, swanClient)
+		logs.GetLogger().Info("End download...")
+		logs.GetLogger().Info("Start restore suspending deals...")
+		aria2Service.CheckAndRestoreSuspendingStatus(aria2Client, swanClient)
 		logs.GetLogger().Info("Sleeping...")
 		time.Sleep(time.Minute)
 	}
