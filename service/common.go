@@ -79,7 +79,7 @@ func setAndCheckAria2Config() {
 	aria2Secret := config.GetConfig().Aria2.Aria2Secret
 
 	if !utils.IsDirExists(aria2DownloadDir) {
-		err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_download_dir")
+		err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_download_dir", aria2DownloadDir)
 		logs.GetLogger().Fatal(err)
 	}
 
