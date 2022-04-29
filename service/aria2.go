@@ -129,6 +129,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	for _, deal := range suspendingDeals {
 		if utils.IsStrEmpty(&deal.DealCid) {
 			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal cid is empty")
+			continue
 		}
 
 		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
@@ -196,6 +197,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 
 		if utils.IsStrEmpty(&deal2Download.DealCid) {
 			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_IMPORT_FAILED, "deal cid is empty")
+			continue
 		}
 
 		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
