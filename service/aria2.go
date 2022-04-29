@@ -127,6 +127,10 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	suspendingDeals := swanClient.SwanGetOfflineDeals(aria2Service.MinerFid, DEAL_STATUS_SUSPENDING)
 
 	for _, deal := range suspendingDeals {
+		if utils.IsStrEmpty(&deal.DealCid) {
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal cid is empty")
+		}
+
 		onChainStatus, _ := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 
 		if onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
@@ -188,6 +192,10 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		if deal2Download == nil {
 			logs.GetLogger().Info("No offline deal to download")
 			break
+		}
+
+		if utils.IsStrEmpty(&deal2Download.DealCid) {
+			UpdateStatusAndLog(*deal2Download, DEAL_STATUS_IMPORT_FAILED, "deal cid is empty")
 		}
 
 		onChainStatus, onChainMessage := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
