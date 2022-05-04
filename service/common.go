@@ -237,19 +237,9 @@ func getDealCost(dealCost lotus.ClientDealCostStatus) string {
 }
 
 func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefullpath *string, messages ...string) {
-	noteFunds := ""
-	cost := deal.Cost
-	if deal.DealCid != "" {
-		dealCost, err := lotusService.LotusClient.LotusClientGetDealInfo(deal.DealCid)
-		if err == nil {
-			cost = getDealCost(*dealCost)
-			noteFunds = GetNote("funds computed:"+dealCost.CostComputed, "funds reserved:"+dealCost.ReserveClientFunds, "funds released:"+dealCost.DealProposalAccepted)
-		}
-	}
 	note := ""
 	if newSwanStatus != DEAL_STATUS_DOWNLOADING {
 		note = GetNote(messages...)
-		note = GetNote(note, noteFunds)
 		note = utils.FirstLetter2Upper(note)
 	} else {
 		note = messages[0]
@@ -266,11 +256,11 @@ func UpdateDealInfoAndLog(deal model.OfflineDeal, newSwanStatus string, filefull
 		filefullpathTemp = *filefullpath
 	}
 
-	if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == filefullpathTemp && deal.Cost == cost {
+	if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == filefullpathTemp {
 		logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 		return
 	}
-	updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, filefullpathTemp, "", cost)
+	updated := swanClient.SwanUpdateOfflineDealStatus(deal.Id, newSwanStatus, note, filefullpathTemp)
 
 	msg := GetLog(deal, "set status to:"+newSwanStatus, "set note to:"+note, "set filepath to:"+filefullpathTemp)
 	if !updated {
