@@ -3,10 +3,10 @@
 BINARY_NAME=swan-provider-0.2.1-rc2-linux-amd64
 TAG_NAME=v0.2.1-rc2
 
-wget https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/${BINARY_NAME}
-wget https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/aria2.conf
-wget https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/aria2c.service
-wget https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/config.toml.example
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/${BINARY_NAME}
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/aria2.conf
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/aria2c.service
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/config.toml.example
 
 CONF_FILE_DIR=${HOME}/.swan/provider
 mkdir -p ${CONF_FILE_DIR}
