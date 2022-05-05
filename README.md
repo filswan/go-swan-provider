@@ -45,7 +45,7 @@ Reference: [Lotus: API tokens](https://docs.filecoin.io/build/lotus/api-tokens/#
 ```shell
 mkdir swan-provider
 cd swan-provider
-wget https://github.com/filswan/go-swan-provider/releases/download/v0.2.1-rc2/install.sh
+wget https://github.com/filswan/go-swan-provider/releases/download/v0.2.1/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
