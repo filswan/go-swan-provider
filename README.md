@@ -104,6 +104,7 @@ nohup ./build/swan-provider >> swan-provider.log &               #After installa
 - :bangbang:**api_key:** Your api key. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide.
 - :bangbang:**access_token:** Your access token. Acquire from [Swan Platform](https://www.filswan.com/) -> "My Profile"->"Developer Settings". You can also check the Guide.
 - **api_heartbeat_interval:** 300 seconds or 5 minutes. Time interval to send heartbeat.
+- **purge_interval:** 600 seconds or 10 minutes. Time interval to purge downloaded car files whose deal status are Completed, ImportFailed or DealExpired
 
 ### [bid]
 - **bid_mode:** 0: manual, 1: auto
