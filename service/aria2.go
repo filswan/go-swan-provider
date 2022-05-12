@@ -149,6 +149,11 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 			continue
 		}
 
+		if onChainStatus == nil {
+			logs.GetLogger().Info("no on chain status for deal%", deal.DealCid)
+			continue
+		}
+
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", *onChainStatus, *onChainMessage)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
