@@ -146,6 +146,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
+			continue
 		}
 
 		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
