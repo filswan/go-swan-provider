@@ -36,7 +36,7 @@ Lotus miner token is used for importing deal for swan provider
 lotus-miner auth create-token --perm write
 ```
 Note that the Lotus Miner need to be running in the background!
-The created token located at $LOTUS_STORAGE_PATH/token 
+The created token located at `$LOTUS_MINER_PATH/token` 
 
 Reference: [Lotus: API tokens](https://docs.filecoin.io/build/lotus/api-tokens/#obtaining-tokens)
 
@@ -71,13 +71,11 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 
 ### Note
 - Logs are in directory ./logs
-- You can add `nohup` before `./swan-provider` to ignore the HUP (hangup) signal and therefore avoid stop when you log out.
-- You can add `>> swan-provider.log` in the command to let all the logs output to `swan-provider.log`.
-- You can add `&` at the end of the command to let the program run in background.
-- Such as:
+- You can run it to prevent program exit and print the logs to a separate file:
+
 ```shell
-nohup ./swan-provider-0.2.1-linux-amd64 >> swan-provider.log &   #After installation from Option 1
-nohup ./build/swan-provider >> swan-provider.log &               #After installation from Option 2
+nohup ./swan-provider-0.2.1-linux-amd64 >> swan-provider.log 2>&1 &   #After installation from Option 1
+nohup ./build/swan-provider >> swan-provider.log 2>&1 &               #After installation from Option 2
 ```
 
 
