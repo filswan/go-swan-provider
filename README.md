@@ -97,7 +97,7 @@ nohup ./build/swan-provider daemon >> swan-provider.log &               #After i
 - **aria2_secret:** Must be the same value as rpc-secret in `aria2.conf`
 
 ### [main]
-- **api_url:** Swan API address. For Swan production, it is "https://api.filswan.com"
+- **api_url:** Swan API address. For Swan production, it is "https://go-swan-server.filswan.com/"
 - :bangbang:**miner_fid:** Your filecoin Miner ID
 - **import_interval:** 600 seconds or 10 minutes. Importing interval between each deal.
 - **scan_interval:** 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
