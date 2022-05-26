@@ -13,7 +13,7 @@ aria2_port = 6800         # Aria2 server port
 aria2_secret = "my_aria2_secret"  # Must be the same value as rpc-secure in aria2.conf
 
 [main]
-api_url = "https://api.filswan.com"  # Swan API address. For Swan production, it is "https://api.filswan.com"
+api_url = "https://go-swan-server.filswan.com/"  # Swan API address. For Swan production, it is "https://go-swan-server.filswan.com/"
 api_key = ""                  # Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
 access_token = ""             # Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
 miner_fid = "f0xxxx"          # Your filecoin Miner ID
