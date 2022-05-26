@@ -1,12 +1,13 @@
 #!/bin/bash
 
-BINARY_NAME=swan-provider-0.2.1-rc1-unix
-TAG_NAME=v0.2.1-rc1
+BINARY_NAME=swan-client-2.0.0-linux-amd64
+TAG_NAME=v2.0.0-rc1
+URL_PREFIX=https://github.com/filswan/go-swan-provider
 
-wget https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/${BINARY_NAME}
-wget https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/aria2.conf
-wget https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/aria2c.service
-wget https://github.com/filswan/go-swan-provider/releases/download/${TAG_NAME}/config.toml.example
+wget ${URL_PREFIX}/releases/download/${TAG_NAME}/${BINARY_NAME}
+wget ${URL_PREFIX}/releases/download/${TAG_NAME}/aria2.conf
+wget ${URL_PREFIX}/releases/download/${TAG_NAME}/aria2c.service
+wget ${URL_PREFIX}/releases/download/${TAG_NAME}/config.toml.example
 
 CONF_FILE_DIR=${HOME}/.swan/provider
 mkdir -p ${CONF_FILE_DIR}
