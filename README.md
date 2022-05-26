@@ -45,7 +45,7 @@ Reference: [Lotus: API tokens](https://docs.filecoin.io/build/lotus/api-tokens/#
 ```shell
 mkdir swan-provider
 cd swan-provider
-wget https://github.com/filswan/go-swan-provider/releases/download/v0.2.1-rc1/install.sh
+wget https://github.com/filswan/go-swan-provider/releases/download/v2.0.0-rc1/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
@@ -64,8 +64,8 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 - :one: Edit config file **~/.swan/provider/config.toml** to solve this.
 - :two: Execute **swan-provider** using one of the following commands
 ```shell
-./swan-provider-0.2.1-rc1-unix daemon  #After installation from Option 1
-./build/swan-provider daemon           #After installation from Option 2
+./swan-provider-2.0.0-linux-amd64 daemon  #After installation from Option 1
+./build/swan-provider daemon              #After installation from Option 2
 ```
 
 
@@ -76,8 +76,8 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 - You can add `&` at the end of the command to let the program run in background.
 - Such as:
 ```shell
-nohup ./swan-provider-0.2.1-rc1-unix daemon >> swan-provider.log &   #After installation from Option 1
-nohup ./build/swan-provider daemon >> swan-provider.log &            #After installation from Option 2
+nohup ./swan-provider-2.0.0-linux-amd64 daemon >> swan-provider.log &   #After installation from Option 1
+nohup ./build/swan-provider daemon >> swan-provider.log &               #After installation from Option 2
 ```
 
 
