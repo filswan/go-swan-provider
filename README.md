@@ -97,7 +97,7 @@ nohup ./build/swan-provider daemon >> swan-provider.log &                   #Aft
 - **aria2_secret:** Must be the same value as rpc-secret in `aria2.conf`
 
 ### [main]
-- **api_url:** Swan API address. For Swan production, it is "https://go-swan-server.filswan.com"
+- **api_url:** Swan API address. For Swan production, it is `https://go-swan-server.filswan.com`
 - :bangbang:**miner_fid:** Your filecoin Miner ID
 - **import_interval:** 600 seconds or 10 minutes. Importing interval between each deal.
 - **scan_interval:** 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
@@ -121,7 +121,7 @@ nohup ./build/swan-provider daemon >> swan-provider.log &                   #Aft
 
 * error msg="no response from swan platform”
 
-  Please check your API endpiont is correct, it should be https://api.filswan.com/
+  Please check your API endpiont is correct, it should be `https://go-swan-server.filswan.com`
 
 ## License
 
