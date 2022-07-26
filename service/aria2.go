@@ -150,7 +150,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 		}
 
 		if onChainStatus == nil {
-			logs.GetLogger().Info("no on chain status for deal%", deal.DealCid)
+			logs.GetLogger().Info("no on chain status for deal%", *deal.TaskName+":"+deal.DealCid)
 			continue
 		}
 
@@ -224,7 +224,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		}
 
 		if onChainStatus == nil {
-			logs.GetLogger().Info("not found the deal on the chain", deal2Download.DealCid)
+			logs.GetLogger().Info("not found the deal on the chain", *deal2Download.TaskName+":"+deal2Download.DealCid)
 			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 			continue
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {

@@ -264,7 +264,7 @@ func UpdateStatusAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, messag
 
 func GetLog(deal *libmodel.OfflineDeal, messages ...string) string {
 	text := GetNote(messages...)
-	msg := fmt.Sprintf("deal(id=%d):%s,%s", deal.Id, deal.DealCid, text)
+	msg := fmt.Sprintf("deal(id=%d):%s,%s", deal.Id, *deal.TaskName+":"+deal.DealCid, text)
 	return msg
 }
 
