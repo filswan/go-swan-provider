@@ -224,11 +224,10 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		}
 
 		if onChainStatus == nil {
-			logs.GetLogger().Info("no deal status for deal:", deal2Download.DealCid)
+			logs.GetLogger().Info("not found the deal on the chain", deal2Download.DealCid)
+			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 			continue
-		}
-
-		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(deal2Download, aria2Client, swanClient)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "deal error before downloading", *onChainStatus, *onChainMessage)
