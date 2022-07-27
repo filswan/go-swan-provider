@@ -147,7 +147,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error when scan", *onChainStatus, *onChainMessage)
 		case ONCHAIN_DEAL_STATUS_ACTIVE:
 			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", *onChainStatus, *onChainMessage)
-		case ONCHAIN_DEAL_STATUS_AWAITING:
+		case ONCHAIN_DEAL_STATUS_AWAITING, ONCHAIN_DEAL_STATUS_SEALING:
 			currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
 			if err != nil {
 				logs.GetLogger().Error(GetLog(deal, err.Error()))

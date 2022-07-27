@@ -41,6 +41,7 @@ const ONCHAIN_DEAL_STATUS_ACTIVE = "StorageDealActive"
 const ONCHAIN_DEAL_STATUS_NOTFOUND = "StorageDealNotFound"
 const ONCHAIN_DEAL_STATUS_WAITTING = "StorageDealWaitingForData"
 const ONCHAIN_DEAL_STATUS_ACCEPT = "StorageDealAcceptWait"
+const ONCHAIN_DEAL_STATUS_SEALING = "StorageDealSealing"
 const ONCHAIN_DEAL_STATUS_AWAITING = "StorageDealAwaitingPreCommit"
 
 const ARIA2_MAX_DOWNLOADING_TASKS = 10
