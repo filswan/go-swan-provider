@@ -242,7 +242,6 @@ func UpdateDealInfoAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, file
 	}
 
 	if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == filefullpathTemp {
-		logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 		return
 	}
 
