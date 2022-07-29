@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+	"os"
 	"swan-provider/config"
 	"time"
 
@@ -141,12 +143,22 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			logs.GetLogger().Error(GetLog(deal, "on chain status is empty"))
 			continue
 		}
-
+		aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
 		switch *onChainStatus {
 		case ONCHAIN_DEAL_STATUS_ERROR:
 			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error when scan", *onChainStatus, *onChainMessage)
+			if aria2AutoDeleteCarFile {
+				msg := fmt.Sprintf("deal(id=%d):%s, %s, %s", deal.Id, *deal.TaskName+":"+deal.DealCid+" has been "+*onChainStatus, "delete the car file", deal.FilePath)
+				logs.GetLogger().Info(msg)
+				DeleteDownloadedFiles(deal.FilePath)
+			}
 		case ONCHAIN_DEAL_STATUS_ACTIVE:
 			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", *onChainStatus, *onChainMessage)
+			if aria2AutoDeleteCarFile {
+				msg := fmt.Sprintf("deal(id=%d):%s, %s, %s", deal.Id, *deal.TaskName+":"+deal.DealCid+" has been "+*onChainStatus, "delete the car file", deal.FilePath)
+				logs.GetLogger().Info(msg)
+				DeleteDownloadedFiles(deal.FilePath)
+			}
 		case ONCHAIN_DEAL_STATUS_AWAITING, ONCHAIN_DEAL_STATUS_SEALING:
 			currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
 			if err != nil {
@@ -161,6 +173,25 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			}
 		default:
 			UpdateStatusAndLog(deal, deal.Status, *onChainStatus, *onChainMessage)
+		}
+	}
+}
+
+func IsExist(filePath string) bool {
+	_, err := os.Stat(filePath)
+	return err == nil || os.IsExist(err)
+}
+
+func DeleteDownloadedFiles(filePath string) {
+	aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
+	if aria2AutoDeleteCarFile {
+		if IsExist(filePath) {
+			err := os.Remove(filePath)
+			if err != nil {
+				logs.GetLogger().Error("failed to delete file ", err, " file path ", filePath)
+			} else {
+				logs.GetLogger().Info("delete file successfully ", " file path ", filePath)
+			}
 		}
 	}
 }
