@@ -176,8 +176,13 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 	}
 	_, outFilename = filepath.Split(outFilename)
 	outDir := strings.TrimSuffix(aria2Service.DownloadDir, "/")
-	aria2Download := aria2Client.DownloadFile(deal.CarFileUrl, outDir, outFilename)
+	filePath := outDir + "/" + outFilename
+	if IsExist(filePath) {
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, outFilename+", the car file already exists, skip downloading it")
+		return
+	}
 
+	aria2Download := aria2Client.DownloadFile(deal.CarFileUrl, outDir, outFilename)
 	if aria2Download == nil {
 		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "no response when asking aria2 to download")
 		return
