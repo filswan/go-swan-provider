@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
@@ -175,12 +174,8 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 		outFilename = strings.TrimPrefix(urlInfo.RawQuery, "filename=")
 		outFilename = filepath.Join(urlInfo.Path, outFilename)
 	}
-	outFilename = strings.TrimLeft(outFilename, "/")
-
-	today := time.Now()
-	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
-	outDir := filepath.Join(aria2Service.DownloadDir, strconv.Itoa(deal.UserId), timeStr)
-
+	_, outFilename = filepath.Split(outFilename)
+	outDir := strings.TrimSuffix(aria2Service.DownloadDir, "/")
 	aria2Download := aria2Client.DownloadFile(deal.CarFileUrl, outDir, outFilename)
 
 	if aria2Download == nil {
