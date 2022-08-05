@@ -68,7 +68,8 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 		}
 
 		if utils.IsStrEmpty(onChainStatus) {
-			logs.GetLogger().Error(GetLog(deal, "failed to get on chain status, please check if lotus miner is running properly"))
+			logs.GetLogger().Info(GetLog(deal, "not found the deal on the chain"))
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 			continue
 		}
 
@@ -140,7 +141,8 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 		}
 
 		if utils.IsStrEmpty(onChainStatus) {
-			logs.GetLogger().Error(GetLog(deal, "on chain status is empty"))
+			logs.GetLogger().Info(GetLog(deal, "not found the deal on the chain"))
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 			continue
 		}
 		aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
