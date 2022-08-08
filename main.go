@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"swan-provider/common"
 	"swan-provider/common/constants"
 	"swan-provider/config"
 	"swan-provider/routers"
@@ -40,7 +41,7 @@ func printVersion() {
 }
 
 func getVersion() string {
-	return "2.1.0"
+	return common.VERSION
 }
 
 func printUsage() {
