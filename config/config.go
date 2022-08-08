@@ -95,6 +95,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"aria2", "aria2_host"},
 		{"aria2", "aria2_port"},
 		{"aria2", "aria2_secret"},
+		{"aria2", "aria2_auto_delete_car_file"},
 
 		{"main", "api_url"},
 		{"main", "miner_fid"},
