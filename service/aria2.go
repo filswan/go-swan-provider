@@ -149,7 +149,8 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 		}
 
 		if onChainStatus == nil {
-			logs.GetLogger().Info("no on chain status for deal%", *deal.TaskName+":"+deal.DealCid)
+			logs.GetLogger().Info("not found the deal on the chain", *deal.TaskName+":"+deal.DealCid)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 			continue
 		}
 
