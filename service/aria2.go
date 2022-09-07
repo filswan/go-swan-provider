@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
@@ -96,8 +95,19 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 	switch result.Status {
 	case ARIA2_TASK_STATUS_ERROR:
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, result.Status, "download gid:"+gid, result.ErrorCode, result.ErrorMessage)
-	case ARIA2_TASK_STATUS_ACTIVE, ARIA2_TASK_STATUS_WAITING:
-		fileSizeDownloaded := utils.GetFileSize(filePath)
+	case ARIA2_TASK_STATUS_WAITING:
+		logs.GetLogger().Info("the file is waiting for downloading, " + filePath)
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADING, &filePath, gid)
+	case ARIA2_TASK_STATUS_ACTIVE:
+		time.Sleep(time.Second * 5)
+		fileInfo, err := os.Stat(filePath)
+		var fileSizeDownloaded int64
+		if err != nil {
+			logs.GetLogger().Error(err.Error())
+			fileSizeDownloaded = -1
+		} else {
+			fileSizeDownloaded = fileInfo.Size()
+		}
 		completedLen := utils.GetInt64FromStr(file.CompletedLength)
 		var completePercent float64 = 0
 		if fileSize > 0 {
@@ -108,17 +118,14 @@ func (aria2Service *Aria2Service) CheckDownloadStatus4Deal(aria2Client *client.A
 		note := fmt.Sprintf("downloading, complete: %.2f%%, speed: %dKiB, downloaded:%dKiB, %s, download gid:%s", completePercent, downloadSpeed, fileSizeDownloaded, result.Status, gid)
 		logs.GetLogger().Info(GetLog(deal, note))
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADING, &filePath, gid)
-		if result.Status == ARIA2_TASK_STATUS_WAITING {
-			msg := fmt.Sprintf("waiting to download,%s,%s", result.Status, result.ErrorMessage)
-			logs.GetLogger().Info(GetLog(deal, msg))
-		}
 	case ARIA2_TASK_STATUS_COMPLETE:
-		fileSizeDownloaded := utils.GetFileSize(filePath)
-		logs.GetLogger().Info(GetLog(deal, "downloaded"))
-		if fileSizeDownloaded >= 0 {
-			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, "download gid:"+gid)
-		} else {
+		_, err := os.Stat(filePath)
+		if err != nil {
+			logs.GetLogger().Error(err.Error() + ", please check aria2 services")
 			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, "file not found on its download path", "download gid:"+gid)
+		} else {
+			logs.GetLogger().Info(GetLog(deal, "downloaded"))
+			UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, "download gid:"+gid)
 		}
 	default:
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, &filePath, result.Status, "download gid:"+gid, result.ErrorCode, result.ErrorMessage)
@@ -150,7 +157,8 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 		}
 
 		if onChainStatus == nil {
-			logs.GetLogger().Info("no on chain status for deal%", deal.DealCid)
+			logs.GetLogger().Info("not found the deal on the chain", *deal.TaskName+":"+deal.DealCid)
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 			continue
 		}
 
@@ -175,14 +183,15 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 		outFilename = strings.TrimPrefix(urlInfo.RawQuery, "filename=")
 		outFilename = filepath.Join(urlInfo.Path, outFilename)
 	}
-	outFilename = strings.TrimLeft(outFilename, "/")
-
-	today := time.Now()
-	timeStr := fmt.Sprintf("%d%02d", today.Year(), today.Month())
-	outDir := filepath.Join(aria2Service.DownloadDir, strconv.Itoa(deal.UserId), timeStr)
+	_, outFilename = filepath.Split(outFilename)
+	outDir := strings.TrimSuffix(aria2Service.DownloadDir, "/")
+	filePath := outDir + "/" + outFilename
+	if IsExist(filePath) {
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, outFilename+", the car file already exists, skip downloading it")
+		return
+	}
 
 	aria2Download := aria2Client.DownloadFile(deal.CarFileUrl, outDir, outFilename)
-
 	if aria2Download == nil {
 		UpdateStatusAndLog(deal, DEAL_STATUS_DOWNLOAD_FAILED, "no response when asking aria2 to download")
 		return
@@ -224,11 +233,10 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		}
 
 		if onChainStatus == nil {
-			logs.GetLogger().Info("no deal status for deal:", deal2Download.DealCid)
+			logs.GetLogger().Info("not found the deal on the chain", *deal2Download.TaskName+":"+deal2Download.DealCid)
+			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 			continue
-		}
-
-		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 			aria2Service.StartDownload4Deal(deal2Download, aria2Client, swanClient)
 		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "deal error before downloading", *onChainStatus, *onChainMessage)

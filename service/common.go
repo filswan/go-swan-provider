@@ -41,6 +41,7 @@ const ONCHAIN_DEAL_STATUS_ACTIVE = "StorageDealActive"
 const ONCHAIN_DEAL_STATUS_NOTFOUND = "StorageDealNotFound"
 const ONCHAIN_DEAL_STATUS_WAITTING = "StorageDealWaitingForData"
 const ONCHAIN_DEAL_STATUS_ACCEPT = "StorageDealAcceptWait"
+const ONCHAIN_DEAL_STATUS_SEALING = "StorageDealSealing"
 const ONCHAIN_DEAL_STATUS_AWAITING = "StorageDealAwaitingPreCommit"
 
 const ARIA2_MAX_DOWNLOADING_TASKS = 10
@@ -241,7 +242,6 @@ func UpdateDealInfoAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, file
 	}
 
 	if deal.Status == newSwanStatus && deal.Note == note && deal.FilePath == filefullpathTemp {
-		logs.GetLogger().Info(GetLog(deal, constants.NOT_UPDATE_OFFLINE_DEAL_STATUS))
 		return
 	}
 
@@ -264,7 +264,7 @@ func UpdateStatusAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, messag
 
 func GetLog(deal *libmodel.OfflineDeal, messages ...string) string {
 	text := GetNote(messages...)
-	msg := fmt.Sprintf("deal(id=%d):%s,%s", deal.Id, deal.DealCid, text)
+	msg := fmt.Sprintf("deal(id=%d):%s,%s", deal.Id, *deal.TaskName+":"+deal.DealCid, text)
 	return msg
 }
 
