@@ -12,6 +12,7 @@ aria2_host = "127.0.0.1"                        # Aria2 server address
 aria2_port = 6800                               # Aria2 server port
 aria2_secret = "my_aria2_secret"                # Must be the same value as rpc-secure in aria2.conf
 aria2_auto_delete_car_file= true                # After the deal becomes Active or Error, the CAR file will be deleted automatically
+aria2_max_downloading_tasks = 10                # Aria2 max downloading tasks. default: 10
 
 [main]
 api_url = "https://go-swan-server.filswan.com"  # Swan API address. For Swan production, it is "https://go-swan-server.filswan.com"
