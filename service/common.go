@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
@@ -44,7 +45,6 @@ const ONCHAIN_DEAL_STATUS_ACCEPT = "StorageDealAcceptWait"
 const ONCHAIN_DEAL_STATUS_SEALING = "StorageDealSealing"
 const ONCHAIN_DEAL_STATUS_AWAITING = "StorageDealAwaitingPreCommit"
 
-const ARIA2_MAX_DOWNLOADING_TASKS = 10
 const LOTUS_IMPORT_NUMNBER = 20 //Max number of deals to be imported at a time
 const LOTUS_SCAN_NUMBER = 100   //Max number of deals to be scanned at a time
 

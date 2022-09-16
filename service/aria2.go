@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
@@ -150,7 +151,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_SUSPENDING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
-		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -229,7 +230,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		}
 
 		//logs.GetLogger().Info("deal:", deal2Download.Id, " ", deal2Download.DealCid, deal2Download)
-		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+		_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			break
