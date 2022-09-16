@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
@@ -45,6 +44,7 @@ const ONCHAIN_DEAL_STATUS_ACCEPT = "StorageDealAcceptWait"
 const ONCHAIN_DEAL_STATUS_SEALING = "StorageDealSealing"
 const ONCHAIN_DEAL_STATUS_AWAITING = "StorageDealAwaitingPreCommit"
 
+const ARIA2_MAX_DOWNLOADING_TASKS = 10
 const LOTUS_IMPORT_NUMNBER = 20 //Max number of deals to be imported at a time
 const LOTUS_SCAN_NUMBER = 100   //Max number of deals to be scanned at a time
 
@@ -79,7 +79,6 @@ func SetAndCheckAria2Config() *client.Aria2Client {
 	aria2Host := config.GetConfig().Aria2.Aria2Host
 	aria2Port := config.GetConfig().Aria2.Aria2Port
 	aria2Secret := config.GetConfig().Aria2.Aria2Secret
-	aria2MaxDownloadingTasks := config.GetConfig().Aria2.Aria2MaxDownloadingTasks
 
 	if !utils.IsDirExists(aria2DownloadDir) {
 		err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_download_dir", aria2DownloadDir)
@@ -91,19 +90,7 @@ func SetAndCheckAria2Config() *client.Aria2Client {
 	}
 
 	aria2Client = client.GetAria2Client(aria2Host, aria2Secret, aria2Port)
-	if aria2MaxDownloadingTasks <= 0 {
-		logs.GetLogger().Warning("config [aria2].aria2_max_downloading_tasks is " + strconv.Itoa(aria2MaxDownloadingTasks) + ", no CAR file will be downloaded")
-	}
-	aria2ChangeMaxConcurrentDownloads := aria2Client.ChangeMaxConcurrentDownloads(strconv.Itoa(aria2MaxDownloadingTasks))
-	if aria2ChangeMaxConcurrentDownloads == nil {
-		err := fmt.Errorf("failed to set [aria2].aria2_max_downloading_tasks, please check the Aria2 service")
-		logs.GetLogger().Fatal(err)
-	}
 
-	if aria2ChangeMaxConcurrentDownloads.Error != nil {
-		err := fmt.Errorf(aria2ChangeMaxConcurrentDownloads.Error.Message)
-		logs.GetLogger().Fatal(err)
-	}
 	return aria2Client
 }
 
@@ -277,7 +264,7 @@ func UpdateStatusAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, messag
 
 func GetLog(deal *libmodel.OfflineDeal, messages ...string) string {
 	text := GetNote(messages...)
-	msg := fmt.Sprintf("taskName:%s, dealCid:%s, %s", *deal.TaskName, deal.DealCid, text)
+	msg := fmt.Sprintf("deal(id=%d):%s,%s", deal.Id, *deal.TaskName+":"+deal.DealCid, text)
 	return msg
 }
 
