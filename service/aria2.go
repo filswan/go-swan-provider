@@ -188,7 +188,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 	outDir := strings.TrimSuffix(aria2Service.DownloadDir, "/")
 	filePath := outDir + "/" + outFilename
 	if IsExist(filePath) {
-		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, outFilename+", the car file already exists, skip downloading it")
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
 		return
 	}
 
