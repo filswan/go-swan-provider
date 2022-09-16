@@ -25,11 +25,12 @@ type lotus struct {
 }
 
 type aria2 struct {
-	Aria2DownloadDir       string `toml:"aria2_download_dir"`
-	Aria2Host              string `toml:"aria2_host"`
-	Aria2Port              int    `toml:"aria2_port"`
-	Aria2Secret            string `toml:"aria2_secret"`
-	Aria2AutoDeleteCarFile bool   `toml:"aria2_auto_delete_car_file"`
+	Aria2DownloadDir         string `toml:"aria2_download_dir"`
+	Aria2Host                string `toml:"aria2_host"`
+	Aria2Port                int    `toml:"aria2_port"`
+	Aria2Secret              string `toml:"aria2_secret"`
+	Aria2AutoDeleteCarFile   bool   `toml:"aria2_auto_delete_car_file"`
+	Aria2MaxDownloadingTasks int    `toml:"aria2_max_downloading_tasks"`
 }
 
 type main struct {
@@ -96,6 +97,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"aria2", "aria2_port"},
 		{"aria2", "aria2_secret"},
 		{"aria2", "aria2_auto_delete_car_file"},
+		{"aria2", "aria2_max_downloading_tasks"},
 
 		{"main", "api_url"},
 		{"main", "miner_fid"},
