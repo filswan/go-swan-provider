@@ -72,6 +72,9 @@ After installation, swan-provider maybe quit due to lack of configuration. Under
 ./build/swan-provider daemon                  #After installation from Option 2
 ```
 
+## Getting Help
+
+  For usage questions or issues reach out the Swan Provider team either in the [Discord channel](http://discord.com/invite/KKGhy8ZqzK) or open a new issue here on github.
 
 ### Note
 - Logs are in directory ./logs
