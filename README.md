@@ -118,6 +118,12 @@ nohup ./build/swan-provider daemon >> swan-provider.log &                   #Aft
 - **start_epoch:** 2880 epoch or 24 hours. Relative value to current epoch
 - **auto_bid_deal_per_day:** auto-bid deal limit per day for your miner defined above
 
+## Interact with the Swan Provider
+The _./swan_provider_ command allows you to interact with a running swan provider daemon. 
+check the current version of your swan_provider
+```
+./swan_provider version
+```
 # Common Isuse and solutions
 * My aria is not downloaded
 
