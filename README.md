@@ -124,7 +124,7 @@ check the current version of your swan_provider
 ```
 ./swan_provider version
 ```
-# Common Isuse and solutions
+## Common Isuse and solutions
 * My aria is not downloaded
 
   Please check if aria2 is running
