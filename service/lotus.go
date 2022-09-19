@@ -185,7 +185,7 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 	case ONCHAIN_DEAL_STATUS_NOTFOUND:
 		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal not found", *onChainStatus, onChainMessage)
 	case ONCHAIN_DEAL_STATUS_AWAITING, ONCHAIN_DEAL_STATUS_SEALING:
-		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal is sealing", *onChainStatus, onChainMessage)
+		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal is sealing", *onChainStatus)
 	case ONCHAIN_DEAL_STATUS_WAITTING:
 		if deal.Status == DEAL_STATUS_IMPORTING {
 			return
