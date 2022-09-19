@@ -67,7 +67,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			logs.GetLogger().Error(err)
 			return
 		}
-		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, true, aria2AutoDeleteCarFile)
+		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
 
 		logs.GetLogger().Info("Sleeping...")
 		time.Sleep(lotusService.ImportIntervalSecond)
@@ -76,7 +76,12 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 	maxScanNum := LOTUS_SCAN_NUMBER
-	deals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORTED, aria2Service.MinerFid, &maxScanNum)
+	importedDeals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORTED, aria2Service.MinerFid, &maxScanNum)
+	importingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORTING, aria2Service.MinerFid, &maxScanNum)
+
+	deals := make([]*model.OfflineDeal, 0)
+	deals = append(deals, importedDeals...)
+	deals = append(deals, importingDeals...)
 	if len(deals) == 0 {
 		logs.GetLogger().Info("no ongoing offline deals found")
 		return
@@ -100,7 +105,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			return
 		}
 
-		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, false, aria2AutoDeleteCarFile)
+		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
 	}
 }
 
@@ -140,11 +145,13 @@ func CorrectDealStatus(startEpoch int, minerId string, dealId uint64, onChainSta
 	}
 	if startEpoch < int(*currentEpoch)+lotusService.ExpectedSealingTime {
 		onChainStatus = "StorageDealError"
+	} else {
+		onChainStatus = ONCHAIN_DEAL_STATUS_SEALING
 	}
 	return &onChainStatus, nil
 }
 
-func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, onChainMessage string, deal *model.OfflineDeal, isImport, aria2AutoDeleteCarFile bool) {
+func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, onChainMessage string, deal *model.OfflineDeal, aria2AutoDeleteCarFile bool) {
 	if dealId > 0 {
 		status, err := CorrectDealStatus(deal.StartEpoch, minerId, dealId, *onChainStatus)
 		if err != nil {
@@ -162,14 +169,10 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 
 	switch *onChainStatus {
 	case ONCHAIN_DEAL_STATUS_ERROR:
-		if isImport {
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal is error before importing", *onChainStatus, onChainMessage)
-		} else {
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error when scan", *onChainStatus, onChainMessage)
-			if aria2AutoDeleteCarFile {
-				logs.GetLogger().Infof("dealId:%d, taskName:%s, dealCid:%s, has been %s, delete the car file, filePath:%s", dealId, *deal.TaskName, deal.DealCid, *onChainStatus, deal.FilePath)
-				DeleteDownloadedFiles(deal.FilePath)
-			}
+		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error", *onChainStatus, onChainMessage)
+		if aria2AutoDeleteCarFile {
+			logs.GetLogger().Infof("dealId:%d, taskName:%s, dealCid:%s, has been %s, delete the car file, filePath:%s", dealId, *deal.TaskName, deal.DealCid, *onChainStatus, deal.FilePath)
+			DeleteDownloadedFiles(deal.FilePath)
 		}
 	case ONCHAIN_DEAL_STATUS_ACTIVE:
 		UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", *onChainStatus, onChainMessage)
@@ -182,8 +185,11 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 	case ONCHAIN_DEAL_STATUS_NOTFOUND:
 		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal not found", *onChainStatus, onChainMessage)
 	case ONCHAIN_DEAL_STATUS_AWAITING, ONCHAIN_DEAL_STATUS_SEALING:
-		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal already imported", *onChainStatus, onChainMessage)
+		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal is sealing", *onChainStatus, onChainMessage)
 	case ONCHAIN_DEAL_STATUS_WAITTING:
+		if deal.Status == DEAL_STATUS_IMPORTING {
+			return
+		}
 		currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
 		if err != nil {
 			logs.GetLogger().Error(err)
