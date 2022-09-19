@@ -76,7 +76,12 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 	maxScanNum := LOTUS_SCAN_NUMBER
-	deals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORTED, aria2Service.MinerFid, &maxScanNum)
+	importedDeals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORTED, aria2Service.MinerFid, &maxScanNum)
+	importingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORTING, aria2Service.MinerFid, &maxScanNum)
+
+	deals := make([]*model.OfflineDeal, 0)
+	deals = append(deals, importedDeals...)
+	deals = append(deals, importingDeals...)
 	if len(deals) == 0 {
 		logs.GetLogger().Info("no ongoing offline deals found")
 		return
@@ -184,6 +189,9 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 	case ONCHAIN_DEAL_STATUS_AWAITING, ONCHAIN_DEAL_STATUS_SEALING:
 		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal already imported", *onChainStatus, onChainMessage)
 	case ONCHAIN_DEAL_STATUS_WAITTING:
+		if deal.Status == DEAL_STATUS_IMPORTING {
+			return
+		}
 		currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
 		if err != nil {
 			logs.GetLogger().Error(err)
