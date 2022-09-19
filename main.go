@@ -40,7 +40,7 @@ func printVersion() {
 }
 
 func getVersion() string {
-	return "2.1.0"
+	return "2.0.0-rc1"
 }
 
 func printUsage() {
