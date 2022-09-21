@@ -136,6 +136,7 @@ func CorrectDealStatus(startEpoch int, minerId string, dealId uint64, onChainSta
 	}
 	if dealInfo.State.SectorStartEpoch > -1 && dealInfo.State.SlashEpoch == -1 && dealInfo.Proposal.Provider == minerId {
 		onChainStatus = "StorageDealActive"
+		return &onChainStatus, err
 	}
 
 	currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
