@@ -11,7 +11,7 @@ aria2_download_dir = "%%ARIA2_DOWNLOAD_DIR%%"   # Directory where offline deal f
 aria2_host = "127.0.0.1"                        # Aria2 server address
 aria2_port = 6800                               # Aria2 server port
 aria2_secret = "my_aria2_secret"                # Must be the same value as rpc-secure in aria2.conf
-aria2_auto_delete_car_file= true                # After the deal becomes Active or Error, the CAR file will be deleted automatically
+aria2_auto_delete_car_file= false               # After the deal becomes Active or Error, the CAR file will be deleted automatically
 aria2_max_downloading_tasks = 10                # Aria2 max downloading tasks. default: 10
 
 [main]
