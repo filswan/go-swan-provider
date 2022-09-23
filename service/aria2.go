@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
@@ -150,7 +151,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_SUSPENDING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
-		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+		_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			continue
@@ -187,7 +188,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 	outDir := strings.TrimSuffix(aria2Service.DownloadDir, "/")
 	filePath := outDir + "/" + outFilename
 	if IsExist(filePath) {
-		UpdateDealInfoAndLog(deal, DEAL_STATUS_DOWNLOADED, &filePath, outFilename+", the car file already exists, skip downloading it")
+		UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
 		return
 	}
 
@@ -212,13 +213,16 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 
 func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client, swanClient *swan.SwanClient) {
 	downloadingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_DOWNLOADING, aria2Service.MinerFid, nil)
-
 	countDownloadingDeals := len(downloadingDeals)
-	if countDownloadingDeals >= ARIA2_MAX_DOWNLOADING_TASKS {
+	aria2MaxDownloadingTasks := config.GetConfig().Aria2.Aria2MaxDownloadingTasks
+	if aria2MaxDownloadingTasks <= 0 {
+		logs.GetLogger().Warning("config [aria2].aria2_max_downloading_tasks is " + strconv.Itoa(aria2MaxDownloadingTasks) + ", no CAR file will be downloaded")
+	}
+	if countDownloadingDeals >= aria2MaxDownloadingTasks {
 		return
 	}
 
-	for i := 1; i <= ARIA2_MAX_DOWNLOADING_TASKS-countDownloadingDeals; i++ {
+	for i := 1; i <= aria2MaxDownloadingTasks-countDownloadingDeals; i++ {
 		deal2Download := aria2Service.FindNextDealReady2Download(swanClient)
 		if deal2Download == nil {
 			logs.GetLogger().Info("No offline deal to download")
@@ -226,7 +230,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 		}
 
 		//logs.GetLogger().Info("deal:", deal2Download.Id, " ", deal2Download.DealCid, deal2Download)
-		onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+		_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			break
