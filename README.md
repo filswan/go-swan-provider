@@ -76,7 +76,7 @@ nohup ./swan-provider daemon >> swan-provider.log 2>&1 &
 - Logs are in directory ./logs
 - **go 1.16+** is required
   `
-## Config
+## Configuration
 - **port:** Default `8888`, web api port for extension in future
 - **release:** Default `true`, when work in release mode: set this to true, otherwise to false and enviornment variable GIN_MODE not to release
 
