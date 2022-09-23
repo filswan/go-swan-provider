@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BINARY_NAME=swan-provider-2.0.0-rc1-linux-amd64
-TAG_NAME=v2.0.0-rc1
+BINARY_NAME=swan-provider-2.0.0-linux-amd64
+TAG_NAME=v2.0.0
 URL_PREFIX=https://github.com/filswan/go-swan-provider/releases/download
 
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/${BINARY_NAME}
