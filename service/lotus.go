@@ -67,6 +67,10 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			logs.GetLogger().Error(err)
 			return
 		}
+		if onChainStatus == nil && onChainMessage == nil {
+			UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
+			continue
+		}
 		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
 
 		logs.GetLogger().Info("Sleeping...")
@@ -104,7 +108,10 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			logs.GetLogger().Error(GetLog(deal, err.Error()))
 			return
 		}
-
+		if onChainStatus == nil && onChainMessage == nil {
+			UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
+			continue
+		}
 		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
 	}
 }
