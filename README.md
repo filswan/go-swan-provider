@@ -3,8 +3,12 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/0xfilswan)](https://twitter.com/0xfilswan)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 
-- Join us on our public [discord](https://discord.com/invite/KKGhy8ZqzK) channel for news, discussions, and status updates.
-- Check out our [medium](https://filswan.medium.com) for the latest posts and announcements.
+Web3 service providers provide service for different blockchains included but not limit to Filecoin, AR, Polygon RPC service. With FilSwan service provide, we connected to web3 service market to make the web3 service offering ultimated easier.
+
+Typical Web3 markets are:
+
+* Filecoin Deal Market
+* Pocket Network RPC market(coming soon)
 
 ## Table of Contents
 
