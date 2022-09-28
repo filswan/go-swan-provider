@@ -3,8 +3,8 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/0xfilswan)](https://twitter.com/0xfilswan)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 
-- Join us on our [public discord channel](https://discord.com/invite/KKGhy8ZqzK) for news, discussions, and status updates.
-- [Check out our medium](https://filswan.medium.com) for the latest posts and announcements.
+- Join us on our public [discord](https://discord.com/invite/KKGhy8ZqzK) channel for news, discussions, and status updates.
+- Check out our [medium](https://filswan.medium.com) for the latest posts and announcements.
 
 ## Table of Contents
 
@@ -78,7 +78,7 @@ nohup ./swan-provider daemon >> swan-provider.log 2>&1 &
   `
 ## Configuration
 - **port:** Default `8888`, web api port for extension in future
-- **release:** Default `true`, when work in release mode: set this to true, otherwise to false and enviornment variable GIN_MODE not to release
+- **release:** Default `true`, when work in release mode: set this to true, otherwise to false
 
 ### [lotus]
 - **client_api_url:** Url of lotus client web api, such as: `http://[ip]:[port]/rpc/v0`, generally the `[port]` is `1234`. See [Lotus API](https://docs.filecoin.io/reference/lotus-api/)
@@ -109,10 +109,10 @@ nohup ./swan-provider daemon >> swan-provider.log 2>&1 &
 - **auto_bid_deal_per_day:** auto-bid deal limit per day for your miner defined above
 
 ## Interact with the Swan Provider
-The `./swan_provider` command allows you to interact with a running swan provider daemon.
-check the current version of your swan_provider
+The `./swan-provider` command allows you to interact with a running swan provider daemon.
+Check the current version of your swan-provider
 ```
-./swan_provider version
+./swan-provider version
 ```
 ## Common Isuse and solutions
 * My aria is not downloaded
@@ -124,7 +124,7 @@ check the current version of your swan_provider
 
 * error msg="no response from swan platform”
 
-  Please check your API endpiont is correct, it should be `https://go-swan-server.filswan.com`
+  Please check your `api_url` is correct, it should be `https://go-swan-server.filswan.com`
 ## Getting Help
 
 For usage questions or issues reach out the Swan Provider team either in the [Discord channel](http://discord.com/invite/KKGhy8ZqzK) or open a new issue here on github.
