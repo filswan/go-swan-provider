@@ -65,7 +65,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 	aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
 	for _, deal := range deals {
-		if _, ok := lotusService.importingDirs.Load(filepath.Base(deal.FilePath)); ok {
+		if _, ok := lotusService.importingDirs.Load(filepath.Dir(deal.FilePath)); ok {
 			continue
 		}
 
@@ -79,10 +79,10 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			continue
 		}
 
-		lotusService.importingDirs.Store(filepath.Base(deal.FilePath), struct{}{})
+		lotusService.importingDirs.Store(filepath.Dir(deal.FilePath), struct{}{})
 		go func(minerId string, dealId uint64, onChainStatus *string, onChainMessage string, deal *model.OfflineDeal, aria2AutoDeleteCarFile bool) {
 			UpdateSwanDealStatus(minerId, dealId, onChainStatus, onChainMessage, deal, aria2AutoDeleteCarFile)
-			lotusService.importingDirs.Delete(filepath.Base(deal.FilePath))
+			lotusService.importingDirs.Delete(filepath.Dir(deal.FilePath))
 		}(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
 	}
 }
