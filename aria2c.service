@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=%%USER%%
-Group=%%USER%%
+User=root
+Group=root
 ExecStart=/usr/bin/aria2c --enable-rpc --rpc-listen-all --conf-path=/etc/aria2/aria2.conf
 
 [Install]

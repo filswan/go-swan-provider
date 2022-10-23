@@ -3,7 +3,9 @@ package service
 import (
 	"github.com/filswan/go-swan-lib/model"
 	"os"
+	"path/filepath"
 	"swan-provider/config"
+	"sync"
 	"time"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
@@ -19,6 +21,7 @@ type LotusService struct {
 	ScanIntervalSecond   time.Duration
 	LotusMarket          *lotus.LotusMarket
 	LotusClient          *lotus.LotusClient
+	importingDirs        sync.Map
 }
 
 func GetLotusService() *LotusService {
@@ -62,6 +65,10 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 	aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
 	for _, deal := range deals {
+		if _, ok := lotusService.importingDirs.Load(filepath.Base(deal.FilePath)); ok {
+			continue
+		}
+
 		minerId, dealId, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -71,10 +78,12 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
 			continue
 		}
-		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
 
-		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(lotusService.ImportIntervalSecond)
+		lotusService.importingDirs.Store(filepath.Base(deal.FilePath), struct{}{})
+		go func(minerId string, dealId uint64, onChainStatus *string, onChainMessage string, deal *model.OfflineDeal, aria2AutoDeleteCarFile bool) {
+			UpdateSwanDealStatus(minerId, dealId, onChainStatus, onChainMessage, deal, aria2AutoDeleteCarFile)
+			lotusService.importingDirs.Delete(filepath.Base(deal.FilePath))
+		}(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
 	}
 }
 
