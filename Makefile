@@ -40,3 +40,10 @@ build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(GOBIN)/$(BINARY_NAME) -v  main.go
 build_win: test
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(GOBIN)/$(BINARY_NAME) -v  main.go
+
+build_boost:
+	git clone https://github.com/filecoin-project/boost
+	cd boost && git checkout v1.5.0
+	cd boost && make build && sudo mv boostd /usr/local/bin/
+	rm -rf boost
+.PHONY: build_boost

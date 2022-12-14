@@ -64,6 +64,7 @@ sudo systemctl restart aria2c.service            # Start Aria2
 
 BINARY_NAME=swan-provider
 
+make build_boost
 make
 chmod +x ./build/${BINARY_NAME}
 ./build/${BINARY_NAME}  daemon                       # Run swan provider
