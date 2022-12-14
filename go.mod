@@ -3,7 +3,7 @@ module swan-provider
 go 1.16
 
 require (
-	github.com/BurntSushi/toml v0.4.1
+	github.com/BurntSushi/toml v1.1.0
 	github.com/filecoin-project/go-jsonrpc v0.1.9 // indirect
 	github.com/filswan/go-swan-lib v0.2.131
 	github.com/gin-gonic/gin v1.7.4
