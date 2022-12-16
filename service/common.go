@@ -154,31 +154,38 @@ func checkLotusConfig() {
 		logs.GetLogger().Fatal("error in config")
 	}
 
-	lotusMarket := lotusService.LotusMarket
-	lotusClient := lotusService.LotusClient
-	if utils.IsStrEmpty(&lotusMarket.ApiUrl) {
-		logs.GetLogger().Fatal("please set config:lotus->market_api_url")
+	if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+		marketApiUrl := config.GetConfig().Lotus.MarketApiUrl
+		marketAccessToken := config.GetConfig().Lotus.MarketAccessToken
+
+		if utils.IsStrEmpty(&lotusService.LotusClient.ApiUrl) {
+			logs.GetLogger().Fatal("please set config:lotus->client_api_url")
+		}
+		if utils.IsStrEmpty(&marketApiUrl) {
+			logs.GetLogger().Fatal("please set config:lotus->market_api_url")
+		}
+		if utils.IsStrEmpty(&marketAccessToken) {
+			logs.GetLogger().Fatal("please set config:lotus->market_access_token")
+		}
+
+		lotusMarket, err := lotus.GetLotusMarket(marketApiUrl, marketAccessToken, lotusService.LotusClient.ApiUrl)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
+
+		lotusService.LotusMarket = lotusMarket
+		isWriteAuth, err := lotus.LotusCheckAuth(marketApiUrl, marketAccessToken, libconstants.LOTUS_AUTH_WRITE)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			logs.GetLogger().Fatal("please check config:lotus->market_api_url, lotus->market_access_token")
+		}
+		if !isWriteAuth {
+			logs.GetLogger().Fatal("market access token should have write access right")
+		}
 	}
 
-	if utils.IsStrEmpty(&lotusMarket.AccessToken) {
-		logs.GetLogger().Fatal("please set config:lotus->market_access_token")
-	}
-
-	if utils.IsStrEmpty(&lotusMarket.ClientApiUrl) {
-		logs.GetLogger().Fatal("please set config:lotus->client_api_url")
-	}
-
-	isWriteAuth, err := lotus.LotusCheckAuth(lotusMarket.ApiUrl, lotusMarket.AccessToken, libconstants.LOTUS_AUTH_WRITE)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		logs.GetLogger().Fatal("please check config:lotus->market_api_url, lotus->market_access_token")
-	}
-
-	if !isWriteAuth {
-		logs.GetLogger().Fatal("market access token should have write access right")
-	}
-
-	currentEpoch, err := lotusClient.LotusGetCurrentEpoch()
+	currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		logs.GetLogger().Fatal("please check config:lotus->client_api_url")

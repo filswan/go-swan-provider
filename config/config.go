@@ -10,12 +10,13 @@ import (
 )
 
 type Configuration struct {
-	Port    int   `toml:"port"`
-	Release bool  `toml:"release"`
-	Lotus   lotus `toml:"lotus"`
-	Aria2   aria2 `toml:"aria2"`
-	Main    main  `toml:"main"`
-	Bid     bid   `toml:"bid"`
+	Port    int    `toml:"port"`
+	Release bool   `toml:"release"`
+	Lotus   lotus  `toml:"lotus"`
+	Aria2   aria2  `toml:"aria2"`
+	Main    main   `toml:"main"`
+	Bid     bid    `toml:"bid"`
+	Market  market `toml:"market"`
 }
 
 type lotus struct {
@@ -41,6 +42,7 @@ type main struct {
 	MinerFid                 string        `toml:"miner_fid"`
 	LotusImportInterval      time.Duration `toml:"import_interval"`
 	LotusScanInterval        time.Duration `toml:"scan_interval"`
+	MarketType               string        `toml:"market_type"`
 }
 
 type bid struct {
@@ -48,6 +50,14 @@ type bid struct {
 	ExpectedSealingTime int `toml:"expected_sealing_time"`
 	StartEpoch          int `toml:"start_epoch"`
 	AutoBidDealPerDay   int `toml:"auto_bid_deal_per_day"`
+}
+type market struct {
+	FullNodeApi      string `toml:"full_node_api"`
+	MinerApiInfo     string `toml:"miner_api_info"`
+	CollateralWallet string `toml:"collateral_wallet"`
+	PublishWallet    string `toml:"publish_wallet"`
+	RpcUrl           string `toml:"rpc_url"`
+	GraphqlUrl       string `toml:"graphql_url"`
 }
 
 var config *Configuration
@@ -87,6 +97,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"aria2"},
 		{"main"},
 		{"bid"},
+		{"market"},
 
 		{"lotus", "client_api_url"},
 		{"lotus", "market_api_url"},
@@ -106,11 +117,17 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "api_key"},
 		{"main", "access_token"},
 		{"main", "api_heartbeat_interval"},
+		{"main", "market_type"},
 
 		{"bid", "bid_mode"},
 		{"bid", "expected_sealing_time"},
 		{"bid", "start_epoch"},
 		{"bid", "auto_bid_deal_per_day"},
+
+		{"market", "full_node_api"},
+		{"market", "miner_api_info"},
+		{"market", "collateral_wallet"},
+		{"market", "publish_wallet"},
 	}
 
 	for _, v := range requiredFields {

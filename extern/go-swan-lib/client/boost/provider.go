@@ -13,11 +13,11 @@ import (
 	"net/http"
 )
 
-type ProviderClient struct {
+type Client struct {
 	stub boostapi.BoostStruct
 }
 
-func NewClient(authToken, apiUrl string) (*ProviderClient, jsonrpc.ClientCloser, error) {
+func NewClient(authToken, apiUrl string) (*Client, jsonrpc.ClientCloser, error) {
 	var headers http.Header
 	if authToken != "" {
 		headers = http.Header{"Authorization": []string{"Bearer " + authToken}}
@@ -32,12 +32,12 @@ func NewClient(authToken, apiUrl string) (*ProviderClient, jsonrpc.ClientCloser,
 		return nil, nil, errors.Wrap(err, "connecting with boost failed")
 	}
 
-	return &ProviderClient{
+	return &Client{
 		stub: apiSub,
 	}, closer, nil
 }
 
-func (pc *ProviderClient) GetDealInfoByDealUuid(ctx context.Context, dealUuid string) (*model.ProviderDealState, error) {
+func (pc *Client) GetDealInfoByDealUuid(ctx context.Context, dealUuid string) (*model.ProviderDealState, error) {
 	dealUid, err := uuid.Parse(dealUuid)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("dealUuid=[%s] parse failed", dealUid))
@@ -65,7 +65,7 @@ func (pc *ProviderClient) GetDealInfoByDealUuid(ctx context.Context, dealUuid st
 	return &pds, nil
 }
 
-func (pc *ProviderClient) OfflineDealWithData(ctx context.Context, dealUuid, filePath string) (*model.ProviderDealRejectionInfo, error) {
+func (pc *Client) OfflineDealWithData(ctx context.Context, dealUuid, filePath string) (*model.ProviderDealRejectionInfo, error) {
 	dealUid, err := uuid.Parse(dealUuid)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("dealUuid=[%s] parse failed", dealUid))

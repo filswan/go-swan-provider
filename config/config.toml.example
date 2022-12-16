@@ -1,5 +1,5 @@
 port = 8888
-release = true              # when work in release mode: set this to true, otherwise to false and enviornment variable GIN_MODE not to release
+release = true                               # when work in release mode: set this to true, otherwise to false and enviornment variable GIN_MODE not to release
 
 [lotus]
 client_api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus client web api, generally the [port] is 1234
@@ -15,16 +15,25 @@ aria2_auto_delete_car_file= false               # After the deal becomes Active 
 aria2_max_downloading_tasks = 10                # Aria2 max downloading tasks. default: 10
 
 [main]
+market_type = "lotus"                           # Send deal type: lotus or boost. config(market_type) is DEPRECATION, will REMOVE SOON (default: "lotus"), If set to boost, you need to set the [market] section
 api_url = "https://go-swan-server.filswan.com"  # Swan API address. For Swan production, it is "https://go-swan-server.filswan.com"
-api_key = ""                  # Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
-access_token = ""             # Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
-miner_fid = "f0xxxx"          # Your filecoin Miner ID
-import_interval = 600         # 600 seconds or 10 minutes. Importing interval between each deal.
-scan_interval = 600           # 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
-api_heartbeat_interval = 300  # 300 seconds or 5 minutes. Time interval to send heartbeat.
+api_key = ""                                    # Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
+access_token = ""                               # Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
+miner_fid = "f0xxxx"                            # Your filecoin Miner ID
+import_interval = 600                           # 600 seconds or 10 minutes. Importing interval between each deal.
+scan_interval = 600                             # 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
+api_heartbeat_interval = 300                    # 300 seconds or 5 minutes. Time interval to send heartbeat.
 
 [bid]
 bid_mode = 1                  # 0: manual, 1: auto
 expected_sealing_time = 1920  # 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
 start_epoch = 2880            # 2880 epoch or 24 hours. Relative value to current epoch
 auto_bid_deal_per_day = 600   # auto-bid deal limit per day for your miner defined above
+
+[market]
+full_node_api = ""            # lotus api info (lotus auth api-info --perm=admin)
+miner_api_info = ""           # lotus-miner api info (lotus-miner auth api-info --perm=admin)
+collateral_wallet = ""        # wallet to be used for deal collateral
+publish_wallet = ""           # wallet to be used for PublishStorageDeals messages
+rpc_url = ""                  # boost json-rpc api
+graphql_url = ""              # graphql api

@@ -9,4 +9,12 @@ const (
 
 	UPDATE_OFFLINE_DEAL_STATUS_FAIL = "failed to update offline deal status"
 	NOT_UPDATE_OFFLINE_DEAL_STATUS  = "no need to update deal status in swan"
+
+	CHECKPOINT_ACCEPTED    = "Accepted"
+	CHECKPOINT_TRANSFERRED = "Transferred"
+	CHECKPOINT_PULISHED    = "Published"
+	CHECKPOINT_CONFIRMED   = "PublishConfirmed"
+	CHECKPOINT_ADDPIECE    = "AddedPiece"
+	CHECKPOINT_INDEX       = "IndexedAndAnnounced"
+	CHECKPOINT_COMPLETE    = "Complete"
 )

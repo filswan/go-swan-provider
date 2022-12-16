@@ -1,8 +1,14 @@
 package service
 
 import (
+	"context"
+	"fmt"
+	"github.com/filswan/go-swan-lib/client/boost"
+	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/model"
 	"os"
+	"strconv"
+	"swan-provider/common/hql"
 	"swan-provider/config"
 	"time"
 
@@ -19,6 +25,7 @@ type LotusService struct {
 	ScanIntervalSecond   time.Duration
 	LotusMarket          *lotus.LotusMarket
 	LotusClient          *lotus.LotusClient
+	MarketType           string
 }
 
 func GetLotusService() *LotusService {
@@ -31,24 +38,14 @@ func GetLotusService() *LotusService {
 		ScanIntervalSecond:   confMain.LotusScanInterval * time.Second,
 	}
 
-	marketApiUrl := config.GetConfig().Lotus.MarketApiUrl
-	marketAccessToken := config.GetConfig().Lotus.MarketAccessToken
+	lotusService.MarketType = confMain.MarketType
 	clientApiUrl := config.GetConfig().Lotus.ClientApiUrl
-	lotusMarket, err := lotus.GetLotusMarket(marketApiUrl, marketAccessToken, clientApiUrl)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil
-	}
-
-	lotusService.LotusMarket = lotusMarket
-
 	lotusClient, err := lotus.LotusGetClient(clientApiUrl, "")
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return nil
 	}
 	lotusService.LotusClient = lotusClient
-
 	return lotusService
 }
 
@@ -62,15 +59,38 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 	aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
 	for _, deal := range deals {
-		minerId, dealId, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			return
+		var onChainStatus, onChainMessage *string
+		var minerId string
+		var err error
+		var dealId uint64
+		if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+			minerId, dealId, onChainStatus, onChainMessage, err = lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			if onChainStatus == nil && onChainMessage == nil {
+				UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
+				continue
+			}
+		} else if lotusService.MarketType == libconstants.MARKET_TYPE_BOOST {
+			hqlClient, err := hql.NewClient("")
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			minerId = dealResp.Deal.GetProviderAddress()
+			dealId, err = strconv.ParseUint(dealResp.Deal.GetChainDealID().Value, 10, 64)
+			dealStatus := hql.DealStatus(dealResp.Deal.Checkpoint, dealResp.Deal.Err)
+			onChainStatus = &dealStatus
+			onChainMessage = &dealResp.Deal.Message
 		}
-		if onChainStatus == nil && onChainMessage == nil {
-			UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
-			continue
-		}
+
 		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
 
 		logs.GetLogger().Info("Sleeping...")
@@ -91,28 +111,53 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 		return
 	}
 
-	lotusDeals, err := lotusService.LotusMarket.LotusGetDeals()
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return
-	}
-
-	if len(lotusDeals) == 0 {
-		logs.GetLogger().Error("no deals returned from lotus")
-		return
-	}
-	aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
-	for _, deal := range deals {
-		minerId, dealId, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatusFromDeals(lotusDeals, deal.DealCid)
+	if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+		lotusDeals, err := lotusService.LotusMarket.LotusGetDeals()
 		if err != nil {
-			logs.GetLogger().Error(GetLog(deal, err.Error()))
+			logs.GetLogger().Error(err)
 			return
 		}
-		if onChainStatus == nil && onChainMessage == nil {
-			UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
-			continue
+		if len(lotusDeals) == 0 {
+			logs.GetLogger().Error("no deals returned from lotus")
+			return
 		}
-		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
+		aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
+		for _, deal := range deals {
+			minerId, dealId, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatusFromDeals(lotusDeals, deal.DealCid)
+			if err != nil {
+				logs.GetLogger().Error(GetLog(deal, err.Error()))
+				return
+			}
+			if onChainStatus == nil && onChainMessage == nil {
+				UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
+				continue
+			}
+			UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
+		}
+	} else {
+		aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
+		for _, deal := range deals {
+			hqlClient, err := hql.NewClient("")
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+
+			minerId := dealResp.Deal.GetProviderAddress()
+			dealId, err := strconv.ParseUint(dealResp.Deal.GetChainDealID().Value, 10, 64)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			dealStatus := hql.DealStatus(dealResp.Deal.Checkpoint, dealResp.Deal.Err)
+			onChainStatus := &dealStatus
+			UpdateSwanDealStatus(minerId, dealId, onChainStatus, dealResp.Deal.Message, deal, aria2AutoDeleteCarFile)
+		}
 	}
 }
 
@@ -210,11 +255,34 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 		}
 
 		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTING, "importing deal")
-		err = lotusService.LotusMarket.LotusImportData(deal.DealCid, deal.FilePath)
-		if err != nil { //There should be no output if everything goes well
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "import deal failed", err.Error())
-			return
+
+		if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+			err = lotusService.LotusMarket.LotusImportData(deal.DealCid, deal.FilePath)
+			if err != nil { //There should be no output if everything goes well
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "import deal failed", err.Error())
+				return
+			}
+		} else {
+			boostClient, closer, err := boost.NewClient("", "")
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			defer closer()
+			rej, err := boostClient.OfflineDealWithData(context.TODO(), deal.DealCid, deal.FilePath)
+
+			var msg string
+			if err != nil {
+				msg = fmt.Sprintf("import deal failed: %w", err.Error())
+			}
+			if rej != nil && rej.Reason != "" {
+				msg = fmt.Sprintf("offline deal %s rejected: %s", deal.DealCid, rej.Reason)
+			}
+			if msg != "" {
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, msg)
+			}
 		}
+
 		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal imported")
 	default:
 		UpdateStatusAndLog(deal, deal.Status, *onChainStatus, onChainMessage)
