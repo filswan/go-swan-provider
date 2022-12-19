@@ -6,7 +6,7 @@ import (
 	boostapi "github.com/filecoin-project/boost/api"
 	"github.com/filecoin-project/boost/storagemarket/types"
 	"github.com/filecoin-project/boost/storagemarket/types/dealcheckpoints"
-	jsonrpc "github.com/filecoin-project/go-jsonrpc"
+	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filswan/go-swan-lib/model"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"

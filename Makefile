@@ -13,13 +13,17 @@ BINARY_NAME=$(PROJECT_NAME)
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 
-.PHONY: all build clean test help
+.PHONY: all ffi build clean test help
 
 all: build
 
 test: ## Run unittests
 	@go test -short ${PKG_LIST}
 	@echo "Done testing."
+
+ffi:
+	./extern/filecoin-ffi/install-filcrypto
+.PHONY: ffi
 
 build: ## Build the binary file
 	@go mod download
