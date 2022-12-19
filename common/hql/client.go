@@ -24,11 +24,6 @@ func (c Client) GetDealByUuid(dealUuid string) (*gen.DealResponse, error) {
 	return gen.Deal(context.TODO(), c.hqlClient, dealUuid)
 }
 
-type ChainDealID struct {
-	TypeName string `json:"__typename"`
-	Value    string `json:"n"`
-}
-
 var Checkpoint = map[string]string{
 	"Accepted":            "Accepted",
 	"Transferred":         "Transferred",

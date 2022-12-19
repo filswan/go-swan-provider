@@ -4,23 +4,22 @@ package gen
 
 import (
 	"context"
-	"swan-provider/common/hql"
 
 	"github.com/Khan/genqlient/graphql"
 )
 
 // DealDeal includes the requested fields of the GraphQL type Deal.
 type DealDeal struct {
-	ID                string          `json:"ID"`
-	ProviderAddress   string          `json:"ProviderAddress"`
-	PieceCid          string          `json:"PieceCid"`
-	IsVerified        bool            `json:"IsVerified"`
-	SignedProposalCid string          `json:"SignedProposalCid"`
-	InboundFilePath   string          `json:"InboundFilePath"`
-	ChainDealID       hql.ChainDealID `json:"ChainDealID"`
-	Checkpoint        string          `json:"Checkpoint"`
-	Err               string          `json:"Err"`
-	Message           string          `json:"Message"`
+	ID                string      `json:"ID"`
+	ProviderAddress   string      `json:"ProviderAddress"`
+	PieceCid          string      `json:"PieceCid"`
+	IsVerified        bool        `json:"IsVerified"`
+	SignedProposalCid string      `json:"SignedProposalCid"`
+	InboundFilePath   string      `json:"InboundFilePath"`
+	ChainDealID       ChainDealID `json:"ChainDealID"`
+	Checkpoint        string      `json:"Checkpoint"`
+	Err               string      `json:"Err"`
+	Message           string      `json:"Message"`
 }
 
 // GetID returns DealDeal.ID, and is useful for accessing the field via an interface.
@@ -42,7 +41,7 @@ func (v *DealDeal) GetSignedProposalCid() string { return v.SignedProposalCid }
 func (v *DealDeal) GetInboundFilePath() string { return v.InboundFilePath }
 
 // GetChainDealID returns DealDeal.ChainDealID, and is useful for accessing the field via an interface.
-func (v *DealDeal) GetChainDealID() hql.ChainDealID { return v.ChainDealID }
+func (v *DealDeal) GetChainDealID() ChainDealID { return v.ChainDealID }
 
 // GetCheckpoint returns DealDeal.Checkpoint, and is useful for accessing the field via an interface.
 func (v *DealDeal) GetCheckpoint() string { return v.Checkpoint }

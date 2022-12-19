@@ -8,4 +8,4 @@ package: gen
 context_type: context.Context
 bindings:
   Uint64:
-    type: swan-provider/common/hql.ChainDealID
+    type: swan-provider/common/gen.ChainDealID
