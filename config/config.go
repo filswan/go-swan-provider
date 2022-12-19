@@ -58,6 +58,7 @@ type market struct {
 	PublishWallet    string `toml:"publish_wallet"`
 	RpcUrl           string `toml:"rpc_url"`
 	GraphqlUrl       string `toml:"graphql_url"`
+	Repo             string
 }
 
 var config *Configuration
@@ -79,6 +80,8 @@ func InitConfig() {
 			logs.GetLogger().Fatal("required fields not given")
 		}
 	}
+
+	config.Market.Repo = filepath.Join(homedir, ".swan/provider/boost")
 }
 
 func GetConfig() Configuration {

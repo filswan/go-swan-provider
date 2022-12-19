@@ -74,7 +74,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 				continue
 			}
 		} else if lotusService.MarketType == libconstants.MARKET_TYPE_BOOST {
-			hqlClient, err := hql.NewClient("")
+			hqlClient, err := hql.NewClient(config.GetConfig().Market.GraphqlUrl)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return
@@ -137,7 +137,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 	} else {
 		aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
 		for _, deal := range deals {
-			hqlClient, err := hql.NewClient("")
+			hqlClient, err := hql.NewClient(config.GetConfig().Market.GraphqlUrl)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return
@@ -263,7 +263,8 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 				return
 			}
 		} else {
-			boostClient, closer, err := boost.NewClient("", "")
+			boostClient, closer, err := boost.NewClient("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.OCxSjOxJBp_JVjj4KiBvjWxtVuWnxcUwr7W4hV5Asjg",
+				"127.0.0.1:1288")
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return

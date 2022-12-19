@@ -1,7 +1,12 @@
 package service
 
 import (
+	"context"
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"swan-provider/common/constants"
@@ -183,6 +188,18 @@ func checkLotusConfig() {
 		if !isWriteAuth {
 			logs.GetLogger().Fatal("market access token should have write access right")
 		}
+	} else if lotusService.MarketType == libconstants.MARKET_TYPE_BOOST {
+		market := config.GetConfig().Market
+		if _, err := os.Stat(market.Repo); err != nil {
+			if err := initBoost(market.Repo, market.MinerApiInfo, market.FullNodeApi, market.PublishWallet, market.CollateralWallet); err != nil {
+				logs.GetLogger().Fatal(err)
+				return
+			}
+		}
+		if err := startBoost(filepath.Join(market.Repo, "boost.log"), market.FullNodeApi); err != nil {
+			logs.GetLogger().Fatal(err)
+			return
+		}
 	}
 
 	currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
@@ -353,5 +370,49 @@ func UpdateOfflineDealStatus(swanClient *swan.SwanClient, dealId int, status str
 		return err
 	}
 
+	return nil
+}
+
+func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) error {
+	ctx, cancelFunc := context.WithTimeout(context.TODO(), 30*time.Second)
+	defer cancelFunc()
+
+	if err := exec.Command("ulimit", "-n", "1048576").Run(); err != nil {
+		logs.GetLogger().Errorf("update file descriptor limit cmd error: %s \n", err.Error())
+		return err
+	}
+
+	cmd := exec.CommandContext(ctx, "boostd",
+		fmt.Sprintf("--json --boost-repo=%s init --api-sealer=%s --api-sector-index=%s --wallet-publish-storage-deals=%s --wallet-deal-collateral=%s", repo, minerApi, minerApi, publishWallet, collatWallet))
+	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		logs.GetLogger().Errorf("init boostd cmd error: %s \n", err.Error())
+		return err
+	}
+	logs.GetLogger().Info(string(output))
+	return nil
+}
+
+func startBoost(logFile, fullNodeApi string) error {
+	ctx, cancelFunc := context.WithTimeout(context.TODO(), 30*time.Second)
+	defer cancelFunc()
+	cmd := exec.CommandContext(ctx, "boostd", "--vv", "run")
+	cmd.Env = append(os.Environ(), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
+	if logFile != "" {
+		stdout, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+		if err != nil {
+			log.Println(os.Getpid(), ": open log file error:", err)
+			return err
+		}
+		cmd.Stderr = stdout
+		cmd.Stdout = stdout
+	}
+
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
 	return nil
 }
