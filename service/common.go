@@ -376,9 +376,17 @@ func UpdateOfflineDealStatus(swanClient *swan.SwanClient, dealId int, status str
 func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) error {
 	ctx, cancelFunc := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancelFunc()
+	args := make([]string, 0)
+	args = append(args, "--vv")
+	args = append(args, "--boost-repo="+repo)
+	args = append(args, "init")
+	args = append(args, "--api-sealer="+minerApi)
+	args = append(args, "--api-sector-index="+minerApi)
+	args = append(args, "--wallet-publish-storage-deals="+publishWallet)
+	args = append(args, "--wallet-deal-collateral="+collatWallet)
+	args = append(args, "--max-staging-deals-bytes=5000000000000")
 
-	cmd := exec.CommandContext(ctx, "boostd",
-		fmt.Sprintf("--json --boost-repo=%s init --api-sealer=%s --api-sector-index=%s --wallet-publish-storage-deals=%s --wallet-deal-collateral=%s", repo, minerApi, minerApi, publishWallet, collatWallet))
+	cmd := exec.CommandContext(ctx, "boostd", args...)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
 
 	output, err := cmd.CombinedOutput()
