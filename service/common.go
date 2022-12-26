@@ -377,11 +377,6 @@ func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) 
 	ctx, cancelFunc := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancelFunc()
 
-	if err := exec.Command("ulimit", "-n", "1048576").Run(); err != nil {
-		logs.GetLogger().Errorf("update file descriptor limit cmd error: %s \n", err.Error())
-		return err
-	}
-
 	cmd := exec.CommandContext(ctx, "boostd",
 		fmt.Sprintf("--json --boost-repo=%s init --api-sealer=%s --api-sector-index=%s --wallet-publish-storage-deals=%s --wallet-deal-collateral=%s", repo, minerApi, minerApi, publishWallet, collatWallet))
 	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
