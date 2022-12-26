@@ -13,7 +13,7 @@ BINARY_UNIX=$(BINARY_NAME)_unix
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 
-.PHONY: all ffi build clean test help
+.PHONY: all build clean test help
 
 all: build
 

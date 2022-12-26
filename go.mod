@@ -14,3 +14,4 @@ require (
 )
 
 replace github.com/filswan/go-swan-lib => ./extern/go-swan-lib
+replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
