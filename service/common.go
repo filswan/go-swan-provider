@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"swan-provider/common/constants"
@@ -199,7 +198,7 @@ func checkLotusConfig() {
 			}
 			logs.GetLogger().Info("init boostd successful")
 		}
-		if err := startBoost(market.Repo, filepath.Join(market.Repo, "boost.log"), market.FullNodeApi); err != nil {
+		if err := startBoost(market.Repo, market.BoostLog, market.FullNodeApi); err != nil {
 			logs.GetLogger().Fatal(err)
 			return
 		}
@@ -410,6 +409,7 @@ func startBoost(repo, logFile, fullNodeApi string) error {
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Setsid: true,
 	}
+
 	cmd.Env = append(os.Environ(), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
 	if logFile != "" {
 		stdout, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
@@ -425,5 +425,6 @@ func startBoost(repo, logFile, fullNodeApi string) error {
 	if err != nil {
 		return err
 	}
+	println("boostd-pid: ", cmd.Process.Pid)
 	return nil
 }

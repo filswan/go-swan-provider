@@ -59,6 +59,7 @@ type market struct {
 	RpcUrl           string `toml:"rpc_url"`
 	GraphqlUrl       string `toml:"graphql_url"`
 	Repo             string
+	BoostLog         string
 }
 
 var config *Configuration
@@ -82,6 +83,8 @@ func InitConfig() {
 	}
 
 	config.Market.Repo = filepath.Join(homedir, ".swan/provider/boost")
+	config.Market.BoostLog = filepath.Join(homedir, ".swan/provider/boost.log")
+
 }
 
 func GetConfig() Configuration {
