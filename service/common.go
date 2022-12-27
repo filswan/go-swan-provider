@@ -12,6 +12,7 @@ import (
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
+	"syscall"
 	"time"
 
 	"github.com/filswan/go-swan-lib/client"
@@ -406,6 +407,9 @@ func startBoost(repo, logFile, fullNodeApi string) error {
 	args = append(args, "--boost-repo="+repo)
 	args = append(args, "run")
 	cmd := exec.CommandContext(ctx, "boostd", args...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setsid: true,
+	}
 	cmd.Env = append(os.Environ(), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
 	if logFile != "" {
 		stdout, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)

@@ -66,6 +66,7 @@ BINARY_NAME=swan-provider
 
 git submodule update --init --recursive
 make build_boost
+make ffi
 make
 chmod +x ./build/${BINARY_NAME}
 ./build/${BINARY_NAME}  daemon                       # Run swan provider
