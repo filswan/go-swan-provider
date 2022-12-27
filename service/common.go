@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
 	"os"
 	"os/exec"
@@ -195,11 +196,13 @@ func checkLotusConfig() {
 				logs.GetLogger().Fatal(err)
 				return
 			}
+			logs.GetLogger().Info("init boostd successful")
 		}
-		if err := startBoost(filepath.Join(market.Repo, "boost.log"), market.FullNodeApi); err != nil {
+		if err := startBoost(market.Repo, filepath.Join(market.Repo, "boost.log"), market.FullNodeApi); err != nil {
 			logs.GetLogger().Fatal(err)
 			return
 		}
+		logs.GetLogger().Info("start boostd successful")
 	}
 
 	currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
@@ -389,19 +392,20 @@ func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) 
 	cmd := exec.CommandContext(ctx, "boostd", args...)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
 
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		logs.GetLogger().Errorf("init boostd cmd error: %s \n", err.Error())
-		return err
+	if _, err := cmd.CombinedOutput(); err != nil {
+		return errors.Wrap(err, "init boostd failed")
 	}
-	logs.GetLogger().Info(string(output))
 	return nil
 }
 
-func startBoost(logFile, fullNodeApi string) error {
+func startBoost(repo, logFile, fullNodeApi string) error {
 	ctx, cancelFunc := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancelFunc()
-	cmd := exec.CommandContext(ctx, "boostd", "--vv", "run")
+	args := make([]string, 0)
+	args = append(args, "--vv")
+	args = append(args, "--boost-repo="+repo)
+	args = append(args, "run")
+	cmd := exec.CommandContext(ctx, "boostd", args...)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
 	if logFile != "" {
 		stdout, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
