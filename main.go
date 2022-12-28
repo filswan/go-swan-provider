@@ -34,8 +34,7 @@ func main() {
 		sigCh := make(chan os.Signal, 2)
 		signal.Notify(sigCh, syscall.SIGTERM, syscall.SIGINT)
 		service.AdminOfflineDeal()
-		createHttpServer()
-
+		go createHttpServer()
 		select {
 		case sig := <-sigCh:
 			logs.GetLogger().Warn("received shutdown", "signal", sig)
