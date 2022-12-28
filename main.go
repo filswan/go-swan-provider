@@ -37,7 +37,7 @@ func main() {
 		go createHttpServer()
 		select {
 		case sig := <-sigCh:
-			logs.GetLogger().Warn("received shutdown", "signal", sig)
+			logs.GetLogger().Warn("received shutdown", "signal: ", sig)
 			service.StopBoost(service.BoostPid)
 		}
 	default:
