@@ -198,11 +198,12 @@ func checkLotusConfig() {
 			}
 			logs.GetLogger().Info("init boostd successful")
 		}
-		if err := startBoost(market.Repo, market.BoostLog, market.FullNodeApi); err != nil {
+		boostPid, err := startBoost(market.Repo, market.BoostLog, market.FullNodeApi)
+		if err != nil {
 			logs.GetLogger().Fatal(err)
 			return
 		}
-		logs.GetLogger().Info("start boostd successful")
+		logs.GetLogger().Infof("start boostd successful, pid: %d", boostPid)
 	}
 
 	currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
@@ -398,33 +399,32 @@ func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) 
 	return nil
 }
 
-func startBoost(repo, logFile, fullNodeApi string) error {
-	ctx, cancelFunc := context.WithTimeout(context.TODO(), 30*time.Second)
-	defer cancelFunc()
+func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 	args := make([]string, 0)
+	args = append(args, "boostd")
 	args = append(args, "--vv")
 	args = append(args, "--boost-repo="+repo)
 	args = append(args, "run")
-	cmd := exec.CommandContext(ctx, "boostd", args...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setsid: true,
-	}
 
-	cmd.Env = append(os.Environ(), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
-	if logFile != "" {
-		stdout, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
-		if err != nil {
-			log.Println(os.Getpid(), ": open log file error:", err)
-			return err
-		}
-		cmd.Stderr = stdout
-		cmd.Stdout = stdout
-	}
-
-	err := cmd.Start()
+	outFile, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
-		return err
+		log.Println(err)
+		return 0, errors.Wrap(err, "open log file failed")
 	}
-	println("boostd-pid: ", cmd.Process.Pid)
-	return nil
+	boostProcess, err := os.StartProcess("/usr/local/bin/boostd", args, &os.ProcAttr{
+		Env: append(os.Environ(), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi)),
+		Sys: &syscall.SysProcAttr{
+			Setsid: true,
+		},
+		Files: []*os.File{
+			nil,
+			outFile,
+			outFile},
+	})
+
+	if err != nil {
+		log.Println(err)
+		return 0, errors.Wrap(err, "start boostd process failed")
+	}
+	return boostProcess.Pid, nil
 }
