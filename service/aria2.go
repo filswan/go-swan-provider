@@ -274,14 +274,16 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 				break
 			}
 
+			msg := hql.Message(dealResp.Deal.GetCheckpoint(), dealResp.Deal.GetErr())
+			onChainMessage = &msg
 			switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
 			case constants.CHECKPOINT_ACCEPTED:
-				*onChainStatus = ONCHAIN_DEAL_STATUS_WAITTING
-				*onChainMessage = hql.Message(dealResp.Deal.GetCheckpoint(), dealResp.Deal.GetErr())
+				wait := ONCHAIN_DEAL_STATUS_WAITTING
+				onChainStatus = &wait
 			case constants.CHECKPOINT_COMPLETE:
 				if dealResp.Deal.Err != "" {
-					*onChainStatus = DEAL_STATUS_IMPORT_FAILED
-					*onChainMessage = hql.Message(dealResp.Deal.GetCheckpoint(), dealResp.Deal.GetErr())
+					failed := DEAL_STATUS_IMPORT_FAILED
+					onChainStatus = &failed
 				}
 			}
 		}
