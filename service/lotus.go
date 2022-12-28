@@ -263,8 +263,13 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 				return
 			}
 		} else {
-			boostClient, closer, err := boost.NewClient("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.v3EvGGmUWnixGsbGvaWyYbDhSmsfDuwKbE0vlujn4JU",
-				"127.0.0.1:1288")
+			market := config.GetConfig().Market
+			boostToken, err := getBoostToken(market.Repo)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			boostClient, closer, err := boost.NewClient(boostToken, market.RpcUrl)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return

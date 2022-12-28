@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"strconv"
 	"strings"
 	"swan-provider/common/constants"
@@ -60,6 +62,8 @@ var swanClient *swan.SwanClient
 var swanService *SwanService
 var aria2Service *Aria2Service
 var lotusService *LotusService
+
+var BoostPid int
 
 func AdminOfflineDeal() {
 	swanService = GetSwanService()
@@ -204,6 +208,7 @@ func checkLotusConfig() {
 			return
 		}
 		logs.GetLogger().Infof("start boostd successful, pid: %d", boostPid)
+		BoostPid = boostPid
 	}
 
 	currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
@@ -408,7 +413,7 @@ func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 
 	outFile, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
-		log.Println(err)
+		logs.GetLogger().Error(err)
 		return 0, errors.Wrap(err, "open log file failed")
 	}
 	boostProcess, err := os.StartProcess("/usr/local/bin/boostd", args, &os.ProcAttr{
@@ -423,8 +428,26 @@ func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 	})
 
 	if err != nil {
-		log.Println(err)
+		logs.GetLogger().Error(err)
 		return 0, errors.Wrap(err, "start boostd process failed")
 	}
 	return boostProcess.Pid, nil
+}
+
+func StopBoost(pid int) {
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("sudo kill %d", pid))
+	if _, err := cmd.CombinedOutput(); err != nil {
+		logs.GetLogger().Errorf("stop boostd failed, error: %s", err.Error())
+		return
+	}
+	logs.GetLogger().Info("stop boostd successful")
+}
+
+func getBoostToken(repo string) (string, error) {
+	tokenFile, err := ioutil.ReadFile(path.Join(repo, "token"))
+	if err != nil {
+		log.Println(err)
+		return "", errors.Wrap(err, "open token file failed")
+	}
+	return string(tokenFile), nil
 }
