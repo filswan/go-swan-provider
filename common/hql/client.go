@@ -43,6 +43,7 @@ func DealStatus(checkpoint, err string) string {
 	case "PublishConfirmed":
 		return "StorageDealAwaitingPreCommit"
 	case "AddedPiece":
+		fallthrough
 	case "IndexedAndAnnounced":
 		return "StorageDealSealing"
 	case "Complete":
@@ -68,6 +69,7 @@ func Message(checkpoint, err string) string {
 	case "PublishConfirmed":
 		return "Adding to Sector"
 	case "AddedPiece":
+		fallthrough
 	case "IndexedAndAnnounced":
 		return "sealing"
 	case "Complete":
