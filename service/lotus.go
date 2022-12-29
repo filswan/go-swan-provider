@@ -225,13 +225,13 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 	case ONCHAIN_DEAL_STATUS_ERROR:
 		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error", *onChainStatus, onChainMessage)
 		if aria2AutoDeleteCarFile {
-			logs.GetLogger().Infof("dealId:%d, taskName:%s, dealCid:%s, has been %s, delete the car file, filePath:%s", dealId, *deal.TaskName, deal.DealCid, *onChainStatus, deal.FilePath)
+			logs.GetLogger().Infof("dealId:%d, taskName:%s, dealCid|dealUuid:%s, has been %s, delete the car file, filePath:%s", dealId, *deal.TaskName, deal.DealCid, *onChainStatus, deal.FilePath)
 			DeleteDownloadedFiles(deal.FilePath)
 		}
 	case ONCHAIN_DEAL_STATUS_ACTIVE:
 		UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", *onChainStatus, onChainMessage)
 		if aria2AutoDeleteCarFile {
-			logs.GetLogger().Infof("dealId:%d, taskName:%s, dealCid:%s, has been %s, delete the car file, filePath:%s", dealId, *deal.TaskName, deal.DealCid, *onChainStatus, deal.FilePath)
+			logs.GetLogger().Infof("dealId:%d, taskName:%s, dealCid|dealUuid:%s, has been %s, delete the car file, filePath:%s", dealId, *deal.TaskName, deal.DealCid, *onChainStatus, deal.FilePath)
 			DeleteDownloadedFiles(deal.FilePath)
 		}
 	case ONCHAIN_DEAL_STATUS_ACCEPT:
