@@ -39,7 +39,9 @@ func DealStatus(checkpoint, err string) string {
 	case "Accepted":
 		return "StorageDealWaitingForData"
 	case "Transferred":
+		fallthrough
 	case "Published":
+		fallthrough
 	case "PublishConfirmed":
 		return "StorageDealAwaitingPreCommit"
 	case "AddedPiece":
