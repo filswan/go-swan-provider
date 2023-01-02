@@ -8,6 +8,7 @@ import (
 	"github.com/filswan/go-swan-lib/model"
 	"os"
 	"strconv"
+	"strings"
 	"swan-provider/common/hql"
 	"swan-provider/config"
 	"time"
@@ -187,7 +188,10 @@ func CorrectDealStatus(startEpoch int, minerId string, dealId uint64, onChainSta
 		logs.GetLogger().Errorf("get market deal info by dealId failed,dealId: %d,error: %s ", dealId, err.Error())
 		return nil, err
 	}
-	if dealInfo.State.SectorStartEpoch > -1 && dealInfo.State.SlashEpoch == -1 && dealInfo.Proposal.Provider == minerId {
+	compatibleMinerId := strings.ReplaceAll(minerId, "f", "t")
+
+	if dealInfo.State.SectorStartEpoch > -1 && dealInfo.State.SlashEpoch == -1 &&
+		(dealInfo.Proposal.Provider == minerId || dealInfo.Proposal.Provider == compatibleMinerId) {
 		onChainStatus = "StorageDealActive"
 		return &onChainStatus, err
 	}
