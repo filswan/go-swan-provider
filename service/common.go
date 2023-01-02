@@ -419,8 +419,7 @@ func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 	boostProcess, err := os.StartProcess("/usr/local/bin/boostd", args, &os.ProcAttr{
 		Env: append(os.Environ(), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi)),
 		Sys: &syscall.SysProcAttr{
-			Setsid:  true,
-			Setctty: true,
+			Setsid: true,
 		},
 		Files: []*os.File{
 			nil,
