@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/filswan/go-swan-lib/client/boost"
-	libconstants "github.com/filswan/go-swan-lib/constants"
 	"github.com/filswan/go-swan-lib/model"
 	"os"
 	"strconv"
 	"strings"
+	"swan-provider/common/constants"
 	"swan-provider/common/hql"
 	"swan-provider/config"
 	"time"
@@ -64,7 +64,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 		var minerId string
 		var err error
 		var dealId uint64
-		if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+		if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
 			minerId, dealId, onChainStatus, onChainMessage, err = lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 			if err != nil {
 				logs.GetLogger().Error(err)
@@ -74,7 +74,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 				UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
 				continue
 			}
-		} else if lotusService.MarketType == libconstants.MARKET_TYPE_BOOST {
+		} else if lotusService.MarketType == constants.MARKET_TYPE_BOOST {
 			hqlClient, err := hql.NewClient(config.GetConfig().Market.GraphqlUrl)
 			if err != nil {
 				logs.GetLogger().Error(err)
@@ -112,7 +112,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 		return
 	}
 
-	if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+	if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
 		lotusDeals, err := lotusService.LotusMarket.LotusGetDeals()
 		if err != nil {
 			logs.GetLogger().Error(err)
@@ -260,7 +260,7 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 
 		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTING, "importing deal")
 
-		if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+		if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
 			err = lotusService.LotusMarket.LotusImportData(deal.DealCid, deal.FilePath)
 			if err != nil { //There should be no output if everything goes well
 				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "import deal failed", err.Error())

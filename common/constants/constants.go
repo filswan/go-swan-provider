@@ -17,4 +17,7 @@ const (
 	CHECKPOINT_ADDPIECE    = "AddedPiece"
 	CHECKPOINT_INDEX       = "IndexedAndAnnounced"
 	CHECKPOINT_COMPLETE    = "Complete"
+
+	MARKET_TYPE_LOTUS = "lotus"
+	MARKET_TYPE_BOOST = "boost"
 )

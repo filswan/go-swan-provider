@@ -31,9 +31,9 @@ start_epoch = 2880            # 2880 epoch or 24 hours. Relative value to curren
 auto_bid_deal_per_day = 600   # auto-bid deal limit per day for your miner defined above
 
 [market]
-full_node_api = ""            # lotus api info (lotus auth api-info --perm=admin)
-miner_api_info = ""           # lotus-miner api info (lotus-miner auth api-info --perm=admin)
-collateral_wallet = ""        # wallet to be used for deal collateral
-publish_wallet = ""           # wallet to be used for PublishStorageDeals messages
-rpc_url = ""                  # boost json-rpc api
-graphql_url = ""              # graphql api
+full_node_api = "[token]:/ip4/[ip]/tcp/1234/http"       # lotus api info (lotus auth api-info --perm=admin)
+miner_api_info = "[token]:/ip4/[ip]/tcp/2345/http"      # lotus-miner api info (lotus-miner auth api-info --perm=admin)
+collateral_wallet = ""                                  # wallet to be used for deal collateral
+publish_wallet = ""                                     # wallet to be used for PublishStorageDeals messages
+rpc_url = "127.0.0.1:1288"                              # boost json-rpc api
+graphql_url = "http://127.0.0.1:8080/graphql/query"     # graphql api

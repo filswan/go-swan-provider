@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	libconstants "github.com/filswan/go-swan-lib/constants"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -153,7 +152,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_SUSPENDING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
-		if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+		if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
 			_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 			if err != nil {
 				logs.GetLogger().Error(err)
@@ -255,13 +254,13 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 
 		var onChainStatus, onChainMessage *string
 		var err error
-		if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+		if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
 			_, _, onChainStatus, onChainMessage, err = lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				break
 			}
-		} else if lotusService.MarketType == libconstants.MARKET_TYPE_BOOST {
+		} else if lotusService.MarketType == constants.MARKET_TYPE_BOOST {
 			hqlClient, err := hql.NewClient(config.GetConfig().Market.GraphqlUrl)
 			if err != nil {
 				logs.GetLogger().Error(err)

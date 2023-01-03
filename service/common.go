@@ -164,7 +164,7 @@ func checkLotusConfig() {
 		logs.GetLogger().Fatal("error in config")
 	}
 
-	if lotusService.MarketType == libconstants.MARKET_TYPE_LOTUS {
+	if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
 		marketApiUrl := config.GetConfig().Lotus.MarketApiUrl
 		marketAccessToken := config.GetConfig().Lotus.MarketAccessToken
 
@@ -193,7 +193,7 @@ func checkLotusConfig() {
 		if !isWriteAuth {
 			logs.GetLogger().Fatal("market access token should have write access right")
 		}
-	} else if lotusService.MarketType == libconstants.MARKET_TYPE_BOOST {
+	} else if lotusService.MarketType == constants.MARKET_TYPE_BOOST {
 		market := config.GetConfig().Market
 		if _, err := os.Stat(market.Repo); err != nil {
 			if err := initBoost(market.Repo, market.MinerApiInfo, market.FullNodeApi, market.PublishWallet, market.CollateralWallet); err != nil {
