@@ -157,7 +157,6 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			}
 			dealStatus := hql.DealStatus(dealResp.Deal.Checkpoint, dealResp.Deal.Err)
 			onChainStatus := &dealStatus
-			logs.GetLogger().Infof("dealuuid: %s, dealStatus: %s, deal: %+v", dealResp.Deal.ID, dealStatus, dealResp.Deal)
 			UpdateSwanDealStatus(minerId, dealId, onChainStatus, dealResp.Deal.Message, deal, aria2AutoDeleteCarFile)
 		}
 	}
