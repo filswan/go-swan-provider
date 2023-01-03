@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
 	"strconv"
 	"swan-provider/common"
 	"swan-provider/common/constants"
 	"swan-provider/config"
 	"swan-provider/routers"
 	"swan-provider/service"
+	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,8 +31,15 @@ func main() {
 	case "version":
 		printVersion()
 	case "daemon":
+		sigCh := make(chan os.Signal, 2)
+		signal.Notify(sigCh, syscall.SIGTERM, syscall.SIGINT)
 		service.AdminOfflineDeal()
-		createHttpServer()
+		go createHttpServer()
+		select {
+		case sig := <-sigCh:
+			logs.GetLogger().Warn("received shutdown signal: ", sig)
+			service.StopBoost(service.BoostPid)
+		}
 	default:
 		printUsage()
 	}
