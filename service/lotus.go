@@ -6,11 +6,13 @@ import (
 	"github.com/filswan/go-swan-lib/client/boost"
 	"github.com/filswan/go-swan-lib/model"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/common/hql"
 	"swan-provider/config"
+	"sync"
 	"time"
 
 	"github.com/filswan/go-swan-lib/client/lotus"
@@ -26,6 +28,7 @@ type LotusService struct {
 	ScanIntervalSecond   time.Duration
 	LotusMarket          *lotus.LotusMarket
 	LotusClient          *lotus.LotusClient
+	importingDirs        sync.Map
 	MarketType           string
 }
 
@@ -60,6 +63,10 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 	aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
 	for _, deal := range deals {
+		if _, ok := lotusService.importingDirs.Load(filepath.Dir(deal.FilePath)); ok {
+			continue
+		}
+
 		var onChainStatus, onChainMessage *string
 		var minerId string
 		var err error
@@ -92,10 +99,11 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			onChainMessage = &dealResp.Deal.Message
 		}
 
-		UpdateSwanDealStatus(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
-
-		logs.GetLogger().Info("Sleeping...")
-		time.Sleep(lotusService.ImportIntervalSecond)
+		lotusService.importingDirs.Store(filepath.Dir(deal.FilePath), struct{}{})
+		go func(minerId string, dealId uint64, onChainStatus *string, onChainMessage string, deal *model.OfflineDeal, aria2AutoDeleteCarFile bool) {
+			UpdateSwanDealStatus(minerId, dealId, onChainStatus, onChainMessage, deal, aria2AutoDeleteCarFile)
+			lotusService.importingDirs.Delete(filepath.Dir(deal.FilePath))
+		}(minerId, dealId, onChainStatus, *onChainMessage, deal, aria2AutoDeleteCarFile)
 	}
 }
 
@@ -232,7 +240,11 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 			DeleteDownloadedFiles(deal.FilePath)
 		}
 	case ONCHAIN_DEAL_STATUS_ACTIVE:
-		UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", *onChainStatus, onChainMessage)
+		if lotusService.MarketType == constants.MARKET_TYPE_BOOST {
+			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", *onChainStatus)
+		} else {
+			UpdateStatusAndLog(deal, DEAL_STATUS_ACTIVE, "deal has been completed", *onChainStatus, onChainMessage)
+		}
 		if aria2AutoDeleteCarFile {
 			logs.GetLogger().Infof("dealId:%d, taskName:%s, dealCid|dealUuid:%s, has been %s, delete the car file, filePath:%s", dealId, *deal.TaskName, deal.DealCid, *onChainStatus, deal.FilePath)
 			DeleteDownloadedFiles(deal.FilePath)

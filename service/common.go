@@ -86,6 +86,7 @@ func AdminOfflineDeal() {
 
 func SetAndCheckAria2Config() *client.Aria2Client {
 	aria2DownloadDir := config.GetConfig().Aria2.Aria2DownloadDir
+	aria2CandidateDirs := config.GetConfig().Aria2.Aria2CandidateDirs
 	aria2Host := config.GetConfig().Aria2.Aria2Host
 	aria2Port := config.GetConfig().Aria2.Aria2Port
 	aria2Secret := config.GetConfig().Aria2.Aria2Secret
@@ -94,6 +95,13 @@ func SetAndCheckAria2Config() *client.Aria2Client {
 	if !utils.IsDirExists(aria2DownloadDir) {
 		err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_download_dir", aria2DownloadDir)
 		logs.GetLogger().Fatal(err)
+	}
+
+	for _, dir := range aria2CandidateDirs {
+		if !utils.IsDirExists(dir) {
+			err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_candidate_dirs", dir)
+			logs.GetLogger().Fatal(err)
+		}
 	}
 
 	if len(aria2Host) == 0 {
