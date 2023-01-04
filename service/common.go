@@ -448,6 +448,9 @@ func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 }
 
 func StopBoost(pid int) {
+	if pid == 0 {
+		return
+	}
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("sudo kill %d", pid))
 	if _, err := cmd.CombinedOutput(); err != nil {
 		logs.GetLogger().Errorf("stop boostd failed, error: %s", err.Error())
