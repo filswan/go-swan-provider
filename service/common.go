@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"
@@ -69,6 +70,10 @@ func AdminOfflineDeal() {
 	swanService = GetSwanService()
 	aria2Service = GetAria2Service()
 	lotusService = GetLotusService()
+
+	if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
+		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_tye=“boost”]"))
+	}
 
 	aria2Client = SetAndCheckAria2Config()
 	swanClient = SetAndCheckSwanConfig()
