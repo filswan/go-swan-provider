@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BINARY_NAME=swan-provider-2.0.0-linux-amd64
-TAG_NAME=v2.0.0
+BINARY_NAME=swan-provider-2.1.0-rc1-linux-amd64
+TAG_NAME=v2.1.0-rc1
 URL_PREFIX=https://github.com/filswan/go-swan-provider/releases/download
 
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/${BINARY_NAME}
@@ -10,6 +10,11 @@ wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/aria2c.service
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/config.toml.example
 
 CONF_FILE_DIR=${HOME}/.swan/provider
+SWAN_PATH=$(echo ${SWAN_PATH})
+if [ -n "$SWAN_PATH" ]; then
+  CONF_FILE_DIR=$SWAN_PATH/provider
+fi
+
 mkdir -p ${CONF_FILE_DIR}
 
 CONF_FILE_PATH=${CONF_FILE_DIR}/config.toml
