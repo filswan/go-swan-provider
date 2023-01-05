@@ -1,6 +1,11 @@
 #!/bin/bash
 
+SWAN_PATH=$(echo ${SWAN_PATH})
 CONF_FILE_DIR=${HOME}/.swan/provider
+
+if [ -n "$SWAN_PATH" ]; then
+  CONF_FILE_DIR=$SWAN_PATH/provider
+fi
 
 if [ ! -d "${CONF_FILE_DIR}" ]; then
     mkdir -p ${CONF_FILE_DIR}

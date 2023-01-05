@@ -44,7 +44,6 @@ type main struct {
 	LotusImportInterval      time.Duration `toml:"import_interval"`
 	LotusScanInterval        time.Duration `toml:"scan_interval"`
 	MarketVersion            string        `toml:"market_version"`
-	SwanRepoPath             string        `toml:"swan_repo_path"`
 }
 
 type bid struct {
@@ -131,7 +130,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "access_token"},
 		{"main", "api_heartbeat_interval"},
 		{"main", "market_version"},
-		{"main", "swan_repo_path"},
 
 		{"bid", "bid_mode"},
 		{"bid", "expected_sealing_time"},
