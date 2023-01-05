@@ -44,6 +44,7 @@ type main struct {
 	LotusImportInterval      time.Duration `toml:"import_interval"`
 	LotusScanInterval        time.Duration `toml:"scan_interval"`
 	MarketVersion            string        `toml:"market_version"`
+	SwanRepoPath             string        `toml:"swan_repo_path"`
 }
 
 type bid struct {
@@ -66,12 +67,19 @@ type market struct {
 var config *Configuration
 
 func InitConfig() {
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		logs.GetLogger().Fatal("Cannot get home directory.")
+	swanPath, exist := os.LookupEnv("SWAN_PATH")
+	var basePath, configFile string
+	if exist {
+		configFile = filepath.Join(swanPath, "provider/config.toml")
+		basePath = filepath.Join(swanPath, "provider")
+	} else {
+		homedir, err := os.UserHomeDir()
+		if err != nil {
+			logs.GetLogger().Fatal("Cannot get home directory.")
+		}
+		configFile = filepath.Join(homedir, ".swan/provider/config.toml")
+		basePath = filepath.Join(homedir, ".swan/provider")
 	}
-
-	configFile := filepath.Join(homedir, ".swan/provider/config.toml")
 
 	logs.GetLogger().Info("Your config file is:", configFile)
 
@@ -82,10 +90,8 @@ func InitConfig() {
 			logs.GetLogger().Fatal("required fields not given")
 		}
 	}
-
-	config.Market.Repo = filepath.Join(homedir, ".swan/provider/boost")
-	config.Market.BoostLog = filepath.Join(homedir, ".swan/provider/boost.log")
-
+	config.Market.Repo = filepath.Join(basePath, "boost")
+	config.Market.BoostLog = filepath.Join(basePath, "boost.log")
 }
 
 func GetConfig() Configuration {
@@ -125,6 +131,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "access_token"},
 		{"main", "api_heartbeat_interval"},
 		{"main", "market_version"},
+		{"main", "swan_repo_path"},
 
 		{"bid", "bid_mode"},
 		{"bid", "expected_sealing_time"},
