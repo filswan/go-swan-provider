@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -152,7 +153,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_SUSPENDING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
-		if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
+		if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
 			_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 			if err != nil {
 				logs.GetLogger().Error(err)
@@ -176,18 +177,41 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 				logs.GetLogger().Error(err)
 				continue
 			}
-			dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
-			}
 
-			switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
-			case constants.CHECKPOINT_ACCEPTED:
-				UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", dealResp.Deal.Checkpoint, dealResp.Deal.Message)
-			case constants.CHECKPOINT_COMPLETE:
-				if dealResp.Deal.Err != "" {
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", dealResp.Deal.Err)
+			if _, err := uuid.Parse(deal.DealCid); err == nil {
+				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
+				switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
+				case constants.CHECKPOINT_ACCEPTED:
+					UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", dealResp.Deal.Checkpoint, dealResp.Deal.Message)
+				case constants.CHECKPOINT_COMPLETE:
+					if dealResp.Deal.Err != "" {
+						UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", dealResp.Deal.Err)
+					}
+				}
+			} else {
+				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
+
+				var onChainStatus, onChainMessage *string
+				onChainStatus = &dealResp.LegacyDeal.Status
+				onChainMessage = &dealResp.LegacyDeal.Message
+				if onChainStatus == nil {
+					logs.GetLogger().Info("not found the deal on the chain", *deal.TaskName+":"+deal.DealCid)
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
+					continue
+				}
+
+				if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+					UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", *onChainStatus, *onChainMessage)
+				} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", *onChainMessage)
 				}
 			}
 		}
@@ -254,36 +278,48 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 
 		var onChainStatus, onChainMessage *string
 		var err error
-		if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
+		if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
 			_, _, onChainStatus, onChainMessage, err = lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				break
 			}
-		} else if lotusService.MarketType == constants.MARKET_TYPE_BOOST {
+		} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
 			hqlClient, err := hql.NewClient(config.GetConfig().Market.GraphqlUrl)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				break
 			}
 			logs.GetLogger().Infof("taskname: %s,deal2Download: %+v", *deal2Download.TaskName, deal2Download)
-			dealResp, err := hqlClient.GetDealByUuid(deal2Download.DealCid)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				break
-			}
 
-			msg := hql.Message(dealResp.Deal.GetCheckpoint(), dealResp.Deal.GetErr())
-			onChainMessage = &msg
-			switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
-			case constants.CHECKPOINT_ACCEPTED:
-				wait := ONCHAIN_DEAL_STATUS_WAITTING
-				onChainStatus = &wait
-			case constants.CHECKPOINT_COMPLETE:
-				if dealResp.Deal.Err != "" {
-					failed := DEAL_STATUS_IMPORT_FAILED
-					onChainStatus = &failed
+			if _, err := uuid.Parse(deal2Download.DealCid); err == nil {
+				dealResp, err := hqlClient.GetDealByUuid(deal2Download.DealCid)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					break
 				}
+
+				msg := hql.Message(dealResp.Deal.GetCheckpoint(), dealResp.Deal.GetErr())
+				onChainMessage = &msg
+				switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
+				case constants.CHECKPOINT_ACCEPTED:
+					wait := ONCHAIN_DEAL_STATUS_WAITTING
+					onChainStatus = &wait
+				case constants.CHECKPOINT_COMPLETE:
+					if dealResp.Deal.Err != "" {
+						failed := DEAL_STATUS_IMPORT_FAILED
+						onChainStatus = &failed
+					}
+				}
+
+			} else {
+				dealResp, err := hqlClient.GetProposalCid(deal2Download.DealCid)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
+				onChainStatus = &dealResp.LegacyDeal.Status
+				onChainMessage = &dealResp.LegacyDeal.Message
 			}
 		}
 

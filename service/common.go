@@ -71,8 +71,8 @@ func AdminOfflineDeal() {
 	aria2Service = GetAria2Service()
 	lotusService = GetLotusService()
 
-	if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
-		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_tye=“boost”]"))
+	if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
+		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_version=“2.0”]"))
 	}
 
 	aria2Client = SetAndCheckAria2Config()
@@ -169,7 +169,7 @@ func checkLotusConfig() {
 		logs.GetLogger().Fatal("error in config")
 	}
 
-	if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
+	if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
 		marketApiUrl := config.GetConfig().Lotus.MarketApiUrl
 		marketAccessToken := config.GetConfig().Lotus.MarketAccessToken
 
@@ -198,7 +198,7 @@ func checkLotusConfig() {
 		if !isWriteAuth {
 			logs.GetLogger().Fatal("market access token should have write access right")
 		}
-	} else if lotusService.MarketType == constants.MARKET_TYPE_BOOST {
+	} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
 		market := config.GetConfig().Market
 		if _, err := os.Stat(market.Repo); err != nil {
 			if err := initBoost(market.Repo, market.MinerApiInfo, market.FullNodeApi, market.PublishWallet, market.CollateralWallet); err != nil {
@@ -440,6 +440,9 @@ func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 }
 
 func StopBoost(pid int) {
+	if pid == 0 {
+		return
+	}
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("sudo kill %d", pid))
 	if _, err := cmd.CombinedOutput(); err != nil {
 		logs.GetLogger().Errorf("stop boostd failed, error: %s", err.Error())
