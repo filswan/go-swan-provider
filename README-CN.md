@@ -3,8 +3,12 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/0xfilswan)](https://twitter.com/0xfilswan)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 
-- 加入FilSwan的[Slack](https://filswan.slack.com)频道，了解新闻、讨论和状态更新。 
-- 查看FilSwan的[Medium](https://filswan.medium.com)，获取最新动态和公告。
+`Web3 service providers`提供多种区块链服务，包括但不限于Filecoin、AR和Polygon的RPC服务。 通过FilSwan服务的提供, 我们可以连接到web3服务市场，使web3服务的提供变的更容易。
+典型的Web3市场有:
+
+ - Filecoin 网络的数据订单市场
+ - Pocket 网络的RPC市场(即将实现···)
+
 
 ## 目录
 

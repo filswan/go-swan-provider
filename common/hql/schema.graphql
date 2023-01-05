@@ -1,0 +1,433 @@
+schema {
+  query: RootQuery
+  subscription: RootSubscription
+  mutation: RootMutation
+}
+
+"""
+The `Time` scalar type represents a DateTime. The DateTime is serialized as an RFC 3339 quoted string
+"""
+scalar Time
+
+"""
+The `Uint64` scalar type represents a uint64.
+"""
+scalar Uint64
+
+"""
+The `BigInt` scalar type represents a big integer.
+"""
+scalar BigInt
+
+type EpochInfo {
+  Epoch: Uint64!
+  SecondsPerEpoch: Int!
+}
+
+type TransferParams {
+  Type: String!
+  Size: Uint64!
+  Params: String!
+  ClientID: String!
+}
+
+type Sector {
+  ID: Uint64!
+  Offset: Uint64!
+  Length: Uint64!
+}
+
+type Deal {
+  ID: ID!
+  ClientAddress: String!
+  ProviderAddress: String!
+  CreatedAt: Time!
+  PieceCid: String!
+  PieceSize: Uint64!
+  IsVerified: Boolean!
+  ProposalLabel: String!
+  ProviderCollateral: Uint64!
+  ClientCollateral: Uint64!
+  StoragePricePerEpoch: Uint64!
+  StartEpoch: Uint64!
+  EndEpoch: Uint64!
+  ClientPeerID: String!
+  DealDataRoot: String!
+  SignedProposalCid: String!
+  InboundFilePath: String!
+  ChainDealID: Uint64!
+  PublishCid: String!
+  IsOffline: Boolean!
+  Transfer: TransferParams!
+  TransferSamples: [TransferPoint]!
+  IsTransferStalled: Boolean!
+  Checkpoint: String!
+  CheckpointAt: Time!
+  Err: String!
+  Retry: String!
+  Transferred: Uint64!
+  Sector: Sector!
+  Message: String!
+  Logs: [DealLog]!
+}
+
+type LegacyDeal {
+  ID: ID!
+  ClientAddress: String!
+  ProviderAddress: String!
+  CreatedAt: Time!
+  PieceCid: String!
+  PiecePath: String!
+  PieceSize: Uint64!
+  ProviderCollateral: Uint64!
+  StartEpoch: Uint64!
+  EndEpoch: Uint64!
+  ClientPeerID: String!
+  DealDataRoot: String!
+  PublishCid: String!
+  TransferType: String!
+  Transferred: Uint64!
+  TransferSize: Uint64!
+  TransferChannelID: String
+  Status: String!
+  SectorNumber: Uint64!
+  Message: String!
+  AvailableForRetrieval: Boolean!
+  FundsReserved: Uint64!
+  ChainDealID: Uint64!
+  InboundCARPath: String!
+}
+
+type DealBasic {
+  ID: ID!
+  IsLegacy: Boolean!
+  ClientAddress: String!
+  ProviderAddress: String!
+  CreatedAt: Time!
+  PieceCid: String!
+  PieceSize: Uint64!
+  ProviderCollateral: Uint64!
+  StartEpoch: Uint64!
+  EndEpoch: Uint64!
+  ClientPeerID: String!
+  DealDataRoot: String!
+  PublishCid: String!
+  Transfer: TransferParams!
+  Message: String!
+}
+
+type DealList {
+  totalCount: Int!
+  deals: [Deal]!
+  more: Boolean!
+}
+
+type DealNew {
+  totalCount: Int!
+  deal: Deal!
+}
+
+type LegacyDealList {
+  totalCount: Int!
+  more: Boolean!
+  deals: [LegacyDeal]!
+}
+
+type DealLog {
+  DealUUID: ID!
+  CreatedAt: Time!
+  LogLevel: String!
+  LogMsg: String!
+  LogParams: String!
+  Subsystem: String!
+}
+
+type IndexStatus {
+  Status: String!
+  Error: String!
+}
+
+type SealStatus {
+  IsUnsealed: Boolean!
+  Error: String!
+}
+
+type PieceDeal {
+  SealStatus: SealStatus!
+  Deal: DealBasic!
+  Sector: Sector!
+}
+
+type PieceInfoDeal {
+  ChainDealID: Uint64!
+  Sector: Sector!
+  SealStatus: SealStatus!
+}
+
+type PieceStatus {
+  PieceCid: String!
+  IndexStatus: IndexStatus!
+  Deals: [PieceDeal]!
+  PieceInfoDeals: [PieceInfoDeal]!
+}
+
+type ProposalLog {
+  DealUUID: ID!
+  Accepted: Boolean!
+  Reason: String!
+  CreatedAt: Time!
+  ClientAddress: String!
+  PieceSize: Uint64!
+}
+
+type ProposalLogsList {
+  totalCount: Int!
+  logs: [ProposalLog]!
+  more: Boolean!
+}
+
+type ProposalLogsCount {
+  Accepted: Int!
+  Rejected: Int!
+  Period: Uint64!
+}
+
+type Storage {
+  Staged: Uint64!
+  Transferred: Uint64!
+  Pending: Uint64!
+  Free: Uint64!
+  MountPoint: String!
+}
+
+type LegacyStorage {
+  Capacity: Uint64!
+  Used: Uint64!
+  MountPoint: String!
+}
+
+type WaitDeal {
+  ID: ID!
+  Size: Uint64!
+  IsLegacy: Boolean!
+}
+
+type WaitDealsSector {
+  SectorID: Uint64!
+  Deals: [WaitDeal]!
+  Used: Uint64!
+  SectorSize: Uint64!
+}
+
+type SectorState {
+  Key: String!
+  Value: Int!
+  Order: Int!
+}
+
+type Worker {
+  ID: String!
+  Start: Time!
+  Stage: String!
+  Sector: Int!
+}
+
+type SectorStates {
+  Regular: [SectorState]!
+  RegularError: [SectorState]!
+  SnapDeals: [SectorState]!
+  SnapDealsError: [SectorState]!
+}
+
+type SealingPipeline {
+  WaitDealsSectors: [WaitDealsSector]!
+  SnapDealsWaitDealsSectors: [WaitDealsSector]!
+  SectorStates: SectorStates!
+  Workers: [Worker]!
+}
+
+type FundsEscrow {
+  Available: BigInt!
+  Locked: BigInt!
+  Tagged: BigInt!
+}
+
+type FundsWallet {
+  Address: String!
+  Balance: BigInt!
+  Tagged: BigInt!
+}
+
+type Funds {
+  Escrow: FundsEscrow!
+  Collateral: FundsWallet!
+  PubMsg: FundsWallet!
+}
+
+type FundsLogList {
+  totalCount: Int!
+  logs: [FundsLog]!
+  more: Boolean!
+}
+
+type FundsLog {
+  DealUUID: ID!
+  CreatedAt: Time!
+  Amount: BigInt!
+  Text: String!
+}
+
+type DealPublish {
+  Period: Int!
+  Start: Time!
+  MaxDealsPerMsg: Int!
+  Deals: [DealBasic]!
+}
+
+type TransferPoint {
+  At: Time!
+  Bytes: Uint64!
+}
+
+type HostStats {
+  Host: String!
+  Total: Int!
+  Started: Int!
+  Stalled: Int!
+  TransferSamples: [TransferPoint]!
+}
+
+type TransferStats {
+  HttpMaxConcurrentDownloads: Int!
+  Stats: [HostStats]!
+}
+
+type MpoolMessage {
+  From: String!
+  To: String!
+  Nonce: Uint64!
+  Value: BigInt!
+  GasFeeCap: BigInt!
+  GasLimit: Uint64!
+  GasPremium: BigInt!
+  Method: String!
+  Params: String!
+  BaseFee: BigInt!
+}
+
+type Libp2pAddrInfo {
+  Addresses: [String]!
+  PeerID: String!
+  Protocols: [String]!
+}
+
+type StorageAsk {
+  Price: BigInt!
+  VerifiedPrice: BigInt!
+  MinPieceSize: Uint64!
+  MaxPieceSize: Uint64!
+  ExpiryEpoch: Uint64!
+  ExpiryTime: Time!
+}
+
+input StorageAskUpdate {
+  Price: BigInt
+  VerifiedPrice: BigInt
+  MinPieceSize: Uint64
+  MaxPieceSize: Uint64
+}
+
+type RootQuery {
+  """Get height of chain"""
+  epoch: EpochInfo!
+
+  """Get Deal by ID"""
+  deal(id: ID!): Deal
+
+  """Get Deal made with legacy markets endpoint by ID"""
+  legacyDeal(id: ID!): LegacyDeal
+
+  """Get all Deals"""
+  deals(query: String, cursor: ID, offset: Int, limit: Int): DealList!
+
+  """Get all Deals made with legacy markets endpoint"""
+  legacyDeals(query: String, cursor: ID, offset: Int, limit: Int): LegacyDealList!
+
+  """Get the total number of deals"""
+  dealsCount: Int!
+
+  """Get the total number of deals made with legacy markets endpoint"""
+  legacyDealsCount: Int!
+
+  """Get deal proposal logs"""
+  proposalLogs(accepted: Boolean, cursor: BigInt, offset: Int, limit: Int): ProposalLogsList!
+
+  """Get the number of accepted and rejected deal proposal logs"""
+  proposalLogsCount: ProposalLogsCount!
+
+  """Get information about a piece from the piece store, DAG store and database"""
+  pieceStatus(pieceCid: String!): PieceStatus!
+
+  """Get the pieces that contain a particular payload CID"""
+  piecesWithPayloadCid(payloadCid: String!): [String!]!
+
+  """Get storage space usage"""
+  storage: Storage!
+
+  """Get storage space usage of deals made with legacy markets endpoint"""
+  legacyStorage: LegacyStorage!
+
+  """Get sealing pipeline state"""
+  sealingpipeline: SealingPipeline!
+
+  """Get funds available"""
+  funds: Funds!
+
+  """Get log of fund transactions"""
+  fundsLogs(cursor: BigInt, offset: Int, limit: Int): FundsLogList!
+
+  """Get information about deals that are pending being published"""
+  dealPublish: DealPublish!
+
+  """Get ongoing transfers"""
+  transfers: [TransferPoint]!
+
+  """Get stats about queued / active transfers"""
+  transferStats: TransferStats!
+
+  """Get local messages in the mpool"""
+  mpool(local: Boolean!): [MpoolMessage]!
+
+  """Get libp2p addresses and peer id"""
+  libp2pAddrInfo: Libp2pAddrInfo!
+
+  """Get storage ask (price of doing a storage deal)"""
+  storageAsk: StorageAsk!
+}
+
+type RootMutation {
+  """Cancel a Deal"""
+  dealCancel(id: ID!): ID!
+
+  """Retry a Deal that was paused because of an error"""
+  dealRetryPaused(id: ID!): ID!
+
+  """Fail a Deal that was paused because of an error"""
+  dealFailPaused(id: ID!): ID!
+
+  """Publish all pending deals now"""
+  dealPublishNow: Boolean!
+
+  """Top-up the available deal collateral in escrow for deal publishing"""
+  fundsMoveToEscrow(amount: BigInt!): Boolean!
+
+  """Update the Storage Ask (price of doing a storage deal)"""
+  storageAskUpdate(update: StorageAskUpdate!): Boolean!
+}
+
+type RootSubscription {
+  """Subscribe to Deal updates by ID"""
+  dealUpdate(id: ID!): Deal
+  """Subscribe to new Deals"""
+  dealNew: DealNew
+}
