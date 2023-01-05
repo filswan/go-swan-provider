@@ -21,14 +21,16 @@ import (
 )
 
 type Aria2Service struct {
-	MinerFid    string
-	DownloadDir string
+	MinerFid      string
+	DownloadDir   string
+	CandidateDirs []string
 }
 
 func GetAria2Service() *Aria2Service {
 	aria2Service := &Aria2Service{
-		MinerFid:    config.GetConfig().Main.MinerFid,
-		DownloadDir: config.GetConfig().Aria2.Aria2DownloadDir,
+		MinerFid:      config.GetConfig().Main.MinerFid,
+		DownloadDir:   config.GetConfig().Aria2.Aria2DownloadDir,
+		CandidateDirs: config.GetConfig().Aria2.Aria2CandidateDirs,
 	}
 
 	_, err := os.Stat(aria2Service.DownloadDir)
@@ -36,6 +38,15 @@ func GetAria2Service() *Aria2Service {
 		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
 		logs.GetLogger().Error("Your download directory:", aria2Service.DownloadDir, " not exists.")
 		logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
+	}
+
+	for _, dir := range aria2Service.CandidateDirs {
+		_, err := os.Stat(dir)
+		if err != nil {
+			logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
+			logs.GetLogger().Error("Your download directory:", dir, " not exists.")
+			logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
+		}
 	}
 
 	return aria2Service
@@ -232,11 +243,21 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 		outFilename = filepath.Join(urlInfo.Path, outFilename)
 	}
 	_, outFilename = filepath.Split(outFilename)
+
 	outDir := strings.TrimSuffix(aria2Service.DownloadDir, "/")
 	filePath := outDir + "/" + outFilename
 	if IsExist(filePath) {
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
 		return
+	}
+
+	for _, dir := range aria2Service.CandidateDirs {
+		outDir = strings.TrimSuffix(dir, "/")
+		filePath = outDir + "/" + outFilename
+		if IsExist(filePath) {
+			UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
+			return
+		}
 	}
 
 	aria2Download := aria2Client.DownloadFile(deal.CarFileUrl, outDir, outFilename)
