@@ -66,12 +66,19 @@ type market struct {
 var config *Configuration
 
 func InitConfig() {
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		logs.GetLogger().Fatal("Cannot get home directory.")
+	swanPath, exist := os.LookupEnv("SWAN_PATH")
+	var basePath, configFile string
+	if exist {
+		configFile = filepath.Join(swanPath, "provider/config.toml")
+		basePath = filepath.Join(swanPath, "provider")
+	} else {
+		homedir, err := os.UserHomeDir()
+		if err != nil {
+			logs.GetLogger().Fatal("Cannot get home directory.")
+		}
+		configFile = filepath.Join(homedir, ".swan/provider/config.toml")
+		basePath = filepath.Join(homedir, ".swan/provider")
 	}
-
-	configFile := filepath.Join(homedir, ".swan/provider/config.toml")
 
 	logs.GetLogger().Info("Your config file is:", configFile)
 
@@ -82,10 +89,8 @@ func InitConfig() {
 			logs.GetLogger().Fatal("required fields not given")
 		}
 	}
-
-	config.Market.Repo = filepath.Join(homedir, ".swan/provider/boost")
-	config.Market.BoostLog = filepath.Join(homedir, ".swan/provider/boost.log")
-
+	config.Market.Repo = filepath.Join(basePath, "boost")
+	config.Market.BoostLog = filepath.Join(basePath, "boost.log")
 }
 
 func GetConfig() Configuration {
