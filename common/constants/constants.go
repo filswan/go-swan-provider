@@ -18,6 +18,6 @@ const (
 	CHECKPOINT_INDEX       = "IndexedAndAnnounced"
 	CHECKPOINT_COMPLETE    = "Complete"
 
-	MARKET_TYPE_LOTUS = "lotus"
-	MARKET_TYPE_BOOST = "boost"
+	MARKET_VERSION_1 = "1.1"
+	MARKET_VERSION_2 = "1.2"
 )

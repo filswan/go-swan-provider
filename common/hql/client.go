@@ -24,6 +24,10 @@ func (c Client) GetDealByUuid(dealUuid string) (*gen.DealResponse, error) {
 	return gen.Deal(context.TODO(), c.hqlClient, dealUuid)
 }
 
+func (c Client) GetProposalCid(proposalCid string) (*gen.LegacyDealResponse, error) {
+	return gen.LegacyDeal(context.TODO(), c.hqlClient, proposalCid)
+}
+
 var Checkpoint = map[string]string{
 	"Accepted":            "Accepted",
 	"Transferred":         "Transferred",
