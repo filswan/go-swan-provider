@@ -12,3 +12,18 @@ query Deal($uuid: ID!){
         Message
     }
 }
+
+query LegacyDeal($proposalCid: ID!){
+    legacyDeal(id: $proposalCid){
+        ID
+        ProviderAddress
+        PieceCid
+        SectorNumber
+        ChainDealID
+        Status
+        Message
+        InboundCARPath
+        ProviderAddress
+        DealDataRoot
+    }
+}

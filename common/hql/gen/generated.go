@@ -61,6 +61,55 @@ type DealResponse struct {
 // GetDeal returns DealResponse.Deal, and is useful for accessing the field via an interface.
 func (v *DealResponse) GetDeal() DealDeal { return v.Deal }
 
+// LegacyDealLegacyDeal includes the requested fields of the GraphQL type LegacyDeal.
+type LegacyDealLegacyDeal struct {
+	ID              string      `json:"ID"`
+	ProviderAddress string      `json:"ProviderAddress"`
+	PieceCid        string      `json:"PieceCid"`
+	SectorNumber    ChainDealID `json:"SectorNumber"`
+	ChainDealID     ChainDealID `json:"ChainDealID"`
+	Status          string      `json:"Status"`
+	Message         string      `json:"Message"`
+	InboundCARPath  string      `json:"InboundCARPath"`
+	DealDataRoot    string      `json:"DealDataRoot"`
+}
+
+// GetID returns LegacyDealLegacyDeal.ID, and is useful for accessing the field via an interface.
+func (v *LegacyDealLegacyDeal) GetID() string { return v.ID }
+
+// GetProviderAddress returns LegacyDealLegacyDeal.ProviderAddress, and is useful for accessing the field via an interface.
+func (v *LegacyDealLegacyDeal) GetProviderAddress() string { return v.ProviderAddress }
+
+// GetPieceCid returns LegacyDealLegacyDeal.PieceCid, and is useful for accessing the field via an interface.
+func (v *LegacyDealLegacyDeal) GetPieceCid() string { return v.PieceCid }
+
+// GetSectorNumber returns LegacyDealLegacyDeal.SectorNumber, and is useful for accessing the field via an interface.
+func (v *LegacyDealLegacyDeal) GetSectorNumber() ChainDealID { return v.SectorNumber }
+
+// GetChainDealID returns LegacyDealLegacyDeal.ChainDealID, and is useful for accessing the field via an interface.
+func (v *LegacyDealLegacyDeal) GetChainDealID() ChainDealID { return v.ChainDealID }
+
+// GetStatus returns LegacyDealLegacyDeal.Status, and is useful for accessing the field via an interface.
+func (v *LegacyDealLegacyDeal) GetStatus() string { return v.Status }
+
+// GetMessage returns LegacyDealLegacyDeal.Message, and is useful for accessing the field via an interface.
+func (v *LegacyDealLegacyDeal) GetMessage() string { return v.Message }
+
+// GetInboundCARPath returns LegacyDealLegacyDeal.InboundCARPath, and is useful for accessing the field via an interface.
+func (v *LegacyDealLegacyDeal) GetInboundCARPath() string { return v.InboundCARPath }
+
+// GetDealDataRoot returns LegacyDealLegacyDeal.DealDataRoot, and is useful for accessing the field via an interface.
+func (v *LegacyDealLegacyDeal) GetDealDataRoot() string { return v.DealDataRoot }
+
+// LegacyDealResponse is returned by LegacyDeal on success.
+type LegacyDealResponse struct {
+	// Get Deal made with legacy markets endpoint by ID
+	LegacyDeal LegacyDealLegacyDeal `json:"legacyDeal"`
+}
+
+// GetLegacyDeal returns LegacyDealResponse.LegacyDeal, and is useful for accessing the field via an interface.
+func (v *LegacyDealResponse) GetLegacyDeal() LegacyDealLegacyDeal { return v.LegacyDeal }
+
 // __DealInput is used internally by genqlient
 type __DealInput struct {
 	Uuid string `json:"uuid"`
@@ -68,6 +117,14 @@ type __DealInput struct {
 
 // GetUuid returns __DealInput.Uuid, and is useful for accessing the field via an interface.
 func (v *__DealInput) GetUuid() string { return v.Uuid }
+
+// __LegacyDealInput is used internally by genqlient
+type __LegacyDealInput struct {
+	ProposalCid string `json:"proposalCid"`
+}
+
+// GetProposalCid returns __LegacyDealInput.ProposalCid, and is useful for accessing the field via an interface.
+func (v *__LegacyDealInput) GetProposalCid() string { return v.ProposalCid }
 
 func Deal(
 	ctx context.Context,
@@ -99,6 +156,47 @@ query Deal ($uuid: ID!) {
 	var err error
 
 	var data DealResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func LegacyDeal(
+	ctx context.Context,
+	client graphql.Client,
+	proposalCid string,
+) (*LegacyDealResponse, error) {
+	req := &graphql.Request{
+		OpName: "LegacyDeal",
+		Query: `
+query LegacyDeal ($proposalCid: ID!) {
+	legacyDeal(id: $proposalCid) {
+		ID
+		ProviderAddress
+		PieceCid
+		SectorNumber
+		ChainDealID
+		Status
+		Message
+		InboundCARPath
+		ProviderAddress
+		DealDataRoot
+	}
+}
+`,
+		Variables: &__LegacyDealInput{
+			ProposalCid: proposalCid,
+		},
+	}
+	var err error
+
+	var data LegacyDealResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

@@ -71,8 +71,8 @@ func AdminOfflineDeal() {
 	aria2Service = GetAria2Service()
 	lotusService = GetLotusService()
 
-	if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
-		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_tye=“boost”]"))
+	if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
+		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_version=“1.2”]"))
 	}
 
 	aria2Client = SetAndCheckAria2Config()
@@ -91,7 +91,6 @@ func AdminOfflineDeal() {
 
 func SetAndCheckAria2Config() *client.Aria2Client {
 	aria2DownloadDir := config.GetConfig().Aria2.Aria2DownloadDir
-	aria2CandidateDirs := config.GetConfig().Aria2.Aria2CandidateDirs
 	aria2Host := config.GetConfig().Aria2.Aria2Host
 	aria2Port := config.GetConfig().Aria2.Aria2Port
 	aria2Secret := config.GetConfig().Aria2.Aria2Secret
@@ -100,13 +99,6 @@ func SetAndCheckAria2Config() *client.Aria2Client {
 	if !utils.IsDirExists(aria2DownloadDir) {
 		err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_download_dir", aria2DownloadDir)
 		logs.GetLogger().Fatal(err)
-	}
-
-	for _, dir := range aria2CandidateDirs {
-		if !utils.IsDirExists(dir) {
-			err := fmt.Errorf("aria2 down load dir:%s not exits, please set config:aria2->aria2_candidate_dirs", dir)
-			logs.GetLogger().Fatal(err)
-		}
 	}
 
 	if len(aria2Host) == 0 {
@@ -177,7 +169,7 @@ func checkLotusConfig() {
 		logs.GetLogger().Fatal("error in config")
 	}
 
-	if lotusService.MarketType == constants.MARKET_TYPE_LOTUS {
+	if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
 		marketApiUrl := config.GetConfig().Lotus.MarketApiUrl
 		marketAccessToken := config.GetConfig().Lotus.MarketAccessToken
 
@@ -206,7 +198,7 @@ func checkLotusConfig() {
 		if !isWriteAuth {
 			logs.GetLogger().Fatal("market access token should have write access right")
 		}
-	} else if lotusService.MarketType == constants.MARKET_TYPE_BOOST {
+	} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
 		market := config.GetConfig().Market
 		if _, err := os.Stat(market.Repo); err != nil {
 			if err := initBoost(market.Repo, market.MinerApiInfo, market.FullNodeApi, market.PublishWallet, market.CollateralWallet); err != nil {
@@ -406,7 +398,7 @@ func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) 
 	args = append(args, "--api-sector-index="+minerApi)
 	args = append(args, "--wallet-publish-storage-deals="+publishWallet)
 	args = append(args, "--wallet-deal-collateral="+collatWallet)
-	args = append(args, "--max-staging-deals-bytes=0")
+	args = append(args, "--max-staging-deals-bytes=5000000000000")
 
 	cmd := exec.CommandContext(ctx, "boostd", args...)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))

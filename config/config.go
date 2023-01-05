@@ -43,7 +43,7 @@ type main struct {
 	MinerFid                 string        `toml:"miner_fid"`
 	LotusImportInterval      time.Duration `toml:"import_interval"`
 	LotusScanInterval        time.Duration `toml:"scan_interval"`
-	MarketType               string        `toml:"market_type"`
+	MarketVersion            string        `toml:"market_version"`
 }
 
 type bid struct {
@@ -124,7 +124,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "api_key"},
 		{"main", "access_token"},
 		{"main", "api_heartbeat_interval"},
-		{"main", "market_type"},
+		{"main", "market_version"},
 
 		{"bid", "bid_mode"},
 		{"bid", "expected_sealing_time"},

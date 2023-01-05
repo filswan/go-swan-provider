@@ -16,7 +16,7 @@ aria2_auto_delete_car_file= false               # After the deal becomes Active 
 aria2_max_downloading_tasks = 10                # Aria2 max downloading tasks. default: 10
 
 [main]
-market_type = "lotus"                           # Send deal type: lotus or boost. config(market_type) is DEPRECATION, will REMOVE SOON (default: "lotus"), If set to boost, you need to set the [market] section
+market_version = "1.1"                          # Send deal type, 1.1 or 1.2, config(market_version=1.1) is DEPRECATION, will REMOVE SOON (default: "1.1"), If set to 1.2, you need to set the [market] section
 api_url = "https://go-swan-server.filswan.com"  # Swan API address. For Swan production, it is "https://go-swan-server.filswan.com"
 api_key = ""                                    # Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
 access_token = ""                               # Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
