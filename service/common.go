@@ -72,7 +72,7 @@ func AdminOfflineDeal() {
 	lotusService = GetLotusService()
 
 	if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
-		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_version=“2.0”]"))
+		fmt.Println(color.YellowString("you are using the MARKET send deals built-in Lotus, but it is deprecated, will remove soon. Please set [main.market_version=“1.2”]"))
 	}
 
 	aria2Client = SetAndCheckAria2Config()
