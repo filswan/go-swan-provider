@@ -174,8 +174,9 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			if _, err := uuid.Parse(deal.DealCid); err == nil {
 				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
 				if err != nil {
-					logs.GetLogger().Error(err)
-					return
+					logs.GetLogger().Errorf("taskName: %s, dealUuid: %s, get deal info failed, error: %+v", *deal.TaskName, deal.DealCid, err)
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					continue
 				}
 				minerId = dealResp.Deal.GetProviderAddress()
 				dealId, err = strconv.ParseUint(dealResp.Deal.GetChainDealID().Value, 10, 64)
@@ -189,7 +190,8 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 			} else {
 				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
 				if err != nil {
-					logs.GetLogger().Error(err)
+					logs.GetLogger().Errorf("taskName: %s, dealCid: %s, get deal info failed, error: %+v", *deal.TaskName, deal.DealCid, err)
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
 					continue
 				}
 
