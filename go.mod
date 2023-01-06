@@ -7,7 +7,7 @@ require (
 	github.com/Khan/genqlient v0.5.0
 	github.com/fatih/color v1.13.0
 	github.com/filecoin-project/go-jsonrpc v0.1.9 // indirect
-	github.com/filswan/go-swan-lib v0.2.132-0.20230103113208-178966202a6e
+	github.com/filswan/go-swan-lib v0.2.132-0.20230106055204-307c6ccdadb5
 	github.com/gin-gonic/gin v1.7.4
 	github.com/google/uuid v1.3.0
 	github.com/itsjamie/gin-cors v0.0.0-20160420130702-97b4a9da7933

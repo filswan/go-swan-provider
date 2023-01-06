@@ -316,7 +316,7 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 			}
 		} else {
 			market := config.GetConfig().Market
-			boostToken, err := getBoostToken(market.Repo)
+			boostToken, err := GetBoostToken(market.Repo)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return
@@ -327,17 +327,25 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 				return
 			}
 			defer closer()
-			rej, err := boostClient.OfflineDealWithData(context.TODO(), deal.DealCid, deal.FilePath)
 
-			var msg string
-			if err != nil {
-				msg = fmt.Sprintf("import deal failed: %w", err.Error())
-			}
-			if rej != nil && rej.Reason != "" {
-				msg = fmt.Sprintf("offline deal %s rejected: %s", deal.DealCid, rej.Reason)
-			}
-			if msg != "" {
-				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, msg)
+			if _, err := uuid.Parse(deal.DealCid); err == nil {
+				rej, err := boostClient.OfflineDealWithData(context.TODO(), deal.DealCid, deal.FilePath)
+				var msg string
+				if err != nil {
+					msg = fmt.Sprintf("import deal failed: %w", err.Error())
+				}
+				if rej != nil && rej.Reason != "" {
+					msg = fmt.Sprintf("offline deal %s rejected: %s", deal.DealCid, rej.Reason)
+				}
+				if msg != "" {
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, msg)
+				}
+			} else {
+				err = boostClient.OfflineDealWithDataByMarket(context.TODO(), deal.DealCid, deal.FilePath)
+				if err != nil {
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "import deal failed", err.Error())
+					return
+				}
 			}
 		}
 

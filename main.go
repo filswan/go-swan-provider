@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"fmt"
+	"github.com/filswan/go-swan-lib/client/boost"
 	"os"
 	"os/signal"
 	"strconv"
@@ -28,6 +31,8 @@ func main() {
 
 	subCmd := os.Args[1]
 	switch subCmd {
+	case "set-ask":
+		setAsk()
 	case "version":
 		printVersion()
 	case "daemon":
@@ -96,4 +101,27 @@ func LoadEnv() {
 	}
 
 	logs.GetLogger().Info("name: ", os.Getenv("privateKey"))
+}
+
+func setAsk() {
+	price := flag.String("price", "0", "Set the price of the ask for unverified deals (specified as FIL / GiB / Epoch) to `PRICE`.")
+	verifiedPrice := flag.String("verified-price", "0", "Set the price of the ask for verified deals (specified as FIL / GiB / Epoch) to `PRICE`")
+	minSize := flag.String("min-piece-size", "256B", "Set minimum piece size (w/bit-padding, in bytes) in ask to `SIZE`")
+	maxSize := flag.String("max-piece-size", "0", "Set maximum piece size (w/bit-padding, in bytes) in ask to `SIZE`")
+
+	market := config.GetConfig().Market
+	boostToken, err := service.GetBoostToken(market.Repo)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+	boostClient, closer, err := boost.NewClient(boostToken, market.RpcUrl)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+	defer closer()
+	if err = boostClient.MarketSetAsk(context.TODO(), *price, *verifiedPrice, *minSize, *maxSize); err != nil {
+		logs.GetLogger().Error(err)
+	}
 }

@@ -451,7 +451,7 @@ func StopBoost(pid int) {
 	logs.GetLogger().Info("stop boostd successful")
 }
 
-func getBoostToken(repo string) (string, error) {
+func GetBoostToken(repo string) (string, error) {
 	tokenFile, err := ioutil.ReadFile(path.Join(repo, "token"))
 	if err != nil {
 		log.Println(err)
