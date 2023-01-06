@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/filswan/go-swan-lib/client/boost"
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"swan-provider/common"
 	"swan-provider/common/constants"
 	"swan-provider/config"
@@ -28,6 +31,8 @@ func main() {
 
 	subCmd := os.Args[1]
 	switch subCmd {
+	case "set-ask":
+		setAsk()
 	case "version":
 		printVersion()
 	case "daemon":
@@ -61,6 +66,7 @@ func printUsage() {
 	fmt.Println("USAGE:")
 	fmt.Println("    swan-provider version")
 	fmt.Println("    swan-provider daemon")
+	fmt.Println("    swan-provider set-ask --price=xx --verified-price=xx --min-piece-size=xx --max-piece-size=xx")
 }
 
 func createHttpServer() {
@@ -96,4 +102,58 @@ func LoadEnv() {
 	}
 
 	logs.GetLogger().Info("name: ", os.Getenv("privateKey"))
+}
+
+func setAsk() {
+	params := os.Args[2:]
+	var price, verifiedPrice, minSize, maxSize string
+	for _, param := range params {
+		if strings.Contains(param, "verified-price") {
+			index := strings.Index(param, "=")
+			verifiedPrice = param[index+1:]
+		} else if strings.Contains(param, "min-piece-size") {
+			index := strings.Index(param, "=")
+			minSize = param[index+1:]
+		} else if strings.Contains(param, "max-piece-size") {
+			index := strings.Index(param, "=")
+			maxSize = param[index+1:]
+		} else if strings.Contains(param, "price") {
+			index := strings.Index(param, "=")
+			price = param[index+1:]
+		}
+	}
+
+	if price == "" {
+		logs.GetLogger().Errorf("price is required")
+		return
+	}
+	if verifiedPrice == "" {
+		logs.GetLogger().Errorf("verified-price is required")
+		return
+	}
+	if minSize == "" {
+		logs.GetLogger().Errorf("min-piece-size is required")
+		return
+	}
+	if maxSize == "" {
+		logs.GetLogger().Errorf("max-piece-size is required")
+		return
+	}
+
+	market := config.GetConfig().Market
+	boostToken, err := service.GetBoostToken(market.Repo)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+	boostClient, closer, err := boost.NewClient(boostToken, market.RpcUrl)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+	defer closer()
+
+	if err = boostClient.MarketSetAsk(context.TODO(), price, verifiedPrice, minSize, maxSize); err != nil {
+		logs.GetLogger().Error(err)
+	}
 }
