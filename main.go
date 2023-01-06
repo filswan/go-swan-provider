@@ -109,6 +109,7 @@ func setAsk() {
 	verifiedPrice := flag.String("verified-price", "0", "Set the price of the ask for verified deals (specified as FIL / GiB / Epoch) to `PRICE`")
 	minSize := flag.String("min-piece-size", "256B", "Set minimum piece size (w/bit-padding, in bytes) in ask to `SIZE`")
 	maxSize := flag.String("max-piece-size", "0", "Set maximum piece size (w/bit-padding, in bytes) in ask to `SIZE`")
+	flag.Parse()
 
 	market := config.GetConfig().Market
 	boostToken, err := service.GetBoostToken(market.Repo)
