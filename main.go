@@ -66,6 +66,7 @@ func printUsage() {
 	fmt.Println("USAGE:")
 	fmt.Println("    swan-provider version")
 	fmt.Println("    swan-provider daemon")
+	fmt.Println("    swan-provider set-ask --price=xx --verified-price=xx --min-piece-size=xx --max-piece-size=xx")
 }
 
 func createHttpServer() {
