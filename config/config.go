@@ -1,8 +1,11 @@
 package config
 
 import (
+	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -21,6 +24,7 @@ type Configuration struct {
 
 type lotus struct {
 	ClientApiUrl      string `toml:"client_api_url"`
+	ClientApiToken    string `toml:"client_api_token"`
 	MarketApiUrl      string `toml:"market_api_url"`
 	MarketAccessToken string `toml:"market_access_token"`
 }
@@ -53,12 +57,12 @@ type bid struct {
 	AutoBidDealPerDay   int `toml:"auto_bid_deal_per_day"`
 }
 type market struct {
-	FullNodeApi      string `toml:"full_node_api"`
-	MinerApiInfo     string `toml:"miner_api_info"`
+	FullNodeApi      string
+	MinerApi         string
 	CollateralWallet string `toml:"collateral_wallet"`
 	PublishWallet    string `toml:"publish_wallet"`
-	RpcUrl           string `toml:"rpc_url"`
-	GraphqlUrl       string `toml:"graphql_url"`
+	RpcUrl           string
+	GraphqlUrl       string
 	Repo             string
 	BoostLog         string
 }
@@ -91,6 +95,20 @@ func InitConfig() {
 	}
 	config.Market.Repo = filepath.Join(basePath, "boost")
 	config.Market.BoostLog = filepath.Join(basePath, "boost.log")
+
+	fullNodeApi, err := ChangeToFull(config.Lotus.ClientApiUrl, config.Lotus.ClientApiToken)
+	if err != nil {
+		logs.GetLogger().Fatal(err)
+		return
+	}
+	minerApi, err := ChangeToFull(config.Lotus.MarketApiUrl, config.Lotus.MarketAccessToken)
+	if err != nil {
+		logs.GetLogger().Fatal(err)
+		return
+	}
+
+	config.Market.MinerApi = minerApi
+	config.Market.FullNodeApi = fullNodeApi
 }
 
 func GetConfig() Configuration {
@@ -114,6 +132,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"lotus", "client_api_url"},
 		{"lotus", "market_api_url"},
 		{"lotus", "market_access_token"},
+		{"lotus", "client_api_token"},
 
 		{"aria2", "aria2_download_dir"},
 		{"aria2", "aria2_host"},
@@ -136,8 +155,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"bid", "start_epoch"},
 		{"bid", "auto_bid_deal_per_day"},
 
-		{"market", "full_node_api"},
-		{"market", "miner_api_info"},
 		{"market", "collateral_wallet"},
 		{"market", "publish_wallet"},
 	}
@@ -149,4 +166,31 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	}
 
 	return true
+}
+
+func GetRpcInfoByFile(configPath string) (string, string, error) {
+	var config struct {
+		API struct {
+			ListenAddress string
+		}
+		Graphql struct {
+			Port uint64
+		}
+	}
+
+	if _, err := toml.DecodeFile(configPath, &config); err != nil {
+		return "", "", err
+	}
+	splits := strings.Split(config.API.ListenAddress, "/")
+	rpcUrl := fmt.Sprintf("127.0.0.1:%s", splits[4])
+	graphqlUrl := fmt.Sprintf("http://127.0.0.1:%d/graphql/query", config.Graphql.Port)
+	return rpcUrl, graphqlUrl, nil
+}
+
+func ChangeToFull(apiUrl, token string) (string, error) {
+	u, err := url.Parse(apiUrl)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s:/ip4/%s/tcp/%s/http", token, u.Hostname(), u.Port()), nil
 }
