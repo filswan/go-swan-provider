@@ -407,7 +407,7 @@ func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) 
 	args = append(args, "--api-sector-index="+minerApi)
 	args = append(args, "--wallet-publish-storage-deals="+publishWallet)
 	args = append(args, "--wallet-deal-collateral="+collatWallet)
-	args = append(args, "--max-staging-deals-bytes=0")
+	args = append(args, "--max-staging-deals-bytes=50000000000000")
 
 	cmd := exec.CommandContext(ctx, "boostd", args...)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))

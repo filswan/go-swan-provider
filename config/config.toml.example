@@ -1,18 +1,18 @@
 port = 8888
-release = true                               # when work in release mode: set this to true, otherwise to false and enviornment variable GIN_MODE not to release
+release = true                               	# When working in release mode: set this to true, otherwise to false and environment variable GIN_MODE not to release
 
 [lotus]
-client_api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus client web api, generally the [port] is 1234
-client_api_token=""                          # Access token of lotus client web api. (lotus auth api-info --perm=admin)
-market_api_url="http://[ip]:[port]/rpc/v0"   # Url of lotus market web api, generally the [port] is 2345, when market and miner are not separate, it is also the url of miner web api
-market_access_token=""                       # Access token of lotus market web api, when market and miner are not separate, it is also the access token of miner web api
+client_api_url = "http://[ip]:[port]/rpc/v0"   	# Url of lotus client web API, generally the [port] is 1234
+client_api_token = ""                           # Access token of lotus client web api
+market_api_url = "http://[ip]:[port]/rpc/v0"   	# Url of lotus market web API, generally the [port] is 2345, when market and miner are not separate, it is also the URL of miner web API
+market_access_token = ""                       	# Access token of lotus market web API, when market and miner are not separate, it is also the access token of miner web API
 
 [aria2]
 aria2_download_dir = "%%ARIA2_DOWNLOAD_DIR%%"   # Directory where offline deal files will be downloaded for importing
-aria2_candidate_dirs = ["%%ARIA2_CANDIDATE_DIR1%%", "%%ARIA2_CANDIDATE_DIR2%%"] # Directories where offline deal files will be downloaded for importing
+aria2_candidate_dirs = ["%%ARIA2_CANDIDATE_DIR1%%", "%%ARIA2_CANDIDATE_DIR2%%"] # Directories to find the CAR file required for the offline deal
 aria2_host = "127.0.0.1"                        # Aria2 server address
 aria2_port = 6800                               # Aria2 server port
-aria2_secret = "my_aria2_secret"                # Must be the same value as rpc-secure in aria2.conf
+aria2_secret = "my_aria2_secret"                # Must be the same value as RPC-secure in aria2.conf
 aria2_auto_delete_car_file= false               # After the deal becomes Active or Error, the CAR file will be deleted automatically
 aria2_max_downloading_tasks = 10                # Aria2 max downloading tasks. default: 10
 
@@ -23,15 +23,15 @@ api_key = ""                                    # Your api key. Acquire from Fil
 access_token = ""                               # Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
 miner_fid = "f0xxxx"                            # Your Filecoin MinerID, this miner must be added to the Swan Storage providers list by Swan Platform -> "My Profile" -> "As Storage Provider" -> "Manage" -> "Add"
 import_interval = 600                           # 600 seconds or 10 minutes. Importing interval between each deal.
-scan_interval = 600                             # 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on Swan platform.
-api_heartbeat_interval = 300                    # 300 seconds or 5 minutes. Time interval to send heartbeat.
+scan_interval = 600                             # 600 seconds or 10 minutes. Time interval to scan all the ongoing deals and update status on the Swan platform.
+api_heartbeat_interval = 300                    # 300 seconds or 5 minutes. Time interval to send a heartbeat.
 
 [bid]
-bid_mode = 1                  # 0: manual, 1: auto
-expected_sealing_time = 1920  # 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
-start_epoch = 2880            # 2880 epoch or 24 hours. Relative value to current epoch
-auto_bid_deal_per_day = 600   # auto-bid deal limit per day for your miner defined above
+bid_mode = 1                  					# 0: manual, 1: auto
+expected_sealing_time = 1920  					# 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
+start_epoch = 2880            					# 2880 epoch or 24 hours. The relative value to current epoch
+auto_bid_deal_per_day = 600   					# auto-bid deal limit per day for your miner defined above
 
 [market]
-collateral_wallet = ""                                  # wallet to be used for deal collateral
-publish_wallet = ""                                     # wallet to be used for PublishStorageDeals messages
+collateral_wallet = ""                          # Wallet to be used for deal collateral
+publish_wallet = ""                             # Wallet to be used for PublishStorageDeals messages
