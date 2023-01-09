@@ -6,6 +6,7 @@ import (
 	"github.com/filswan/go-swan-lib/client/boost"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"swan-provider/common"
@@ -146,7 +147,14 @@ func setAsk() {
 		logs.GetLogger().Error(err)
 		return
 	}
-	boostClient, closer, err := boost.NewClient(boostToken, market.RpcUrl)
+
+	rpcApi, _, err := config.GetRpcInfoByFile(filepath.Join(market.Repo, "config.toml"))
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return
+	}
+
+	boostClient, closer, err := boost.NewClient(boostToken, rpcApi)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return
