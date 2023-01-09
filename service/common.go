@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"swan-provider/common/constants"
@@ -201,12 +202,20 @@ func checkLotusConfig() {
 	} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
 		market := config.GetConfig().Market
 		if _, err := os.Stat(market.Repo); err != nil {
-			if err := initBoost(market.Repo, market.MinerApiInfo, market.FullNodeApi, market.PublishWallet, market.CollateralWallet); err != nil {
+			if err := initBoost(market.Repo, market.MinerApi, market.FullNodeApi, market.PublishWallet, market.CollateralWallet); err != nil {
 				logs.GetLogger().Fatal(err)
 				return
 			}
 			logs.GetLogger().Info("init boostd successful")
 		}
+
+		rpcApi, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(market.Repo, "config.toml"))
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
+		market.RpcUrl = rpcApi
+		market.GraphqlUrl = graphqlApi
 		boostPid, err := startBoost(market.Repo, market.BoostLog, market.FullNodeApi)
 		if err != nil {
 			logs.GetLogger().Fatal(err)
@@ -398,7 +407,7 @@ func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) 
 	args = append(args, "--api-sector-index="+minerApi)
 	args = append(args, "--wallet-publish-storage-deals="+publishWallet)
 	args = append(args, "--wallet-deal-collateral="+collatWallet)
-	args = append(args, "--max-staging-deals-bytes=5000000000000")
+	args = append(args, "--max-staging-deals-bytes=0")
 
 	cmd := exec.CommandContext(ctx, "boostd", args...)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
