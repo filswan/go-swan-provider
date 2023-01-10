@@ -100,7 +100,7 @@ git checkout release-2.1.0-rc1
 The configuration needs to be set according to the different `market_version`.
 ```
 port = 8888
-release = true                               	  # when working in release mode: set this to true, otherwise to false and environment variable GIN_MODE not to release
+release = true                                  # when working in release mode: set this to true, otherwise to false and environment variable GIN_MODE not to release
 
 [lotus]
 client_api_url = "http://[ip]:[port]/rpc/v0"    # Url of lotus client web API, generally the [port] is 1234
@@ -128,14 +128,14 @@ scan_interval = 600                             # 600 seconds or 10 minutes. Tim
 api_heartbeat_interval = 300                    # 300 seconds or 5 minutes. Time interval to send a heartbeat.
 
 [bid]
-bid_mode = 1									 # 0: manual, 1: auto
-expected_sealing_time = 1920					 # 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
-start_epoch = 2880            					 # 2880 epoch or 24 hours. The relative value to current epoch
-auto_bid_deal_per_day = 600   					 # auto-bid deal limit per day for your miner defined above
+bid_mode = 1                                    # 0: manual, 1: auto
+expected_sealing_time = 1920                    # 1920 epoch or 16 hours. The time expected for sealing deals. Deals starting too soon will be rejected.
+start_epoch = 2880                              # 2880 epoch or 24 hours. The relative value to current epoch
+auto_bid_deal_per_day = 600                     # auto-bid deal limit per day for your miner defined above
 
 [market]
-collateral_wallet = ""                         # wallet to be used for deal collateral
-publish_wallet = ""                            # wallet to be used for PublishStorageDeals messages
+collateral_wallet = ""                          # wallet to be used for deal collateral
+publish_wallet = ""                             # wallet to be used for PublishStorageDeals messages
 ```
 **(1) when `market_version = "1.1"`**, the storage provider will import deals using the Market built-in lotus, so the `[market]` section is not necessary to set.
 
