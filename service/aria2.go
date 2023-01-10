@@ -183,7 +183,12 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", *onChainMessage)
 			}
 		} else {
-			hqlClient, err := hql.NewClient(config.GetConfig().Market.GraphqlUrl)
+			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			hqlClient, err := hql.NewClient(graphqlApi)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue
@@ -306,7 +311,12 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 				break
 			}
 		} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
-			hqlClient, err := hql.NewClient(config.GetConfig().Market.GraphqlUrl)
+			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			hqlClient, err := hql.NewClient(graphqlApi)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				break

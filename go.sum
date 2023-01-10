@@ -468,8 +468,8 @@ github.com/filecoin-project/specs-storage v0.4.1/go.mod h1:Z2eK6uMwAOSLjek6+sy0j
 github.com/filecoin-project/storetheindex v0.4.17 h1:w0dVc954TGPukoVbidlYvn9Xt+wVhk5vBvrqeJiRo8I=
 github.com/filecoin-project/storetheindex v0.4.17/go.mod h1:y2dL8C5D3PXi183hdxgGtM8vVYOZ1lg515tpl/D3tN8=
 github.com/filecoin-project/test-vectors/schema v0.0.5/go.mod h1:iQ9QXLpYWL3m7warwvK1JC/pTri8mnfEmKygNDqqY6E=
-github.com/filswan/go-swan-lib v0.2.132-0.20230106055204-307c6ccdadb5 h1:REh4W1VnjSvrGHvFnR7u+9S66XncujPhlaJJqcj0su8=
-github.com/filswan/go-swan-lib v0.2.132-0.20230106055204-307c6ccdadb5/go.mod h1:D6mgGrbXcv7kHQKOmeJdqIbUzl5DxmBuCiKzfa8Jh0A=
+github.com/filswan/go-swan-lib v0.2.137 h1:OCinwOzJqe4laqim2TFrd3nI8dPML1ftDDeQqlh3HP8=
+github.com/filswan/go-swan-lib v0.2.137/go.mod h1:D6mgGrbXcv7kHQKOmeJdqIbUzl5DxmBuCiKzfa8Jh0A=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/flynn/noise v0.0.0-20180327030543-2492fe189ae6/go.mod h1:1i71OnUq3iUe1ma7Lr6yG6/rjvM3emb6yoL7xLFzcVQ=
 github.com/flynn/noise v1.0.0 h1:DlTHqmzmvcEiKj+4RYo/imoswx/4r6iBlCMfVtrMXpQ=
