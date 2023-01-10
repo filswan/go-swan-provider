@@ -164,4 +164,5 @@ func setAsk() {
 	if err = boostClient.MarketSetAsk(context.TODO(), price, verifiedPrice, minSize, maxSize); err != nil {
 		logs.GetLogger().Error(err)
 	}
+	fmt.Println("set-ask successfully")
 }
