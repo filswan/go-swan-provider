@@ -83,7 +83,12 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 				continue
 			}
 		} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
-			hqlClient, err := hql.NewClient(config.GetConfig().Market.GraphqlUrl)
+			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			hqlClient, err := hql.NewClient(graphqlApi)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return
@@ -162,7 +167,12 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 	} else {
 		aria2AutoDeleteCarFile := config.GetConfig().Aria2.Aria2AutoDeleteCarFile
 		for _, deal := range deals {
-			hqlClient, err := hql.NewClient(config.GetConfig().Market.GraphqlUrl)
+			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			hqlClient, err := hql.NewClient(graphqlApi)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return
@@ -321,7 +331,13 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 				logs.GetLogger().Error(err)
 				return
 			}
-			boostClient, closer, err := boost.NewClient(boostToken, market.RpcUrl)
+			rpcApi, _, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+
+			boostClient, closer, err := boost.NewClient(boostToken, rpcApi)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return

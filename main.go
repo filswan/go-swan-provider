@@ -164,5 +164,5 @@ func setAsk() {
 	if err = boostClient.MarketSetAsk(context.TODO(), price, verifiedPrice, minSize, maxSize); err != nil {
 		logs.GetLogger().Error(err)
 	}
-	fmt.Println("set-ask successfully")
+	fmt.Println("set-ask successfully! You can check it using “lotus client query-ask <minerID>”")
 }
