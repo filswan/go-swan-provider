@@ -52,7 +52,7 @@ func main() {
 }
 
 func printVersion() {
-	fmt.Println(getVersion())
+	fmt.Println("swan-provider version: ", getVersion())
 }
 
 func getVersion() string {
