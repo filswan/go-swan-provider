@@ -32,6 +32,9 @@ build: ## Build the binary file
 	@echo "Done building."
 	@echo "Go to build folder and run \"$(GOBIN)/$(BINARY_NAME)\" to launch swan provider."
 
+install-provider:
+	sudo install -C $(GOBIN)/$(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+
 clean: ## Remove previous build
 	@go clean
 	@rm -rf $(shell pwd)/build
