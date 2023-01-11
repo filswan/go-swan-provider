@@ -8,6 +8,10 @@ wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/${BINARY_NAME}
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/aria2.conf
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/aria2c.service
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/config.toml.example
+wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/boostd
+
+sudo install -C ${BINARY_NAME} /usr/local/bin/${BINARY_NAME}
+sudo install -C boostd /usr/local/bin/boostd
 
 CONF_FILE_DIR=${HOME}/.swan/provider
 SWAN_PATH=$(echo ${SWAN_PATH})
@@ -17,15 +21,16 @@ fi
 
 mkdir -p ${CONF_FILE_DIR}
 
-CONF_FILE_PATH=${CONF_FILE_DIR}/config.toml
-echo $CONF_FILE_PATH
+current_create_time=`date +"%Y%m%d%H%M%S"`
 
-if [ -f "${CONF_FILE_PATH}" ]; then
-    echo "${CONF_FILE_PATH} exists"
-else
-    cp ./config.toml.example $CONF_FILE_PATH
+if [ -f "${CONF_FILE_DIR}/config.toml"  ]; then
+    mv ${CONF_FILE_DIR}/config.toml  ${CONF_FILE_DIR}/config.toml.${current_create_time}
+    echo "The previous configuration files have been backed up: ${CONF_FILE_DIR}/config.toml.${current_create_time}"
+
+    cp ./config.toml.example ${CONF_FILE_DIR}/config.toml
+    echo "${CONF_FILE_DIR}/config.toml created"
     ARIA2_DOWNLOAD_DIR=${CONF_FILE_DIR}/download
-    sed -i 's@%%ARIA2_DOWNLOAD_DIR%%@'${ARIA2_DOWNLOAD_DIR}'@g' $CONF_FILE_PATH   # Set aria2 download dir
+    sed -i 's@%%ARIA2_DOWNLOAD_DIR%%@'${ARIA2_DOWNLOAD_DIR}'@g' ${CONF_FILE_DIR}/config.toml   # Set aria2 download dir
 
     if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
         mkdir -p ${ARIA2_DOWNLOAD_DIR}
@@ -34,7 +39,18 @@ else
         echo "${ARIA2_DOWNLOAD_DIR} exists"
     fi
 
-    echo "${CONF_FILE_PATH} created"
+else
+   cp ./config.toml.example ${CONF_FILE_DIR}/config.toml
+   echo "${CONF_FILE_DIR}/config.toml created"
+   ARIA2_DOWNLOAD_DIR=${CONF_FILE_DIR}/download
+   sed -i 's@%%ARIA2_DOWNLOAD_DIR%%@'${ARIA2_DOWNLOAD_DIR}'@g' ${CONF_FILE_DIR}/config.toml   # Set aria2 download dir
+
+   if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
+       mkdir -p ${ARIA2_DOWNLOAD_DIR}
+       echo "${ARIA2_DOWNLOAD_DIR} created"
+   else
+       echo "${ARIA2_DOWNLOAD_DIR} exists"
+   fi
 fi
 
 sed -i 's/%%USER%%/'${USER}'/g' ./aria2c.service   # Set User & Group to value of $USER
@@ -71,7 +87,3 @@ fi
 
 sudo systemctl enable aria2c.service           # Set to start Aria2 automatically
 sudo systemctl restart aria2c.service            # Start Aria2
-
-chmod +x ./${BINARY_NAME}
-
-

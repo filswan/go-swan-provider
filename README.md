@@ -54,9 +54,7 @@ export SWAN_PATH = "/data/.swan"
 ####  Build Instructions
 ```shell
 wget --no-check-certificate https://raw.githubusercontent.com/filswan/go-swan-provider/release-2.1.0-rc1/install.sh
-
 chmod +x ./install.sh
-
 ./install.sh
 ```
 #### Config and Run
@@ -76,7 +74,7 @@ sudo apt-get install -y nodejs
 
 sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
 ```
-- Go
+- Go(required **1.18.1+**)
 ```
 wget -c https://golang.org/dl/go1.18.1.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
 
@@ -150,51 +148,51 @@ swan-provider daemon
 ```
 - Config the `[Libp2p]` section
 
-(1) Ensure that the `swan-provider` and `boostd` are not running
+	(1) Ensure that the `swan-provider` and `boostd` are not running
 
-```
-kill -9 $(ps -ef | grep -E 'swan-provider|boostd' | grep -v grep | awk '{print$2}' )
-```
-(2) Edit the boost configuration in the `$SWAN_PATH/boost/config.toml`:
-```
-[Libp2p]
-  ListenAddresses = ["/ip4/0.0.0.0/tcp/24001", "/ip6/::/tcp/24001"]   # Binding address for the libp2p host
-  AnnounceAddresses = ["/ip4/209.94.92.3/tcp/24001"]                  # Addresses to explicitly announce to other peers. If not specified, all interface addresses are announced
-```
-(3) Run `swan-provider` in the background.
-
-```
-ulimit -SHn 1048576
-export SWAN_PATH = "/data/.swan"
-nohup ./swan-provider daemon >> swan-provider.log 2>&1 & 
-```
-(4) Publish Storage Provider's Multiaddrs and PeerID:
-```
-lotus-miner actor set-addrs /ip4/<ip>/tcp/<port>   # (boostd --boost-repo=$SWAN_PATH/provider/boost net listen)
-
-lotus-miner actor set-peer-id <PeerID>     # (boostd --boost-repo=$SWAN_PATH/provider/boost net id) 
-```
-(5) Set the storage provider's ask
-
-```
-export SWAN_PATH = "/data/.swan"
-swan-provider set-ask --price=0 --verified-price=0 --min-piece-size=256 --max-piece-size=34359738368
-```
-(6) Set the `[market].publish_wallet` as a control address:
-```
-lotus-miner actor control set --really-do-it <publish_wallet>
-``` 
-(7) Add funds to the `collateral_wallet` Market Actor
-```
-lotus wallet market add --from=<YOUR_WALLET> --address=<collateral_wallet> <amount>
-```
-#### Note:
-- Logs are in the directory ./logs
-- **go 1.18.1+** is required
+	```
+	kill -9 $(ps -ef | grep -E 'swan-provider|boostd' | grep -v grep | awk '{print$2}' )
+	```
+	(2) Edit the boost configuration in the `$SWAN_PATH/boost/config.toml`:
+	```
+	[Libp2p]
+  	  ListenAddresses = ["/ip4/0.0.0.0/tcp/24001", "/ip6/::/tcp/24001"]   # Binding address for the libp2p host
+      AnnounceAddresses = ["/ip4/209.94.92.3/tcp/24001"]                  # Addresses to explicitly announce to other peers. If not specified, all interface addresses are announced
+	```
+	(3) Run `swan-provider` in the background.
+	```
+	ulimit -SHn 1048576
+	export SWAN_PATH = "/data/.swan"
+	nohup swan-provider daemon >> swan-provider.log 2>&1 & 
+	```
+ - Publish Storage Provider's Multiaddrs and PeerID:
+ 	- Acquired from `boostd --boost-repo=$SWAN_PATH/provider/boost net listen`
+ 	```
+ 	lotus-miner actor set-addrs /ip4/<ip>/tcp/<port>   
+ 	```
+  	- Acquired from `boostd --boost-repo=$SWAN_PATH/provider/boost net id`
+ 	```
+ 	lotus-miner actor set-peer-id <PeerID> 
+ 	```
+ - Set the storage provider's ask
+ ```
+ export SWAN_PATH = "/data/.swan"
+ swan-provider set-ask --price=0 --verified-price=0 --min-piece-size=256 --max-piece-size=34359738368
+ ```
+ - Set the `[market].publish_wallet` as a control address:
+ ```
+ lotus-miner actor control set --really-do-it <publish_wallet>
+ ``` 
+ - Add funds to the `collateral_wallet` Market Actor
+ ```
+ lotus wallet market add --from=<YOUR_WALLET> --address=<collateral_wallet> <amount>
+ ```
+>#### **Note**:
+>- Logs are in the directory `./logs`
 
 
 ## Interact with the Swan Provider
-The `./swan-provider` command allows you to interact with a running swan provider daemon.
+The `swan-provider` command allows you to interact with a running swan provider daemon.
 Check the current version of your swan-provider
 ```
 swan-provider version
@@ -217,4 +215,3 @@ For usage questions or issues reach out to the Swan Provider team either in the 
 ## License
 
 [Apache](https://github.com/filswan/go-swan-provider/blob/main/LICENSE)
-
