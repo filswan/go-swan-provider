@@ -9,7 +9,7 @@ wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/aria2.conf
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/aria2c.service
 wget --no-check-certificate ${URL_PREFIX}/${TAG_NAME}/config.toml.example
 
-sudo install -C $(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
+sudo install -C ${BINARY_NAME} /usr/local/bin/${BINARY_NAME}
 
 CONF_FILE_DIR=${HOME}/.swan/provider
 SWAN_PATH=$(echo ${SWAN_PATH})
