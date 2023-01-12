@@ -47,7 +47,7 @@ sudo apt install aria2
 You can set the `$SWAN_PATH` by the environment variable, default `~/.swan`:
 
 ```shell
-export SWAN_PATH = "/data/.swan"
+export SWAN_PATH="/data/.swan"
 ```
 
 ### Option:one: **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
@@ -63,8 +63,8 @@ chmod +x ./install.sh
 
 ```
 ulimit -SHn 1048576
-export SWAN_PATH = "/data/.swan"
-nohup ./swan-provider-2.1.0-rc1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
+export SWAN_PATH="/data/.swan"
+nohup swan-provider-2.1.0-rc1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
 ```
 ### Option:two: Source Code
 Building the `swan-provider` requires some system dependencies:
