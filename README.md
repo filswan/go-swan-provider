@@ -70,14 +70,18 @@ nohup ./swan-provider-2.1.0-rc1-linux-amd64 daemon >> swan-provider.log 2>&1 &
 Building the `swan-provider` requires some system dependencies:
 ```
 curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+```
+```
 sudo apt-get install -y nodejs
-
+```
+```
 sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
 ```
 - Go(required **1.18.1+**)
 ```
 wget -c https://golang.org/dl/go1.18.1.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
-
+```
+```
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc
 ```
 - Rustup
@@ -143,7 +147,7 @@ publish_wallet = ""                             # wallet to be used for PublishS
 - Config the `[market]` section in the `$SWAN_PATH/provider/config.toml`
 - Initialize the Market repo to the `$SWAN_PATH/provider/boost`:
 ```
-export SWAN_PATH = "/data/.swan"
+export SWAN_PATH="/data/.swan"
 swan-provider daemon 
 ```
 - Config the `[Libp2p]` section
@@ -162,7 +166,7 @@ swan-provider daemon
 	(3) Run `swan-provider` in the background.
 	```
 	ulimit -SHn 1048576
-	export SWAN_PATH = "/data/.swan"
+	export SWAN_PATH="/data/.swan"
 	nohup swan-provider daemon >> swan-provider.log 2>&1 & 
 	```
  - Publish Storage Provider's Multiaddrs and PeerID:
@@ -176,7 +180,7 @@ swan-provider daemon
  	```
  - Set the storage provider's ask
  ```
- export SWAN_PATH = "/data/.swan"
+ export SWAN_PATH="/data/.swan"
  swan-provider set-ask --price=0 --verified-price=0 --min-piece-size=256 --max-piece-size=34359738368
  ```
  - Set the `[market].publish_wallet` as a control address:
