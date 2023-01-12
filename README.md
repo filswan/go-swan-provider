@@ -15,7 +15,7 @@ Typical Web3 markets are:
 - [Features](#Features)
 - [Prerequisite](#Prerequisite)
 - [Installation](#Installation)
-- [Config](#Config)
+- [Configuration](#Configuration)
 - [License](#license)
 
 ## Features
