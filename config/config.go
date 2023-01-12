@@ -1,8 +1,11 @@
 package config
 
 import (
+	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -10,27 +13,30 @@ import (
 )
 
 type Configuration struct {
-	Port    int   `toml:"port"`
-	Release bool  `toml:"release"`
-	Lotus   lotus `toml:"lotus"`
-	Aria2   aria2 `toml:"aria2"`
-	Main    main  `toml:"main"`
-	Bid     bid   `toml:"bid"`
+	Port    int    `toml:"port"`
+	Release bool   `toml:"release"`
+	Lotus   lotus  `toml:"lotus"`
+	Aria2   aria2  `toml:"aria2"`
+	Main    main   `toml:"main"`
+	Bid     bid    `toml:"bid"`
+	Market  market `toml:"market"`
 }
 
 type lotus struct {
 	ClientApiUrl      string `toml:"client_api_url"`
+	ClientApiToken    string `toml:"client_api_token"`
 	MarketApiUrl      string `toml:"market_api_url"`
 	MarketAccessToken string `toml:"market_access_token"`
 }
 
 type aria2 struct {
-	Aria2DownloadDir         string `toml:"aria2_download_dir"`
-	Aria2Host                string `toml:"aria2_host"`
-	Aria2Port                int    `toml:"aria2_port"`
-	Aria2Secret              string `toml:"aria2_secret"`
-	Aria2AutoDeleteCarFile   bool   `toml:"aria2_auto_delete_car_file"`
-	Aria2MaxDownloadingTasks int    `toml:"aria2_max_downloading_tasks"`
+	Aria2DownloadDir         string   `toml:"aria2_download_dir"`
+	Aria2CandidateDirs       []string `toml:"aria2_candidate_dirs"`
+	Aria2Host                string   `toml:"aria2_host"`
+	Aria2Port                int      `toml:"aria2_port"`
+	Aria2Secret              string   `toml:"aria2_secret"`
+	Aria2AutoDeleteCarFile   bool     `toml:"aria2_auto_delete_car_file"`
+	Aria2MaxDownloadingTasks int      `toml:"aria2_max_downloading_tasks"`
 }
 
 type main struct {
@@ -41,6 +47,7 @@ type main struct {
 	MinerFid                 string        `toml:"miner_fid"`
 	LotusImportInterval      time.Duration `toml:"import_interval"`
 	LotusScanInterval        time.Duration `toml:"scan_interval"`
+	MarketVersion            string        `toml:"market_version"`
 }
 
 type bid struct {
@@ -49,16 +56,33 @@ type bid struct {
 	StartEpoch          int `toml:"start_epoch"`
 	AutoBidDealPerDay   int `toml:"auto_bid_deal_per_day"`
 }
+type market struct {
+	FullNodeApi      string
+	MinerApi         string
+	CollateralWallet string `toml:"collateral_wallet"`
+	PublishWallet    string `toml:"publish_wallet"`
+	RpcUrl           string
+	GraphqlUrl       string
+	Repo             string
+	BoostLog         string
+}
 
 var config *Configuration
 
 func InitConfig() {
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		logs.GetLogger().Fatal("Cannot get home directory.")
+	swanPath, exist := os.LookupEnv("SWAN_PATH")
+	var basePath, configFile string
+	if exist {
+		configFile = filepath.Join(swanPath, "provider/config.toml")
+		basePath = filepath.Join(swanPath, "provider")
+	} else {
+		homedir, err := os.UserHomeDir()
+		if err != nil {
+			logs.GetLogger().Fatal("Cannot get home directory.")
+		}
+		configFile = filepath.Join(homedir, ".swan/provider/config.toml")
+		basePath = filepath.Join(homedir, ".swan/provider")
 	}
-
-	configFile := filepath.Join(homedir, ".swan/provider/config.toml")
 
 	logs.GetLogger().Info("Your config file is:", configFile)
 
@@ -69,6 +93,22 @@ func InitConfig() {
 			logs.GetLogger().Fatal("required fields not given")
 		}
 	}
+	config.Market.Repo = filepath.Join(basePath, "boost")
+	config.Market.BoostLog = filepath.Join(basePath, "boost.log")
+
+	fullNodeApi, err := ChangeToFull(config.Lotus.ClientApiUrl, config.Lotus.ClientApiToken)
+	if err != nil {
+		logs.GetLogger().Fatal(err)
+		return
+	}
+	minerApi, err := ChangeToFull(config.Lotus.MarketApiUrl, config.Lotus.MarketAccessToken)
+	if err != nil {
+		logs.GetLogger().Fatal(err)
+		return
+	}
+
+	config.Market.MinerApi = minerApi
+	config.Market.FullNodeApi = fullNodeApi
 }
 
 func GetConfig() Configuration {
@@ -87,10 +127,12 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"aria2"},
 		{"main"},
 		{"bid"},
+		{"market"},
 
 		{"lotus", "client_api_url"},
 		{"lotus", "market_api_url"},
 		{"lotus", "market_access_token"},
+		{"lotus", "client_api_token"},
 
 		{"aria2", "aria2_download_dir"},
 		{"aria2", "aria2_host"},
@@ -106,11 +148,15 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"main", "api_key"},
 		{"main", "access_token"},
 		{"main", "api_heartbeat_interval"},
+		{"main", "market_version"},
 
 		{"bid", "bid_mode"},
 		{"bid", "expected_sealing_time"},
 		{"bid", "start_epoch"},
 		{"bid", "auto_bid_deal_per_day"},
+
+		{"market", "collateral_wallet"},
+		{"market", "publish_wallet"},
 	}
 
 	for _, v := range requiredFields {
@@ -120,4 +166,31 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	}
 
 	return true
+}
+
+func GetRpcInfoByFile(configPath string) (string, string, error) {
+	var config struct {
+		API struct {
+			ListenAddress string
+		}
+		Graphql struct {
+			Port uint64
+		}
+	}
+
+	if _, err := toml.DecodeFile(configPath, &config); err != nil {
+		return "", "", err
+	}
+	splits := strings.Split(config.API.ListenAddress, "/")
+	rpcUrl := fmt.Sprintf("127.0.0.1:%s", splits[4])
+	graphqlUrl := fmt.Sprintf("http://127.0.0.1:%d/graphql/query", config.Graphql.Port)
+	return rpcUrl, graphqlUrl, nil
+}
+
+func ChangeToFull(apiUrl, token string) (string, error) {
+	u, err := url.Parse(apiUrl)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s:/ip4/%s/tcp/%s/http", token, u.Hostname(), u.Port()), nil
 }

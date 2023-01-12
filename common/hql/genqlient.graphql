@@ -1,0 +1,29 @@
+query Deal($uuid: ID!){
+    deal(id: $uuid) {
+        ID
+        ProviderAddress
+        PieceCid
+        IsVerified
+        SignedProposalCid
+        InboundFilePath
+        ChainDealID
+        Checkpoint
+        Err
+        Message
+    }
+}
+
+query LegacyDeal($proposalCid: ID!){
+    legacyDeal(id: $proposalCid){
+        ID
+        ProviderAddress
+        PieceCid
+        SectorNumber
+        ChainDealID
+        Status
+        Message
+        InboundCARPath
+        ProviderAddress
+        DealDataRoot
+    }
+}

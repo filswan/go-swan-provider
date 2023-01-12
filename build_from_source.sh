@@ -1,29 +1,45 @@
 #!/bin/bash
 
+SWAN_PATH=$(echo ${SWAN_PATH})
 CONF_FILE_DIR=${HOME}/.swan/provider
+
+if [ -n "$SWAN_PATH" ]; then
+  CONF_FILE_DIR=$SWAN_PATH/provider
+fi
 
 if [ ! -d "${CONF_FILE_DIR}" ]; then
     mkdir -p ${CONF_FILE_DIR}
 fi
 
-CONF_FILE_PATH=${CONF_FILE_DIR}/config.toml
-echo $CONF_FILE_PATH
 
-if [ -f "${CONF_FILE_PATH}" ]; then
-    echo "${CONF_FILE_PATH} exists"
+current_create_time=`date +"%Y%m%d%H%M%S"`
+
+if [ -f "${CONF_FILE_DIR}/config.toml" ]; then
+  mv ${CONF_FILE_DIR}/config.toml  ${CONF_FILE_DIR}/config.toml.${current_create_time}
+  echo "The previous configuration files have been backed up: ${CONF_FILE_DIR}/config.toml.${current_create_time}"
+  cp ./config/config.toml.example ${CONF_FILE_DIR}/config.toml
+  echo "${CONF_FILE_PATH} created"
+
+  ARIA2_DOWNLOAD_DIR=${CONF_FILE_DIR}/download
+  sed -i 's@%%ARIA2_DOWNLOAD_DIR%%@'${ARIA2_DOWNLOAD_DIR}'@g' ${CONF_FILE_DIR}/config.toml   # Set aria2 download dir
+  if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
+      mkdir -p ${ARIA2_DOWNLOAD_DIR}
+      echo "${ARIA2_DOWNLOAD_DIR} created"
+  else
+      echo "${ARIA2_DOWNLOAD_DIR} exists"
+  fi
 else
-    cp ./config/config.toml.example $CONF_FILE_PATH
-    ARIA2_DOWNLOAD_DIR=${CONF_FILE_DIR}/download
-    sed -i 's@%%ARIA2_DOWNLOAD_DIR%%@'${ARIA2_DOWNLOAD_DIR}'@g' $CONF_FILE_PATH   # Set aria2 download dir
+    cp ./config/config.toml.example ${CONF_FILE_DIR}/config.toml
+    echo "${CONF_FILE_PATH} created"
 
+    ARIA2_DOWNLOAD_DIR=${CONF_FILE_DIR}/download
+    sed -i 's@%%ARIA2_DOWNLOAD_DIR%%@'${ARIA2_DOWNLOAD_DIR}'@g' ${CONF_FILE_DIR}/config.toml   # Set aria2 download dir
     if [ ! -d "${ARIA2_DOWNLOAD_DIR}" ]; then
         mkdir -p ${ARIA2_DOWNLOAD_DIR}
         echo "${ARIA2_DOWNLOAD_DIR} created"
     else
         echo "${ARIA2_DOWNLOAD_DIR} exists"
     fi
-
-    echo "${CONF_FILE_PATH} created"
 fi
 
 sed -i 's/%%USER%%/'${USER}'/g' ./aria2c.service   # Set User & Group to value of $USER
@@ -64,7 +80,11 @@ sudo systemctl restart aria2c.service            # Start Aria2
 
 BINARY_NAME=swan-provider
 
+git submodule update --init --recursive
+make build_boost
+make ffi
 make
 chmod +x ./build/${BINARY_NAME}
+make install-provider
 ./build/${BINARY_NAME}  daemon                       # Run swan provider
 

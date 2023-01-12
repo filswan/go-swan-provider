@@ -2,12 +2,14 @@ package service
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"swan-provider/common/constants"
+	"swan-provider/common/hql"
 	"swan-provider/config"
 	"time"
 
@@ -19,14 +21,16 @@ import (
 )
 
 type Aria2Service struct {
-	MinerFid    string
-	DownloadDir string
+	MinerFid      string
+	DownloadDir   string
+	CandidateDirs []string
 }
 
 func GetAria2Service() *Aria2Service {
 	aria2Service := &Aria2Service{
-		MinerFid:    config.GetConfig().Main.MinerFid,
-		DownloadDir: config.GetConfig().Aria2.Aria2DownloadDir,
+		MinerFid:      config.GetConfig().Main.MinerFid,
+		DownloadDir:   config.GetConfig().Aria2.Aria2DownloadDir,
+		CandidateDirs: config.GetConfig().Aria2.Aria2CandidateDirs,
 	}
 
 	_, err := os.Stat(aria2Service.DownloadDir)
@@ -34,6 +38,15 @@ func GetAria2Service() *Aria2Service {
 		logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
 		logs.GetLogger().Error("Your download directory:", aria2Service.DownloadDir, " not exists.")
 		logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
+	}
+
+	for _, dir := range aria2Service.CandidateDirs {
+		_, err := os.Stat(dir)
+		if err != nil {
+			logs.GetLogger().Error(constants.ERROR_LAUNCH_FAILED)
+			logs.GetLogger().Error("Your download directory:", dir, " not exists.")
+			logs.GetLogger().Fatal(constants.INFO_ON_HOW_TO_CONFIG)
+		}
 	}
 
 	return aria2Service
@@ -151,22 +164,72 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	suspendingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_SUSPENDING, aria2Service.MinerFid, nil)
 
 	for _, deal := range suspendingDeals {
-		_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			continue
-		}
+		if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
+			_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
 
-		if onChainStatus == nil {
-			logs.GetLogger().Info("not found the deal on the chain", *deal.TaskName+":"+deal.DealCid)
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
-			continue
-		}
+			if onChainStatus == nil {
+				logs.GetLogger().Info("not found the deal on the chain", *deal.TaskName+":"+deal.DealCid)
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
+				continue
+			}
 
-		if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
-			UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", *onChainStatus, *onChainMessage)
-		} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
-			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", *onChainMessage)
+			if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+				UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", *onChainStatus, *onChainMessage)
+			} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", *onChainMessage)
+			}
+		} else {
+			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			hqlClient, err := hql.NewClient(graphqlApi)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				continue
+			}
+
+			if _, err := uuid.Parse(deal.DealCid); err == nil {
+				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
+				switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
+				case constants.CHECKPOINT_ACCEPTED:
+					UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", dealResp.Deal.Checkpoint, dealResp.Deal.Message)
+				case constants.CHECKPOINT_COMPLETE:
+					if dealResp.Deal.Err != "" {
+						UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", dealResp.Deal.Err)
+					}
+				}
+			} else {
+				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
+
+				var onChainStatus, onChainMessage *string
+				onChainStatus = &dealResp.LegacyDeal.Status
+				onChainMessage = &dealResp.LegacyDeal.Message
+				if onChainStatus == nil {
+					logs.GetLogger().Info("not found the deal on the chain", *deal.TaskName+":"+deal.DealCid)
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
+					continue
+				}
+
+				if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
+					UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", *onChainStatus, *onChainMessage)
+				} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", *onChainMessage)
+				}
+			}
 		}
 	}
 }
@@ -185,11 +248,21 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 		outFilename = filepath.Join(urlInfo.Path, outFilename)
 	}
 	_, outFilename = filepath.Split(outFilename)
+
 	outDir := strings.TrimSuffix(aria2Service.DownloadDir, "/")
 	filePath := outDir + "/" + outFilename
 	if IsExist(filePath) {
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
 		return
+	}
+
+	for _, dir := range aria2Service.CandidateDirs {
+		outDir = strings.TrimSuffix(dir, "/")
+		filePath = outDir + "/" + outFilename
+		if IsExist(filePath) {
+			UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
+			return
+		}
 	}
 
 	aria2Download := aria2Client.DownloadFile(deal.CarFileUrl, outDir, outFilename)
@@ -229,11 +302,56 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
-		//logs.GetLogger().Info("deal:", deal2Download.Id, " ", deal2Download.DealCid, deal2Download)
-		_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
-		if err != nil {
-			logs.GetLogger().Error(err)
-			break
+		var onChainStatus, onChainMessage *string
+		var err error
+		if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
+			_, _, onChainStatus, onChainMessage, err = lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				break
+			}
+		} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
+			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
+			if err != nil {
+				logs.GetLogger().Error(err)
+				return
+			}
+			hqlClient, err := hql.NewClient(graphqlApi)
+			if err != nil {
+				logs.GetLogger().Error(err)
+				break
+			}
+			logs.GetLogger().Infof("taskname: %s,deal2Download: %+v", *deal2Download.TaskName, deal2Download)
+
+			if _, err := uuid.Parse(deal2Download.DealCid); err == nil {
+				dealResp, err := hqlClient.GetDealByUuid(deal2Download.DealCid)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					break
+				}
+
+				msg := hql.Message(dealResp.Deal.GetCheckpoint(), dealResp.Deal.GetErr())
+				onChainMessage = &msg
+				switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
+				case constants.CHECKPOINT_ACCEPTED:
+					wait := ONCHAIN_DEAL_STATUS_WAITTING
+					onChainStatus = &wait
+				case constants.CHECKPOINT_COMPLETE:
+					if dealResp.Deal.Err != "" {
+						failed := DEAL_STATUS_IMPORT_FAILED
+						onChainStatus = &failed
+					}
+				}
+
+			} else {
+				dealResp, err := hqlClient.GetProposalCid(deal2Download.DealCid)
+				if err != nil {
+					logs.GetLogger().Error(err)
+					continue
+				}
+				onChainStatus = &dealResp.LegacyDeal.Status
+				onChainMessage = &dealResp.LegacyDeal.Message
+			}
 		}
 
 		if onChainStatus == nil {

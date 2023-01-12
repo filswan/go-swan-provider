@@ -1,11 +1,21 @@
 package service
 
 import (
+	"context"
 	"fmt"
+	"github.com/fatih/color"
+	"github.com/pkg/errors"
+	"io/ioutil"
+	"log"
+	"os"
+	"os/exec"
+	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"swan-provider/common/constants"
 	"swan-provider/config"
+	"syscall"
 	"time"
 
 	"github.com/filswan/go-swan-lib/client"
@@ -55,10 +65,16 @@ var swanService *SwanService
 var aria2Service *Aria2Service
 var lotusService *LotusService
 
+var BoostPid int
+
 func AdminOfflineDeal() {
 	swanService = GetSwanService()
 	aria2Service = GetAria2Service()
 	lotusService = GetLotusService()
+
+	if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
+		fmt.Println(color.YellowString("You are using the MARKET(version=1.1 built-in Lotus) import deals, but it is deprecated, will remove soon. Please set [main.market_version=“1.2”]"))
+	}
 
 	aria2Client = SetAndCheckAria2Config()
 	swanClient = SetAndCheckSwanConfig()
@@ -154,31 +170,62 @@ func checkLotusConfig() {
 		logs.GetLogger().Fatal("error in config")
 	}
 
-	lotusMarket := lotusService.LotusMarket
-	lotusClient := lotusService.LotusClient
-	if utils.IsStrEmpty(&lotusMarket.ApiUrl) {
-		logs.GetLogger().Fatal("please set config:lotus->market_api_url")
+	if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
+		marketApiUrl := config.GetConfig().Lotus.MarketApiUrl
+		marketAccessToken := config.GetConfig().Lotus.MarketAccessToken
+
+		if utils.IsStrEmpty(&lotusService.LotusClient.ApiUrl) {
+			logs.GetLogger().Fatal("please set config:lotus->client_api_url")
+		}
+		if utils.IsStrEmpty(&marketApiUrl) {
+			logs.GetLogger().Fatal("please set config:lotus->market_api_url")
+		}
+		if utils.IsStrEmpty(&marketAccessToken) {
+			logs.GetLogger().Fatal("please set config:lotus->market_access_token")
+		}
+
+		lotusMarket, err := lotus.GetLotusMarket(marketApiUrl, marketAccessToken, lotusService.LotusClient.ApiUrl)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
+
+		lotusService.LotusMarket = lotusMarket
+		isWriteAuth, err := lotus.LotusCheckAuth(marketApiUrl, marketAccessToken, libconstants.LOTUS_AUTH_WRITE)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			logs.GetLogger().Fatal("please check config:lotus->market_api_url, lotus->market_access_token")
+		}
+		if !isWriteAuth {
+			logs.GetLogger().Fatal("market access token should have write access right")
+		}
+	} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
+		market := config.GetConfig().Market
+		if _, err := os.Stat(market.Repo); err != nil {
+			if err := initBoost(market.Repo, market.MinerApi, market.FullNodeApi, market.PublishWallet, market.CollateralWallet); err != nil {
+				logs.GetLogger().Fatal(err)
+				return
+			}
+			logs.GetLogger().Info("init boostd successful")
+		}
+
+		rpcApi, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(market.Repo, "config.toml"))
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
+		market.RpcUrl = rpcApi
+		market.GraphqlUrl = graphqlApi
+		boostPid, err := startBoost(market.Repo, market.BoostLog, market.FullNodeApi)
+		if err != nil {
+			logs.GetLogger().Fatal(err)
+			return
+		}
+		logs.GetLogger().Infof("start boostd successful, pid: %d", boostPid)
+		BoostPid = boostPid
 	}
 
-	if utils.IsStrEmpty(&lotusMarket.AccessToken) {
-		logs.GetLogger().Fatal("please set config:lotus->market_access_token")
-	}
-
-	if utils.IsStrEmpty(&lotusMarket.ClientApiUrl) {
-		logs.GetLogger().Fatal("please set config:lotus->client_api_url")
-	}
-
-	isWriteAuth, err := lotus.LotusCheckAuth(lotusMarket.ApiUrl, lotusMarket.AccessToken, libconstants.LOTUS_AUTH_WRITE)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		logs.GetLogger().Fatal("please check config:lotus->market_api_url, lotus->market_access_token")
-	}
-
-	if !isWriteAuth {
-		logs.GetLogger().Fatal("market access token should have write access right")
-	}
-
-	currentEpoch, err := lotusClient.LotusGetCurrentEpoch()
+	currentEpoch, err := lotusService.LotusClient.LotusGetCurrentEpoch()
 	if err != nil {
 		logs.GetLogger().Error(err)
 		logs.GetLogger().Fatal("please check config:lotus->client_api_url")
@@ -277,7 +324,7 @@ func UpdateStatusAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, messag
 
 func GetLog(deal *libmodel.OfflineDeal, messages ...string) string {
 	text := GetNote(messages...)
-	msg := fmt.Sprintf("taskName:%s, dealCid:%s, %s", *deal.TaskName, deal.DealCid, text)
+	msg := fmt.Sprintf("taskName:%s, dealCid|dealUuid:%s, %s", *deal.TaskName, deal.DealCid, text)
 	return msg
 }
 
@@ -347,4 +394,77 @@ func UpdateOfflineDealStatus(swanClient *swan.SwanClient, dealId int, status str
 	}
 
 	return nil
+}
+
+func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) error {
+	ctx, cancelFunc := context.WithTimeout(context.TODO(), 30*time.Second)
+	defer cancelFunc()
+	args := make([]string, 0)
+	args = append(args, "--vv")
+	args = append(args, "--boost-repo="+repo)
+	args = append(args, "init")
+	args = append(args, "--api-sealer="+minerApi)
+	args = append(args, "--api-sector-index="+minerApi)
+	args = append(args, "--wallet-publish-storage-deals="+publishWallet)
+	args = append(args, "--wallet-deal-collateral="+collatWallet)
+	args = append(args, "--max-staging-deals-bytes=50000000000000")
+
+	cmd := exec.CommandContext(ctx, "boostd", args...)
+	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
+
+	if _, err := cmd.CombinedOutput(); err != nil {
+		return errors.Wrap(err, "init boostd failed")
+	}
+	return nil
+}
+
+func startBoost(repo, logFile, fullNodeApi string) (int, error) {
+	args := make([]string, 0)
+	args = append(args, "boostd")
+	args = append(args, "--vv")
+	args = append(args, "--boost-repo="+repo)
+	args = append(args, "run")
+
+	outFile, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, errors.Wrap(err, "open log file failed")
+	}
+	boostProcess, err := os.StartProcess("/usr/local/bin/boostd", args, &os.ProcAttr{
+		Env: append(os.Environ(), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi)),
+		Sys: &syscall.SysProcAttr{
+			Setsid: true,
+		},
+		Files: []*os.File{
+			nil,
+			outFile,
+			outFile},
+	})
+
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return 0, errors.Wrap(err, "start boostd process failed")
+	}
+	return boostProcess.Pid, nil
+}
+
+func StopBoost(pid int) {
+	if pid == 0 {
+		return
+	}
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("sudo kill %d", pid))
+	if _, err := cmd.CombinedOutput(); err != nil {
+		logs.GetLogger().Errorf("stop boostd failed, error: %s", err.Error())
+		return
+	}
+	logs.GetLogger().Info("stop boostd successful")
+}
+
+func GetBoostToken(repo string) (string, error) {
+	tokenFile, err := ioutil.ReadFile(path.Join(repo, "token"))
+	if err != nil {
+		log.Println(err)
+		return "", errors.Wrap(err, "open token file failed")
+	}
+	return string(tokenFile), nil
 }
