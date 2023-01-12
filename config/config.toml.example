@@ -9,7 +9,7 @@ market_access_token = ""                       	# Access token of lotus market w
 
 [aria2]
 aria2_download_dir = "%%ARIA2_DOWNLOAD_DIR%%"   # Directory where offline deal files will be downloaded for importing
-aria2_candidate_dirs = ["%%ARIA2_CANDIDATE_DIR1%%", "%%ARIA2_CANDIDATE_DIR2%%"] # Directories to find the CAR file required for the offline deal
+aria2_candidate_dirs = ["/tmp"] # Directories to find the CAR file required for the offline deal
 aria2_host = "127.0.0.1"                        # Aria2 server address
 aria2_port = 6800                               # Aria2 server port
 aria2_secret = "my_aria2_secret"                # Must be the same value as RPC-secure in aria2.conf
