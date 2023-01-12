@@ -217,6 +217,10 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 		}
 		UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal imported")
 	default:
+		if *onChainStatus == "StorageDealPublish" || *onChainStatus == "StorageDealPublishing" {
+			UpdateStatusAndLog(deal, DEAL_STATUS_IMPORTED, "deal imported")
+			return
+		}
 		UpdateStatusAndLog(deal, deal.Status, *onChainStatus, onChainMessage)
 	}
 }
