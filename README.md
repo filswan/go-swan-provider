@@ -58,7 +58,7 @@ chmod +x ./install.sh
 ./install.sh
 ```
 #### Config and Run
-- Edit config file **~/.swan/provider/config.toml**, configuration instruction is [here](#Config)
+- Edit config file **~/.swan/provider/config.toml**, configuration instruction is [here](#Configuration-and-Run)
 - Run `swan-provider` in the background
 
 ```
