@@ -4,7 +4,7 @@
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 
 - Join us on our public [discord](https://discord.com/invite/KKGhy8ZqzK) channel for news, discussions, and status updates.
-- Check out our [medium](https://filswan.medium.com) for the latest posts and announcements.
+- Check out our [Blog](https://blog.filswan.com/) for the latest posts and announcements.
 
 ## Table of Contents
 
