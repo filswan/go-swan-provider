@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"swan-provider/common/constants"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -22,6 +23,16 @@ type Configuration struct {
 	Market  market `toml:"market"`
 }
 
+type ConfigurationBak struct {
+	Port    int      `toml:"port"`
+	Release bool     `toml:"release"`
+	Lotus   lotus    `toml:"lotus"`
+	Aria2   aria2Bak `toml:"aria2"`
+	Main    main     `toml:"main"`
+	Bid     bid      `toml:"bid"`
+	Market  market   `toml:"market"`
+}
+
 type lotus struct {
 	ClientApiUrl      string `toml:"client_api_url"`
 	ClientApiToken    string `toml:"client_api_token"`
@@ -31,12 +42,22 @@ type lotus struct {
 
 type aria2 struct {
 	Aria2DownloadDir         string   `toml:"aria2_download_dir"`
-	Aria2CandidateDirs       []string `toml:"aria2_candidate_dirs"`
 	Aria2Host                string   `toml:"aria2_host"`
 	Aria2Port                int      `toml:"aria2_port"`
 	Aria2Secret              string   `toml:"aria2_secret"`
 	Aria2AutoDeleteCarFile   bool     `toml:"aria2_auto_delete_car_file"`
 	Aria2MaxDownloadingTasks int      `toml:"aria2_max_downloading_tasks"`
+	Aria2CandidateDirs       []string `toml:"aria2_candidate_dirs"`
+}
+
+type aria2Bak struct {
+	Aria2DownloadDir         string `toml:"aria2_download_dir"`
+	Aria2Host                string `toml:"aria2_host"`
+	Aria2Port                int    `toml:"aria2_port"`
+	Aria2Secret              string `toml:"aria2_secret"`
+	Aria2AutoDeleteCarFile   bool   `toml:"aria2_auto_delete_car_file"`
+	Aria2MaxDownloadingTasks int    `toml:"aria2_max_downloading_tasks"`
+	Aria2CandidateDirs       string `toml:"aria2_candidate_dirs"`
 }
 
 type main struct {
@@ -87,7 +108,12 @@ func InitConfig() {
 	logs.GetLogger().Info("Your config file is:", configFile)
 
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
-		logs.GetLogger().Fatal("error:", err)
+		var configBak *ConfigurationBak
+		if _, err = toml.DecodeFile(configFile, &configBak); err == nil {
+			config.Aria2.Aria2CandidateDirs = strings.Split(configBak.Aria2.Aria2CandidateDirs, ",")
+		} else {
+			logs.GetLogger().Fatal("error:", err)
+		}
 	} else {
 		if !requiredFieldsAreGiven(metaData) {
 			logs.GetLogger().Fatal("required fields not given")
@@ -95,6 +121,8 @@ func InitConfig() {
 	}
 	config.Market.Repo = filepath.Join(basePath, "boost")
 	config.Market.BoostLog = filepath.Join(basePath, "boost.log")
+
+	println("Aria2CandidateDirs:", config.Aria2.Aria2CandidateDirs)
 
 	fullNodeApi, err := ChangeToFull(config.Lotus.ClientApiUrl, config.Lotus.ClientApiToken)
 	if err != nil {
@@ -181,8 +209,18 @@ func GetRpcInfoByFile(configPath string) (string, string, error) {
 	if _, err := toml.DecodeFile(configPath, &config); err != nil {
 		return "", "", err
 	}
+
+	var rpcUrl string
 	splits := strings.Split(config.API.ListenAddress, "/")
-	rpcUrl := fmt.Sprintf("127.0.0.1:%s", splits[4])
+	if len(splits) == 0 {
+		rpcUrl = fmt.Sprintf("127.0.0.1:%d", constants.DEFAULT_API_PORT)
+	} else {
+		rpcUrl = fmt.Sprintf("127.0.0.1:%s", splits[4])
+	}
+
+	if config.Graphql.Port == 0 {
+		config.Graphql.Port = constants.DEFAULT_GRAPHQL_PORT
+	}
 	graphqlUrl := fmt.Sprintf("http://127.0.0.1:%d/graphql/query", config.Graphql.Port)
 	return rpcUrl, graphqlUrl, nil
 }
