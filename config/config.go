@@ -135,9 +135,6 @@ func InitConfig() {
 
 	config.Market.MinerApi = minerApi
 	config.Market.FullNodeApi = fullNodeApi
-
-	fmt.Printf("config: %+v \n", config)
-	fmt.Printf("Aria2: %+v \n", config.Aria2)
 }
 
 func GetConfig() Configuration {
