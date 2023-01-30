@@ -107,18 +107,28 @@ func InitConfig() {
 
 	logs.GetLogger().Info("Your config file is:", configFile)
 
-	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
+	metaData, err := toml.DecodeFile(configFile, &config)
+	if err != nil {
 		var configBak *ConfigurationBak
-		if _, err = toml.DecodeFile(configFile, &configBak); err == nil {
+		metaData, err = toml.DecodeFile(configFile, &configBak)
+		if err == nil {
 			assignConfig(config, configBak)
 		} else {
 			logs.GetLogger().Fatal("error:", err)
 		}
-	} else {
-		if !requiredFieldsAreGiven(metaData) {
-			logs.GetLogger().Fatal("required fields not given")
-		}
 	}
+
+	dirs := config.Aria2.Aria2CandidateDirs
+	newDirs := make([]string, 0)
+	for _, strPath := range dirs {
+		newDirs = append(newDirs, strings.TrimSpace(strPath))
+	}
+	config.Aria2.Aria2CandidateDirs = newDirs
+
+	if !requiredFieldsAreGiven(metaData) {
+		logs.GetLogger().Fatal("required fields not given")
+	}
+
 	config.Market.Repo = filepath.Join(basePath, "boost")
 	config.Market.BoostLog = filepath.Join(basePath, "boost.log")
 
@@ -245,7 +255,13 @@ func assignConfig(config *Configuration, configBak *ConfigurationBak) {
 	config.Aria2.Aria2Secret = configBak.Aria2.Aria2Secret
 	config.Aria2.Aria2AutoDeleteCarFile = configBak.Aria2.Aria2AutoDeleteCarFile
 	config.Aria2.Aria2MaxDownloadingTasks = configBak.Aria2.Aria2MaxDownloadingTasks
-	config.Aria2.Aria2CandidateDirs = strings.Split(configBak.Aria2.Aria2CandidateDirs, ",")
+
+	splits := strings.Split(configBak.Aria2.Aria2CandidateDirs, ",")
+	dirs := make([]string, 0)
+	for _, strPath := range splits {
+		dirs = append(dirs, strings.TrimSpace(strPath))
+	}
+	config.Aria2.Aria2CandidateDirs = dirs
 
 	config.Main.SwanApiUrl = configBak.Main.SwanApiUrl
 	config.Main.SwanApiKey = configBak.Main.SwanApiKey
