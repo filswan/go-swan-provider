@@ -321,7 +321,6 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 				logs.GetLogger().Error(err)
 				break
 			}
-			logs.GetLogger().Infof("taskname: %s,deal2Download: %+v", *deal2Download.TaskName, deal2Download)
 
 			if _, err := uuid.Parse(deal2Download.DealCid); err == nil {
 				dealResp, err := hqlClient.GetDealByUuid(deal2Download.DealCid)
