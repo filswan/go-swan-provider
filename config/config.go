@@ -110,7 +110,7 @@ func InitConfig() {
 	if metaData, err := toml.DecodeFile(configFile, &config); err != nil {
 		var configBak *ConfigurationBak
 		if _, err = toml.DecodeFile(configFile, &configBak); err == nil {
-			config.Aria2.Aria2CandidateDirs = strings.Split(configBak.Aria2.Aria2CandidateDirs, ",")
+			assignConfig(config, configBak)
 		} else {
 			logs.GetLogger().Fatal("error:", err)
 		}
@@ -121,8 +121,6 @@ func InitConfig() {
 	}
 	config.Market.Repo = filepath.Join(basePath, "boost")
 	config.Market.BoostLog = filepath.Join(basePath, "boost.log")
-
-	println("Aria2CandidateDirs:", config.Aria2.Aria2CandidateDirs)
 
 	fullNodeApi, err := ChangeToFull(config.Lotus.ClientApiUrl, config.Lotus.ClientApiToken)
 	if err != nil {
@@ -137,6 +135,9 @@ func InitConfig() {
 
 	config.Market.MinerApi = minerApi
 	config.Market.FullNodeApi = fullNodeApi
+
+	fmt.Printf("config: %+v \n", config)
+	fmt.Printf("Aria2: %+v \n", config.Aria2)
 }
 
 func GetConfig() Configuration {
@@ -231,4 +232,38 @@ func ChangeToFull(apiUrl, token string) (string, error) {
 		return "", err
 	}
 	return fmt.Sprintf("%s:/ip4/%s/tcp/%s/http", token, u.Hostname(), u.Port()), nil
+}
+
+func assignConfig(config *Configuration, configBak *ConfigurationBak) {
+	config.Port = configBak.Port
+	config.Release = configBak.Release
+
+	config.Lotus.ClientApiUrl = configBak.Lotus.ClientApiUrl
+	config.Lotus.ClientApiToken = configBak.Lotus.ClientApiToken
+	config.Lotus.MarketApiUrl = configBak.Lotus.MarketApiUrl
+	config.Lotus.MarketAccessToken = configBak.Lotus.MarketAccessToken
+	config.Aria2.Aria2DownloadDir = configBak.Aria2.Aria2DownloadDir
+	config.Aria2.Aria2Host = configBak.Aria2.Aria2Host
+	config.Aria2.Aria2Port = configBak.Aria2.Aria2Port
+	config.Aria2.Aria2Secret = configBak.Aria2.Aria2Secret
+	config.Aria2.Aria2AutoDeleteCarFile = configBak.Aria2.Aria2AutoDeleteCarFile
+	config.Aria2.Aria2MaxDownloadingTasks = configBak.Aria2.Aria2MaxDownloadingTasks
+	config.Aria2.Aria2CandidateDirs = strings.Split(configBak.Aria2.Aria2CandidateDirs, ",")
+
+	config.Main.SwanApiUrl = configBak.Main.SwanApiUrl
+	config.Main.SwanApiKey = configBak.Main.SwanApiKey
+	config.Main.SwanAccessToken = configBak.Main.SwanAccessToken
+	config.Main.SwanApiHeartbeatInterval = configBak.Main.SwanApiHeartbeatInterval
+	config.Main.MinerFid = configBak.Main.MinerFid
+	config.Main.LotusImportInterval = configBak.Main.LotusImportInterval
+	config.Main.LotusScanInterval = configBak.Main.LotusScanInterval
+	config.Main.MarketVersion = configBak.Main.MarketVersion
+
+	config.Bid.BidMode = configBak.Bid.BidMode
+	config.Bid.ExpectedSealingTime = configBak.Bid.ExpectedSealingTime
+	config.Bid.StartEpoch = configBak.Bid.StartEpoch
+	config.Bid.AutoBidDealPerDay = configBak.Bid.AutoBidDealPerDay
+
+	config.Market.CollateralWallet = configBak.Market.CollateralWallet
+	config.Market.PublishWallet = configBak.Market.PublishWallet
 }
