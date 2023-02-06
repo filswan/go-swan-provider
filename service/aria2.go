@@ -302,6 +302,11 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			break
 		}
 
+		if len(deal2Download.DealCid) == 0 {
+			UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
+			continue
+		}
+
 		var onChainStatus, onChainMessage *string
 		var err error
 		if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
@@ -322,10 +327,12 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 				break
 			}
 
+			logs.GetLogger().Infof("taskName: %s, dealCid: %s, carFileUrl: %s", *deal2Download.TaskName, deal2Download.DealCid, deal2Download.CarFileUrl)
 			if _, err := uuid.Parse(deal2Download.DealCid); err == nil {
 				dealResp, err := hqlClient.GetDealByUuid(deal2Download.DealCid)
 				if err != nil {
 					logs.GetLogger().Error(err)
+					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 					break
 				}
 
@@ -346,6 +353,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 				dealResp, err := hqlClient.GetProposalCid(deal2Download.DealCid)
 				if err != nil {
 					logs.GetLogger().Error(err)
+					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 					continue
 				}
 				onChainStatus = &dealResp.LegacyDeal.Status
