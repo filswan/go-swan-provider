@@ -146,7 +146,7 @@ publish_wallet = ""                             # wallet to be used for PublishS
 
 - Disable the markets subsystem in miner config:
 ```
-cd $LOTUS_MINER_PATH
+vi $LOTUS_MINER_PATH/config.toml
 ```
 ```
 [Subsystems] 
