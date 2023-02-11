@@ -193,8 +193,11 @@ swan-provider daemon
  ```
  - Set the `[market].publish_wallet` as a control address:
  ```
- lotus-miner actor control set --really-do-it <publish_wallet>
- ``` 
+ export OLD_CONTROL_ADDRESS=`lotus-miner actor control list  --verbose | awk '{print $3}' | grep -v key | tr -s '\n'  ' '`
+ ```
+ ```
+ lotus-miner actor control set --really-do-it $[market].publish_wallet $OLD_CONTROL_ADDRESS
+ ```
  - Add funds to the `collateral_wallet` Market Actor
  ```
  lotus wallet market add --from=<YOUR_WALLET> --address=<collateral_wallet> <amount>
