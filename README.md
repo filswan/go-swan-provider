@@ -144,6 +144,14 @@ publish_wallet = ""                             # wallet to be used for PublishS
 
 **(2) when `market_version = "1.2"`**, the storage provider will import deals using the Market like `Boost`, so you must ensure the storage provider is reachable. The following steps are:
 
+- Disable the markets subsystem in miner config:
+```
+cd $LOTUS_MINER_PATH
+```
+```
+[Subsystems] 
+ EnableMarkets = false
+```
 - Config the `[market]` section in the `$SWAN_PATH/provider/config.toml`
 - Initialize the Market repo to the `$SWAN_PATH/provider/boost`:
 ```
