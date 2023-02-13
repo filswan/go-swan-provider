@@ -321,7 +321,7 @@ def check_val():
                             "params": [collateral_wallet],
                             "id": 7878
                         }
-                        r = requests.post('https://api.calibration.node.glif.io/rpc/v0', json=data, headers=headers,
+                        r = requests.post('https://api.node.glif.io/rpc/v0', json=data, headers=headers,
                                           timeout=6)
                         if r.status_code != 200:
                             report.write(
@@ -341,42 +341,45 @@ def check_val():
 
 def check_query():
     print("start check query-ask")
-    miner_fid = ''
-    parsed_toml = toml.load(os.path.join(swan_path, "provider/config.toml"))
-    for key, value in parsed_toml.get('main').items():
-        if key == "miner_fid":
-            miner_fid = value
-            break
-    headers = {'content-type': 'application/json'}
-    r = requests.get('https://calibration-api.filswan.com/tools/check_connectivity?storage_provider_id=' + miner_fid,
-                     headers=headers, timeout=6)
-    if r.status_code != 200:
-        report.write("  ERROR: Check miner query-ask failed! return data is " + r.text + " \n")
-    else:
+    try:
+        miner_fid = ''
         parsed_toml = toml.load(os.path.join(swan_path, "provider/config.toml"))
-        market_version = ''
         for key, value in parsed_toml.get('main').items():
-            if key == "market_version":
-                market_version = value
+            if key == "miner_fid":
+                miner_fid = value
                 break
-        result = json.loads(r.text)
-        if result['status'] == "fail":
-            if market_version == '1.1':
-                report.write("  ERROR: Please use the command 'lotus-miner net listen' to query multi-address! \n")
-            if market_version == '1.2':
-                report.write(
-                    "  ERROR: Please use the command 'boostd --boost-repo=$SWAN_PATH/provider/boost net listen' to query multi-address! \n")
-        elif result['status'] == "success":
-            if result['data']['price_per_GiB'] != "0" or result['data']['verified_price_per_GiB'] != "0":
+        headers = {'content-type': 'application/json'}
+        r = requests.get('https://api.filswan.com/tools/check_connectivity?storage_provider_id=' + miner_fid,
+                         headers=headers, timeout=6)
+        if r.status_code != 200:
+            report.write("  ERROR: Check miner query-ask failed! return data is " + r.text + " \n")
+        else:
+            parsed_toml = toml.load(os.path.join(swan_path, "provider/config.toml"))
+            market_version = ''
+            for key, value in parsed_toml.get('main').items():
+                if key == "market_version":
+                    market_version = value
+                    break
+            result = json.loads(r.text)
+            if result['status'] == "fail":
                 if market_version == '1.1':
-                    report.write("  ERROR: Please use the command 'lotus-miner storage-deals set-ask --price 0 "
-                                 "--verified-price 0 --min-piece-size 56KiB --max-piece-size 64GB' to set the price! \n")
+                    report.write("  ERROR: Please use the command 'lotus-miner net listen' to query multi-address! \n")
                 if market_version == '1.2':
-                    report.write("  ERROR: Please use the command 'export SWAN_PATH=$SWAN_PATH && swan-provider "
-                                 "set-ask --price=0 --verified-price=0 --min-piece-size=256 "
-                                 "--max-piece-size=34359738368' to set the price! \n")
-            else:
-                report.write("  Check miner query-ask is ok. \n")
+                    report.write(
+                        "  ERROR: Please use the command 'boostd --boost-repo=$SWAN_PATH/provider/boost net listen' to query multi-address! \n")
+            elif result['status'] == "success":
+                if result['data']['price_per_GiB'] != "0" or result['data']['verified_price_per_GiB'] != "0":
+                    if market_version == '1.1':
+                        report.write("  ERROR: Please use the command 'lotus-miner storage-deals set-ask --price 0 "
+                                     "--verified-price 0 --min-piece-size 56KiB --max-piece-size 64GB' to set the price! \n")
+                    if market_version == '1.2':
+                        report.write("  ERROR: Please use the command 'export SWAN_PATH=$SWAN_PATH && swan-provider "
+                                     "set-ask --price=0 --verified-price=0 --min-piece-size=256 "
+                                     "--max-piece-size=34359738368' to set the price! \n")
+                else:
+                    report.write("  Check miner query-ask is ok. \n")
+    except:
+        report.write(" ERROR: Check miner query-ask timed out! \n")
 
 
 def do_cmd(cmd_str):
