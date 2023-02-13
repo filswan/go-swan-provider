@@ -53,7 +53,7 @@ export SWAN_PATH="/data/.swan"
 ### Option:one: **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ####  Build Instructions
 ```shell
-wget --no-check-certificate https://raw.githubusercontent.com/filswan/go-swan-provider/release-2.1.0-rc1/install.sh
+wget --no-check-certificate https://raw.githubusercontent.com/filswan/go-swan-provider/release-2.1.0/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
@@ -64,7 +64,7 @@ chmod +x ./install.sh
 ```
 ulimit -SHn 1048576
 export SWAN_PATH="/data/.swan"
-nohup swan-provider-2.1.0-rc1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
+nohup swan-provider-2.1.0-linux-amd64 daemon >> swan-provider.log 2>&1 & 
 ```
 ### Option:two: Source Code
 Building the `swan-provider` requires some system dependencies:
@@ -93,7 +93,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout release-2.1.0-rc1
+git checkout release-2.1.0
 ./build_from_source.sh
 ```
 
@@ -144,6 +144,14 @@ publish_wallet = ""                             # wallet to be used for PublishS
 
 **(2) when `market_version = "1.2"`**, the storage provider will import deals using the Market like `Boost`, so you must ensure the storage provider is reachable. The following steps are:
 
+- Disable the markets subsystem in miner config:
+```
+vi $LOTUS_MINER_PATH/config.toml
+```
+```
+[Subsystems] 
+ EnableMarkets = false
+```
 - Config the `[market]` section in the `$SWAN_PATH/provider/config.toml`
 - Initialize the Market repo to the `$SWAN_PATH/provider/boost`:
 ```
@@ -181,12 +189,15 @@ swan-provider daemon
  - Set the storage provider's ask
  ```
  export SWAN_PATH="/data/.swan"
- swan-provider set-ask --price=0 --verified-price=0 --min-piece-size=256 --max-piece-size=34359738368
+ swan-provider set-ask --price=0 --verified-price=0 --min-piece-size=1048576 --max-piece-size=34359738368
  ```
  - Set the `[market].publish_wallet` as a control address:
  ```
- lotus-miner actor control set --really-do-it <publish_wallet>
- ``` 
+ export OLD_CONTROL_ADDRESS=`lotus-miner actor control list  --verbose | awk '{print $3}' | grep -v key | tr -s '\n'  ' '`
+ ```
+ ```
+ lotus-miner actor control set --really-do-it $[market].publish_wallet $OLD_CONTROL_ADDRESS
+ ```
  - Add funds to the `collateral_wallet` Market Actor
  ```
  lotus wallet market add --from=<YOUR_WALLET> --address=<collateral_wallet> <amount>
