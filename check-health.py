@@ -267,10 +267,10 @@ def check_val():
                 else:
                     if bid_mode == 0:
                         report.write(
-                            "  16. Only manual bidding orders can be received, not automatic bidding orders. \n")
+                            "  16. Only manual-bid can be received, not auto-bid task. \n")
                     elif bid_mode == 1:
                         report.write(
-                            "  16. Only automatic bidding orders can be received, not manual bidding orders. \n")
+                            "  16. Only auto-bid can be received, not manual-bid task. \n")
                 if not isinstance(expected_sealing_time, numbers.Number):
                     report.write("  17. ERROR: bid.expected_sealing_time is null! \n")
                 elif 1920 > expected_sealing_time > 2880:
@@ -356,25 +356,21 @@ def check_val():
 
 def check_query():
     print("start check query-ask")
+    market_version = ''
+    miner_fid = ''
+    parsed_toml = toml.load(os.path.join(swan_path, "provider/config.toml"))
+    for key, value in parsed_toml.get('main').items():
+        if key == "miner_fid":
+            miner_fid = value
+        if key == "market_version":
+            market_version = value
     try:
-        miner_fid = ''
-        parsed_toml = toml.load(os.path.join(swan_path, "provider/config.toml"))
-        for key, value in parsed_toml.get('main').items():
-            if key == "miner_fid":
-                miner_fid = value
-                break
         headers = {'content-type': 'application/json'}
         r = requests.get('https://api.filswan.com/tools/check_connectivity?storage_provider_id=' + miner_fid,
                          headers=headers, timeout=6)
         if r.status_code != 200:
             report.write("  ERROR: Check miner query-ask failed! return data is " + r.text + " \n")
-        else:
-            parsed_toml = toml.load(os.path.join(swan_path, "provider/config.toml"))
-            market_version = ''
-            for key, value in parsed_toml.get('main').items():
-                if key == "market_version":
-                    market_version = value
-                    break
+        elif r.status_code == 200:
             result = json.loads(r.text)
             if result['status'] == "fail":
                 if market_version == '1.1':
@@ -394,7 +390,10 @@ def check_query():
                 else:
                     report.write("  Check miner query-ask is ok. \n")
     except:
-        report.write(" ERROR: Check miner query-ask timed out! \n")
+        if market_version == '1.1':
+            report.write("  ERROR: Please use the command 'lotus-miner net listen' to query multi-address! \n")
+        if market_version == '1.2':
+            report.write("  ERROR: Please use the command 'boostd --boost-repo=$SWAN_PATH/provider/boost net listen' to query multi-address! \n")
 
 
 def do_cmd(cmd_str):
