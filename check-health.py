@@ -26,6 +26,7 @@ def check_config():
         if market_version == '1.2':
             os.stat(os.path.join(swan_path, "provider/boost/config.toml"))
             report.write("  boost config file is ok. \n")
+
     except FileNotFoundError:
         print("boost config file is not exist!")
         report.write("  ERROR: boost config file is not exist! \n")
@@ -335,6 +336,20 @@ def check_val():
                             else:
                                 report.write("The deal collateral wallet: " + collateral_wallet + "balance is " +
                                              str(balance) + " FIL. \n")
+
+        enable_market = True
+        miner_toml = toml.load(os.path.join(miner_path, "config.toml"))
+        for key, value in miner_toml.get('Subsystems').items():
+            if key == "EnableMarkets":
+                enable_market = value
+                break
+        if market_version == '1.2' and enable_market is True:
+            report.write("  22. ERROR: When use market_version='1.2', need to disable the subsystem in config: set EnableMarkets = false. \n")
+        elif market_version == '1.1' and enable_market is False:
+            report.write("  22. ERROR: When use market_version='1.1', need to enable the subsystem in config: set EnableMarkets = true. \n")
+        else:
+            report.write("  22. EnableMarkets is ok. \n")
+
     except FileNotFoundError:
         print("swan-provider config file is not exist!")
 
@@ -389,7 +404,7 @@ def do_cmd(cmd_str):
         if stdout:
             return stdout.decode('utf-8')
         if stderr:
-            return "ERROR: "+stderr.decode('utf-8')
+            return "ERROR: " + stderr.decode('utf-8')
     except subprocess.TimeoutExpired:
         p.kill()
 
@@ -416,10 +431,13 @@ def do_cmd_out(cmd_str):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("The command line must specify a parameter to be used as swan_path！")
+    swan_path = os.environ.get('SWAN_PATH')
+    miner_path = os.environ.get('LOTUS_MINER_PATH')
+    if swan_path is None:
+        print("Please set SWAN_PATH: export SWAN_PATH=xxx")
+    if miner_path is None:
+        print("Please set LOTUS_MINER_PATH: export LOTUS_MINER_PATH=xxx")
     else:
-        swan_path = sys.argv[1]
         report = open("report.txt", "w")
         report.write("Version: \n")
         check_version()
