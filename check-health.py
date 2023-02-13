@@ -303,14 +303,14 @@ def check_val():
                         report.write("  20. ERROR: market.collateral_wallet is null! \n")
                     elif collateral_wallet != b_collateral_wallet:
                         report.write(
-                            "  20. market.collateral_wallet is not the same as in the boost configuration file. \n")
+                            "  20. Warn: market.collateral_wallet is not the same as in the boost configuration file. \n")
                     else:
                         report.write("  20. bid.collateral_wallet is ok. \n")
                     if len(publish_wallet) == 0:
                         report.write("  21. ERROR: market.publish_wallet is null! \n")
                     elif publish_wallet != b_publish_wallet:
                         report.write(
-                            "  21. market.publish_wallet is not the same as in the boost configuration file. \n")
+                            "  21. Warn: market.publish_wallet is not the same as in the boost configuration file. \n")
                     else:
                         report.write("  21. market.publish_wallet is ok. \n")
                     if len(collateral_wallet) > 0:
@@ -321,7 +321,7 @@ def check_val():
                             "params": [collateral_wallet],
                             "id": 7878
                         }
-                        r = requests.post('https://api.node.glif.io/rpc/v0', json=data, headers=headers,
+                        r = requests.post('https://api.calibration.node.glif.io/rpc/v0', json=data, headers=headers,
                                           timeout=6)
                         if r.status_code != 200:
                             report.write(
@@ -348,7 +348,7 @@ def check_query():
             miner_fid = value
             break
     headers = {'content-type': 'application/json'}
-    r = requests.get('https://api.filswan.com/tools/check_connectivity?storage_provider_id=' + miner_fid,
+    r = requests.get('https://calibration-api.filswan.com/tools/check_connectivity?storage_provider_id=' + miner_fid,
                      headers=headers, timeout=6)
     if r.status_code != 200:
         report.write("  ERROR: Check miner query-ask failed! return data is " + r.text + " \n")
