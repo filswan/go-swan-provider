@@ -42,7 +42,7 @@ def check_version():
 
 
 def health_aria2():
-    print("start check aria2 service")
+    print("start checking aria2 service")
     try:
         aria2_host = ''
         aria2_port = ''
@@ -67,15 +67,15 @@ def health_aria2():
         r = requests.post(url, json=data, headers=headers, timeout=6)
         if r.status_code != 200:
             report.write(
-                "   1. ERROR: Check the aria2 rpc service fail! return data is " + r.content + ", Please check aria2_host、aria2_port、aria2_secret.")
+                "   1. ERROR: bad request to Aria2 service! return " + r.content + ", Please check configration: aria2_host, aria2_port and aria2_secret.")
         else:
-            report.write("  1. Check the aria2 rpc service success. \n")
+            report.write("  1. Aria2 service is running. \n")
     except:
-        report.write("  1. ERROR: Check the aria2 rpc service fail! \n")
+        report.write("  1. ERROR: bad request to Aria2 service! \n")
 
 
 def health_swan():
-    print("start check swan platform connection")
+    print("start checking swan platform connection")
     try:
         api_key = ''
         access_token = ''
@@ -97,11 +97,11 @@ def health_swan():
         r = requests.post(url, json=data, headers=headers, timeout=6)
         if r.status_code != 200:
             report.write(
-                "  2. ERROR: Check the connectivity with swan platform fail! return data is " + r.content + ", Please check api_key and access_token! \n")
+                "  2. ERROR: failed to connect swan platform! return " + r.content + ", Please configuration: check api_key and access_token \n")
         else:
-            report.write("  2. Check the connectivity with swan platform success. \n")
+            report.write("  2. connect with swan platform successfully. \n")
     except:
-        report.write("  2. ERROR: Check the connectivity with swan platform fail! \n")
+        report.write("  2. ERROR: failed to connect with swan platform! \n")
 
 
 def health_lotus():
@@ -125,11 +125,11 @@ def health_lotus():
         r_lotus = requests.post(client_api_url, json=data, headers=headers, timeout=6)
         if r_lotus.status_code != 200:
             report.write(
-                "  3. ERROR: Check the connectivity with lotus fail! return data is " + r_lotus.text + ", Please check client_api_url and client_api_token! \n")
+                "  3. ERROR: check the connectivity with lotus API, return " + r_lotus.text + ", Please check client_api_url and client_api_token! \n")
         else:
-            report.write("  3. Check the connectivity with lotus success. \n")
+            report.write("  3. connect to lotus API successfully. \n")
     except:
-        report.write("  3. ERROR: Check the connectivity with lotus fail! \n")
+        report.write("  3. ERROR: check the connectivity with lotus fail! \n")
     try:
         data = {
             "jsonrpc": "2.0",
@@ -140,11 +140,11 @@ def health_lotus():
         r_miner = requests.post(market_api_url, json=data, headers=headers, timeout=6)
         if r_miner.status_code != 200:
             report.write(
-                "  4. ERROR: Check the connectivity with lotus-miner fail! return data is " + r_miner.text + ", Please check market_api_url and market_access_token! \n")
+                "  4. ERROR: check the connectivity with lotus-miner API, return " + r_miner.text + ", Please check market_api_url and market_access_token! \n")
         else:
-            report.write("  4. Check the connectivity with lotus-miner success. \n")
+            report.write("  4. connect with lotus-miner successfully. \n")
     except:
-        report.write("  4. ERROR: Check the connectivity with lotus-miner fail! \n")
+        report.write("  4. ERROR: failed to connect with lotus-miner API \n")
 
     try:
         market_version = ''
@@ -162,15 +162,15 @@ def health_lotus():
             r_boost = requests.post('http://127.0.0.1:1288/rpc/v0', json=data, headers=headers, timeout=6)
             if r_boost.status_code != 200:
                 report.write(
-                    "  5. ERROR: Check the connectivity with boost fail! return data is " + r_boost.text + ", Please check boost service process. \n")
+                    "  5. ERROR: failed to connect with boost API, return " + r_boost.text + ", Please check boost service process. \n")
             else:
-                report.write("  5. Check the connectivity with boost success. \n")
+                report.write("  5. connect with boost API successfully. \n")
     except:
-        report.write("  5. ERROR: Check the connectivity with boost fail! \n")
+        report.write("  5. ERROR: failed to connect with boost API \n")
 
 
 def check_val():
-    print("start check config file")
+    print("start checking config file")
     try:
         parsed_toml = toml.load(os.path.join(swan_path, "provider/config.toml"))
         market_version = ''
@@ -203,7 +203,7 @@ def check_val():
                     report.write("  5.  aria2.aria2_download_dir is ok. \n")
                 if not isinstance(aria2_candidate_dirs, (list, str)):
                     report.write(
-                        '  6.  ERROR: aria2.aria2_candidate_dirs is null, allow two format: ["/tmp", "/data"] or "/tmp, /data" ! \n')
+                        '  6.  ERROR: aria2.aria2_candidate_dirs is null, allow two format: ["/tmp", "/data"] or "/tmp, /data" \n')
                 elif isinstance(aria2_candidate_dirs, str):
                     results = aria2_candidate_dirs.split(",")
                     for r_dir in results:
@@ -239,7 +239,7 @@ def check_val():
                 if len(market_version) == 0:
                     report.write("  11. ERROR: main.market_version is null \n")
                 elif market_version != '1.1' and market_version != '1.2':
-                    report.write("  11. ERROR: main.market_version type can only be 1.1 or 1.2! \n")
+                    report.write("  11. ERROR: main.market_version can only be 1.1 or 1.2! \n")
                 else:
                     report.write("  11. main.market_version is ok. \n")
                 if len(value['miner_fid']) == 0:
@@ -267,10 +267,10 @@ def check_val():
                 else:
                     if bid_mode == 0:
                         report.write(
-                            "  16. Only manual-bid can be received, not auto-bid task. \n")
+                            "  16. Only manual-bid task can be received, not auto-bid task. \n")
                     elif bid_mode == 1:
                         report.write(
-                            "  16. Only auto-bid can be received, not manual-bid task. \n")
+                            "  16. Only auto-bid task can be received, not manual-bid task. \n")
                 if not isinstance(expected_sealing_time, numbers.Number):
                     report.write("  17. ERROR: bid.expected_sealing_time is null! \n")
                 elif 1920 > expected_sealing_time > 2880:
@@ -278,13 +278,13 @@ def check_val():
                 else:
                     report.write("  17. bid.expected_sealing_time is ok. \n")
                 if not isinstance(value['start_epoch'], numbers.Number):
-                    report.write("  18. ERROR: bid.start_epoch is null! \n")
+                    report.write("  18. ERROR: bid.start_epoch is null \n")
                 else:
                     report.write("  18. bid.start_epoch is ok. \n")
                 if not isinstance(auto_bid_deal_per_day, numbers.Number):
-                    report.write("  19. ERROR: bid.auto_bid_deal_per_day is null! \n")
+                    report.write("  19. ERROR: bid.auto_bid_deal_per_day is null \n")
                 elif auto_bid_deal_per_day < 500:
-                    report.write("  19. ERROR: bid.auto_bid_deal_per_day value must be >= 500! \n")
+                    report.write("  19. WARN: bid.auto_bid_deal_per_day value <= 500 \n")
                 else:
                     report.write("  19. bid.auto_bid_deal_per_day is ok. \n")
             if market_version == '1.2':
@@ -304,14 +304,14 @@ def check_val():
                         report.write("  20. ERROR: market.collateral_wallet is null! \n")
                     elif collateral_wallet != b_collateral_wallet:
                         report.write(
-                            "  20. Warn: market.collateral_wallet is not the same as in the boost configuration file. \n")
+                            "  20. WARN: market.collateral_wallet is not the same as in the boost configuration file. \n")
                     else:
                         report.write("  20. bid.collateral_wallet is ok. \n")
                     if len(publish_wallet) == 0:
                         report.write("  21. ERROR: market.publish_wallet is null! \n")
                     elif publish_wallet != b_publish_wallet:
                         report.write(
-                            "  21. Warn: market.publish_wallet is not the same as in the boost configuration file. \n")
+                            "  21. WARN: market.publish_wallet is not the same as in the boost configuration file. \n")
                     else:
                         report.write("  21. market.publish_wallet is ok. \n")
                     if len(collateral_wallet) > 0:
@@ -326,13 +326,13 @@ def check_val():
                                           timeout=6)
                         if r.status_code != 200:
                             report.write(
-                                "Check the wallet balance fail! return data is " + r.text + ", Please check market.collateral_wallet! \n")
+                                "failed to check the wallet balance, return " + r.text + ", Please check market.collateral_wallet! \n")
                         else:
                             result = json.loads(r.text)
                             balance = int(result['result']) / (10 ** 18)
                             if balance < 10:
-                                report.write("The deal collateral wallet: " + collateral_wallet +
-                                             " has a balance of less than 10 FIL, Please charge more than 10 FIL! \n")
+                                report.write("WARN: The deal collateral wallet: " + collateral_wallet +
+                                             " balance is less than 10 FIL, Please charge more than 10 FIL! \n")
                             else:
                                 report.write("The deal collateral wallet: " + collateral_wallet + "balance is " +
                                              str(balance) + " FIL. \n")
@@ -344,18 +344,18 @@ def check_val():
                 enable_market = value
                 break
         if market_version == '1.2' and enable_market is True:
-            report.write("  22. ERROR: When use market_version='1.2', need to disable the subsystem in config: set EnableMarkets = false. \n")
+            report.write("  22. ERROR: When use market_version='1.2', need to disable the subsystem in Boost's configuration: set EnableMarkets = false. \n")
         elif market_version == '1.1' and enable_market is False:
-            report.write("  22. ERROR: When use market_version='1.1', need to enable the subsystem in config: set EnableMarkets = true. \n")
+            report.write("  22. ERROR: When use market_version='1.1', need to enable the subsystem in lotus-miner's configuration: set EnableMarkets = true. \n")
         else:
-            report.write("  22. EnableMarkets is ok. \n")
+            report.write("  22. EnableMarkets setting is ok. \n")
 
     except FileNotFoundError:
         print("swan-provider config file is not exist!")
 
 
 def check_query():
-    print("start check query-ask")
+    print("start checking query-ask")
     market_version = ''
     miner_fid = ''
     parsed_toml = toml.load(os.path.join(swan_path, "provider/config.toml"))
@@ -369,31 +369,31 @@ def check_query():
         r = requests.get('https://api.filswan.com/tools/check_connectivity?storage_provider_id=' + miner_fid,
                          headers=headers, timeout=6)
         if r.status_code != 200:
-            report.write("  ERROR: Check miner query-ask failed! return data is " + r.text + " \n")
+            report.write("  ERROR: query-ask failed, return " + r.text + " \n")
         elif r.status_code == 200:
             result = json.loads(r.text)
             if result['status'] == "fail":
                 if market_version == '1.1':
-                    report.write("  ERROR: Please use the command 'lotus-miner net listen' to query multi-address! \n")
+                    report.write("  ERROR: Please use the command 'lotus-miner net listen' to query your multi-address! \n")
                 if market_version == '1.2':
                     report.write(
-                        "  ERROR: Please use the command 'boostd --boost-repo=$SWAN_PATH/provider/boost net listen' to query multi-address! \n")
+                        "  ERROR: Please use the command 'boostd --boost-repo=$SWAN_PATH/provider/boost net listen' to query your multi-address! \n")
             elif result['status'] == "success":
                 if result['data']['price_per_GiB'] != "0" or result['data']['verified_price_per_GiB'] != "0":
                     if market_version == '1.1':
-                        report.write("  ERROR: Please use the command 'lotus-miner storage-deals set-ask --price 0 "
-                                     "--verified-price 0 --min-piece-size 56KiB --max-piece-size 64GB' to set the price! \n")
+                        report.write("  ERROR: Please set your miner's ask: 'lotus-miner storage-deals set-ask --price 0 "
+                                     "--verified-price 0 --min-piece-size 1MiB --max-piece-size 32GB' \n")
                     if market_version == '1.2':
-                        report.write("  ERROR: Please use the command 'export SWAN_PATH=$SWAN_PATH && swan-provider "
-                                     "set-ask --price=0 --verified-price=0 --min-piece-size=256 "
-                                     "--max-piece-size=34359738368' to set the price! \n")
+                        report.write("  ERROR: Please set your miner's ask 'export SWAN_PATH=$SWAN_PATH && swan-provider "
+                                     "set-ask --price=0 --verified-price=0 --min-piece-size=1048576 "
+                                     "--max-piece-size=34359738368' \n")
                 else:
-                    report.write("  Check miner query-ask is ok. \n")
+                    report.write("  miner's connectivity is ok. \n")
     except:
         if market_version == '1.1':
-            report.write("  ERROR: Please use the command 'lotus-miner net listen' to query multi-address! \n")
+            report.write("  ERROR: Please query your miner's multi-address: 'lotus-miner net listen' \n")
         if market_version == '1.2':
-            report.write("  ERROR: Please use the command 'boostd --boost-repo=$SWAN_PATH/provider/boost net listen' to query multi-address! \n")
+            report.write("  ERROR: Please query your miner's multi-address: 'boostd --boost-repo=$SWAN_PATH/provider/boost net listen' \n")
 
 
 def do_cmd(cmd_str):
@@ -419,9 +419,9 @@ def do_cmd_out(cmd_str):
                 if new_line.startswith("Active:") is True:
                     split_data = new_line.split(":")
                     if split_data[1].find("running") != -1:
-                        return "Check the aria2c service success."
+                        return "the aria2c service is running"
                     else:
-                        return "Check the aria2c service fail! Please start aria2c service."
+                        return "the aria2c service is not running! Please restart it."
                     break
         if stderr:
             return stderr.decode('utf-8')
