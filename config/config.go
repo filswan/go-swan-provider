@@ -61,14 +61,15 @@ type aria2Bak struct {
 }
 
 type main struct {
-	SwanApiUrl               string        `toml:"api_url"`
-	SwanApiKey               string        `toml:"api_key"`
-	SwanAccessToken          string        `toml:"access_token"`
-	SwanApiHeartbeatInterval time.Duration `toml:"api_heartbeat_interval"`
-	MinerFid                 string        `toml:"miner_fid"`
-	LotusImportInterval      time.Duration `toml:"import_interval"`
-	LotusScanInterval        time.Duration `toml:"scan_interval"`
-	MarketVersion            string        `toml:"market_version"`
+	SwanApiUrl                string        `toml:"api_url"`
+	SwanApiKey                string        `toml:"api_key"`
+	SwanAccessToken           string        `toml:"access_token"`
+	SwanApiHeartbeatInterval  time.Duration `toml:"api_heartbeat_interval"`
+	MinerFid                  string        `toml:"miner_fid"`
+	LotusImportInterval       time.Duration `toml:"import_interval"`
+	LotusScanInterval         time.Duration `toml:"scan_interval"`
+	MarketVersion             string        `toml:"market_version"`
+	LotusConcurrentImportings uint32        `toml:"concurrent_importings"`
 }
 
 type bid struct {
@@ -271,6 +272,7 @@ func assignConfig(config *Configuration, configBak *ConfigurationBak) {
 	config.Main.LotusImportInterval = configBak.Main.LotusImportInterval
 	config.Main.LotusScanInterval = configBak.Main.LotusScanInterval
 	config.Main.MarketVersion = configBak.Main.MarketVersion
+	config.Main.LotusConcurrentImportings = configBak.Main.LotusConcurrentImportings
 
 	config.Bid.BidMode = configBak.Bid.BidMode
 	config.Bid.ExpectedSealingTime = configBak.Bid.ExpectedSealingTime

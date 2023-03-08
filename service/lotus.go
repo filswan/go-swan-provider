@@ -30,6 +30,7 @@ type LotusService struct {
 	LotusMarket          *lotus.LotusMarket
 	LotusClient          *lotus.LotusClient
 	importingDirs        sync.Map
+	importings           uint32
 	MarketVersion        string
 }
 
@@ -55,6 +56,12 @@ func GetLotusService() *LotusService {
 }
 
 func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
+	confMain := config.GetConfig().Main
+	if lotusService.importings >= confMain.LotusConcurrentImportings {
+		logs.GetLogger().Info("too many importing deals %v > %v", lotusService.importings, confMain.LotusConcurrentImportings)
+		return
+	}
+
 	maxImportNum := LOTUS_IMPORT_NUMNBER
 	deals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORT_READY, aria2Service.MinerFid, &maxImportNum)
 	if len(deals) == 0 {
@@ -132,6 +139,8 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 	maxScanNum := LOTUS_SCAN_NUMBER
 	importedDeals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORTED, aria2Service.MinerFid, &maxScanNum)
 	importingDeals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORTING, aria2Service.MinerFid, &maxScanNum)
+
+	lotusService.importings = uint32(len(importingDeals))
 
 	deals := make([]*model.OfflineDeal, 0)
 	deals = append(deals, importedDeals...)
