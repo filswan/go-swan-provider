@@ -26,6 +26,7 @@ Swan Provider 接收来自 Swan Platform 的离线订单。提供以下功能：
 * 从 FilSwan Platform 获得手动竞价任务。
 
 ## 前提条件
+- 启动 Lotus-miner
 - Aria2 服务
 
 #### 启动 Lotus-miner
@@ -52,7 +53,7 @@ export SWAN_PATH="/data/.swan"
 ### 选项:one: **预构建包**: 参照 [release assets](https://github.com/filswan/go-swan-provider/releases)
 ####  构建指南
 ```shell
-wget --no-check-certificate https://raw.githubusercontent.com/filswan/go-swan-provider/release-2.1.0/install.sh
+wget --no-check-certificate https://raw.githubusercontent.com/filswan/go-swan-provider/release-2.2.0-rc1/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
@@ -63,7 +64,7 @@ chmod +x ./install.sh
 ```
 ulimit -SHn 1048576
 export SWAN_PATH="/data/.swan"
-nohup swan-provider-2.1.0-linux-amd64 daemon >> swan-provider.log 2>&1 & 
+nohup swan-provider-2.2.0-rc1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
 ```
 ### 选项:two: 从源代码构建
 构建 `swan-provider` 需要安装以下依赖包:
@@ -88,11 +89,11 @@ echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-####  构建指南 
+####  构建指南
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout release-2.1.0
+git checkout release-2.2.0-rc1
 ./build_from_source.sh
 ```
 
@@ -141,7 +142,14 @@ publish_wallet = ""                             # 发送 PublishStorageDeals 消
 **(1) `market_version = "1.1"` 时**，存储提供商会使用 lotus 内置的 Market 导入订单。因此，无需设置 `[market]` 部分。
 
 **(2) `market_version = "1.2"` 时**, 存储提供商会使用 `Boost` 中的 Market 导入订单, 因此须确保存储提供商状态是可接入的。具体的配置步骤如下：
-
+- 在 miner 配置中禁用 market 子系统：
+```
+vi $LOTUS_MINER_PATH/config.toml
+```
+```
+[Subsystems] 
+ EnableMarkets = false
+```
 - 配置 `$SWAN_PATH/provider/config.toml` 中的 `[market]` 部分
 - 初始化 Market repo 到 `$SWAN_PATH/provider/boost`：
 ```
@@ -150,41 +158,44 @@ swan-provider daemon
 ```
 - 配置 `[Libp2p]` 部分
 
-    (1) 确保 `swan-provider` 和 `boostd` 没有运行
-	```
-	kill -9 $(ps -ef | grep -E 'swan-provider|boostd' | grep -v grep | awk '{print$2}' )
-	```
-	(2) 编辑 boost 的配置文件`$SWAN_PATH/boost/config.toml`：
-	```
-	[Libp2p]
-  	  ListenAddresses = ["/ip4/0.0.0.0/tcp/24001", "/ip6/::/tcp/24001"]   # Binding address for the libp2p host
-      AnnounceAddresses = ["/ip4/209.94.92.3/tcp/24001"]                  # Addresses to explicitly announce to other peers. If not specified, all interface addresses are announced
-	```
-	(3) 在后台运行 `swan-provider`
-	```
-	ulimit -SHn 1048576
-	export SWAN_PATH="/data/.swan"
-	nohup swan-provider daemon >> swan-provider.log 2>&1 & 
-	```
- - 发布存储提供商的 Multiaddrs 和 PeerID:
- 	- 获取方式： `boostd --boost-repo=$SWAN_PATH/provider/boost net listen`
- 	```
- 	lotus-miner actor set-addrs /ip4/<ip>/tcp/<port>   
- 	```
-  	- 获取方式： `boostd --boost-repo=$SWAN_PATH/provider/boost net id`
- 	```
- 	lotus-miner actor set-peer-id <PeerID> 
- 	```
- - 设置接单条件
+  (1) 确保 `swan-provider` 和 `boostd` 没有运行
+  ```
+  kill -9 $(ps -ef | grep -E 'swan-provider|boostd' | grep -v grep | awk '{print$2}' )
+  ```
+  (2) 编辑 boost 的配置文件`$SWAN_PATH/boost/config.toml`：
+  ```
+  [Libp2p]
+      ListenAddresses = ["/ip4/0.0.0.0/tcp/24001", "/ip6/::/tcp/24001"]   # Binding address for the libp2p host
+    AnnounceAddresses = ["/ip4/209.94.92.3/tcp/24001"]                  # Addresses to explicitly announce to other peers. If not specified, all interface addresses are announced
+  ```
+  (3) 在后台运行 `swan-provider`
+  ```
+  ulimit -SHn 1048576
+  export SWAN_PATH="/data/.swan"
+  nohup swan-provider daemon >> swan-provider.log 2>&1 & 
+  ```
+- 发布存储提供商的 Multiaddrs 和 PeerID:
+	- 获取方式： `boostd --boost-repo=$SWAN_PATH/provider/boost net listen`
+  ```
+  lotus-miner actor set-addrs /ip4/<ip>/tcp/<port>   
+  ```
+	- 获取方式： `boostd --boost-repo=$SWAN_PATH/provider/boost net id`
+  ```
+  lotus-miner actor set-peer-id <PeerID> 
+  ```
+- 设置接单条件
  ```
  export SWAN_PATH="/data/.swan"
  swan-provider set-ask --price=0 --verified-price=0 --min-piece-size=1048576 --max-piece-size=34359738368
  ```
- - 设置 `[market].publish_wallet` 为控制地址：
+- 设置 `[market].publish_wallet` 为控制地址：
  ```
- lotus-miner actor control set --really-do-it <publish_wallet>
+ export OLD_CONTROL_ADDRESS=`lotus-miner actor control list  --verbose | awk '{print $3}' | grep -v key | tr -s '\n'  ' '`
  ``` 
- - 给 `collateral_wallet` Market Actor 充值
+ ```
+ lotus-miner actor control set --really-do-it $[market].publish_wallet $OLD_CONTROL_ADDRESS
+ ```
+- 给 `collateral_wallet` Market Actor 充值
  ```
  lotus wallet market add --from=<YOUR_WALLET> --address=<collateral_wallet> <amount>
  ```
@@ -192,7 +203,7 @@ swan-provider daemon
 >- 日志位于 `./logs` 目录下
 
 ## 与 Swan Provider 交互
- `swan-provider` 命令让您可以与运行中的 Swan Provider 进行交互。
+`swan-provider` 命令让您可以与运行中的 Swan Provider 进行交互。
 检查您当前使用的 swan-provider 版本
 ```
 swan-provider version
