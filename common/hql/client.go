@@ -40,6 +40,16 @@ func (c Client) GetLegacyDeals() (*gen.GetLegacyDealsResponse, error) {
 	return gen.GetLegacyDeals(context.TODO(), c.hqlClient)
 }
 
+var Checkpoint = map[gen.Checkpoint]string{
+	"Accepted":            "Accepted",
+	"Transferred":         "Transferred",
+	"Published":           "Published",
+	"PublishConfirmed":    "PublishConfirmed",
+	"AddedPiece":          "AddedPiece",
+	"IndexedAndAnnounced": "IndexedAndAnnounced",
+	"Complete":            "Complete",
+}
+
 func DealStatus(checkpoint gen.Checkpoint, err string) string {
 	switch checkpoint {
 	case "Accepted":
@@ -66,7 +76,7 @@ func DealStatus(checkpoint gen.Checkpoint, err string) string {
 	return "StorageDealNotFound"
 }
 
-func Message(checkpoint, err string) string {
+func Message(checkpoint gen.Checkpoint, err string) string {
 	switch checkpoint {
 	case "Accepted":
 		return "Awaiting Offline Data Import"
