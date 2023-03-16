@@ -28,17 +28,19 @@ func (c Client) GetProposalCid(proposalCid string) (*gen.LegacyDealResponse, err
 	return gen.LegacyDeal(context.TODO(), c.hqlClient, proposalCid)
 }
 
-var Checkpoint = map[string]string{
-	"Accepted":            "Accepted",
-	"Transferred":         "Transferred",
-	"Published":           "Published",
-	"PublishConfirmed":    "PublishConfirmed",
-	"AddedPiece":          "AddedPiece",
-	"IndexedAndAnnounced": "IndexedAndAnnounced",
-	"Complete":            "Complete",
+func (c Client) GetSectorStates() (*gen.GetSectorStatesResponse, error) {
+	return gen.GetSectorStates(context.TODO(), c.hqlClient)
 }
 
-func DealStatus(checkpoint, err string) string {
+func (c Client) GetDealListByStatus(checkPoint gen.Checkpoint) (*gen.GetDealListByStatusResponse, error) {
+	return gen.GetDealListByStatus(context.TODO(), c.hqlClient, checkPoint)
+}
+
+func (c Client) GetLegacyDeals() (*gen.GetLegacyDealsResponse, error) {
+	return gen.GetLegacyDeals(context.TODO(), c.hqlClient)
+}
+
+func DealStatus(checkpoint gen.Checkpoint, err string) string {
 	switch checkpoint {
 	case "Accepted":
 		return "StorageDealWaitingForData"

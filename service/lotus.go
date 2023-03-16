@@ -56,6 +56,32 @@ func GetLotusService() *LotusService {
 
 func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 	maxImportNum := LOTUS_IMPORT_NUMNBER
+	if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
+		sealingCapability := config.GetConfig().Lotus.SealingCapability
+		maxAddPiece := config.GetConfig().Lotus.MaxAddPiece
+
+		currentRunningTask, addPieceNum, continueFlag := GetSectorStates()
+		if !continueFlag {
+			return
+		}
+		logs.GetLogger().Warnf("Throttle::sealing info addPiece: %d, max: %d, run:%d, limit:%d", addPieceNum, maxAddPiece, currentRunningTask, sealingCapability)
+		if currentRunningTask >= sealingCapability {
+			logs.GetLogger().Warn("Throttle::Enough sectors to seal, stop importing deals.")
+			return
+		}
+		if addPieceNum > maxAddPiece {
+			logs.GetLogger().Warn("Throttle::Too many addPiece sectors, stop importing deals.")
+			return
+		}
+		count := sealingCapability - currentRunningTask
+		if count < 0 {
+			count = 0
+		}
+		if count <= LOTUS_IMPORT_NUMNBER {
+			maxImportNum = int(count)
+		}
+	}
+
 	deals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORT_READY, aria2Service.MinerFid, &maxImportNum)
 	if len(deals) == 0 {
 		logs.GetLogger().Info("no pending offline deals found")
@@ -376,4 +402,11 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 		}
 		UpdateStatusAndLog(deal, deal.Status, *onChainStatus, onChainMessage)
 	}
+}
+
+func getMax(x, y int64) int64 {
+	if x > y {
+		return x
+	}
+	return y
 }

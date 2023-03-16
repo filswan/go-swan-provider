@@ -8,18 +8,30 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+type Checkpoint string
+
+const (
+	CheckpointAccepted            Checkpoint = "Accepted"
+	CheckpointTransferred         Checkpoint = "Transferred"
+	CheckpointPublished           Checkpoint = "Published"
+	CheckpointPublishconfirmed    Checkpoint = "PublishConfirmed"
+	CheckpointAddedpiece          Checkpoint = "AddedPiece"
+	CheckpointIndexedandannounced Checkpoint = "IndexedAndAnnounced"
+	CheckpointComplete            Checkpoint = "Complete"
+)
+
 // DealDeal includes the requested fields of the GraphQL type Deal.
 type DealDeal struct {
-	ID                string      `json:"ID"`
-	ProviderAddress   string      `json:"ProviderAddress"`
-	PieceCid          string      `json:"PieceCid"`
-	IsVerified        bool        `json:"IsVerified"`
-	SignedProposalCid string      `json:"SignedProposalCid"`
-	InboundFilePath   string      `json:"InboundFilePath"`
+	ID                string          `json:"ID"`
+	ProviderAddress   string          `json:"ProviderAddress"`
+	PieceCid          string          `json:"PieceCid"`
+	IsVerified        bool            `json:"IsVerified"`
+	SignedProposalCid string          `json:"SignedProposalCid"`
+	InboundFilePath   string          `json:"InboundFilePath"`
 	ChainDealID       ChainDealID `json:"ChainDealID"`
-	Checkpoint        string      `json:"Checkpoint"`
-	Err               string      `json:"Err"`
-	Message           string      `json:"Message"`
+	Checkpoint        Checkpoint      `json:"Checkpoint"`
+	Err               string          `json:"Err"`
+	Message           string          `json:"Message"`
 }
 
 // GetID returns DealDeal.ID, and is useful for accessing the field via an interface.
@@ -44,7 +56,7 @@ func (v *DealDeal) GetInboundFilePath() string { return v.InboundFilePath }
 func (v *DealDeal) GetChainDealID() ChainDealID { return v.ChainDealID }
 
 // GetCheckpoint returns DealDeal.Checkpoint, and is useful for accessing the field via an interface.
-func (v *DealDeal) GetCheckpoint() string { return v.Checkpoint }
+func (v *DealDeal) GetCheckpoint() Checkpoint { return v.Checkpoint }
 
 // GetErr returns DealDeal.Err, and is useful for accessing the field via an interface.
 func (v *DealDeal) GetErr() string { return v.Err }
@@ -61,17 +73,125 @@ type DealResponse struct {
 // GetDeal returns DealResponse.Deal, and is useful for accessing the field via an interface.
 func (v *DealResponse) GetDeal() DealDeal { return v.Deal }
 
+// GetDealListByStatusDealsDealList includes the requested fields of the GraphQL type DealList.
+type GetDealListByStatusDealsDealList struct {
+	TotalCount int `json:"totalCount"`
+}
+
+// GetTotalCount returns GetDealListByStatusDealsDealList.TotalCount, and is useful for accessing the field via an interface.
+func (v *GetDealListByStatusDealsDealList) GetTotalCount() int { return v.TotalCount }
+
+// GetDealListByStatusResponse is returned by GetDealListByStatus on success.
+type GetDealListByStatusResponse struct {
+	// Get all Deals
+	Deals GetDealListByStatusDealsDealList `json:"deals"`
+}
+
+// GetDeals returns GetDealListByStatusResponse.Deals, and is useful for accessing the field via an interface.
+func (v *GetDealListByStatusResponse) GetDeals() GetDealListByStatusDealsDealList { return v.Deals }
+
+// GetSectorStatesResponse is returned by GetSectorStates on success.
+type GetSectorStatesResponse struct {
+	// Get sealing pipeline state
+	Sealingpipeline GetSectorStatesStruct `json:"sealingpipeline"`
+}
+
+// GetSealingpipeline returns GetSectorStatesResponse.Sealingpipeline, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesResponse) GetSealingpipeline() GetSectorStatesStruct {
+	return v.Sealingpipeline
+}
+
+// GetSectorStatesStruct includes the requested fields of the GraphQL type SealingPipeline.
+type GetSectorStatesStruct struct {
+	SectorStates GetSectorStatesSealingPipeline `json:"SectorStates"`
+}
+
+// GetSectorStates returns GetSectorStatesSealingpipelineSealingPipeline.SectorStates, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesStruct) GetSectorStates() GetSectorStatesSealingPipeline {
+	return v.SectorStates
+}
+
+// GetSectorStatesSealingPipeline includes the requested fields of the GraphQL type SectorStates.
+type GetSectorStatesSealingPipeline struct {
+	Regular      []GetSectorStatesRegularSectorState      `json:"Regular"`
+	SnapDeals    []GetSectorStatesSnapDealsSectorState  `json:"SnapDeals"`
+	RegularError []GetSectorStatesRegularErrorSectorState `json:"RegularError"`
+}
+
+// GetRegular returns GetSectorStatesSealingPipeline.Regular, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesSealingPipeline) GetRegular() []GetSectorStatesRegularSectorState {
+	return v.Regular
+}
+
+// GetSnapDeals returns GetSectorStatesSealingPipeline.SnapDeals, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesSealingPipeline) GetSnapDeals() []GetSectorStatesSnapDealsSectorState {
+	return v.SnapDeals
+}
+
+// GetRegularError returns GetSectorStatesSealingPipeline.RegularError, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesSealingPipeline) GetRegularError() []GetSectorStatesRegularErrorSectorState {
+	return v.RegularError
+}
+
+// GetSectorStatesRegularErrorSectorState includes the requested fields of the GraphQL type SectorState.
+type GetSectorStatesRegularErrorSectorState struct {
+	Key   string `json:"Key"`
+	Value int    `json:"Value"`
+}
+
+// GetKey returns GetSectorStatesRegularErrorSectorState.Key, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesRegularErrorSectorState) GetKey() string {
+	return v.Key
+}
+
+// GetValue returns GetSectorStatesRegularErrorSectorState.Value, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesRegularErrorSectorState) GetValue() int {
+	return v.Value
+}
+
+// GetSectorStatesRegularSectorState includes the requested fields of the GraphQL type SectorState.
+type GetSectorStatesRegularSectorState struct {
+	Key   string `json:"Key"`
+	Value int    `json:"Value"`
+}
+
+// GetKey returns GetSectorStatesRegularSectorState.Key, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesRegularSectorState) GetKey() string {
+	return v.Key
+}
+
+// GetValue returns GetSectorStatesRegularSectorState.Value, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesRegularSectorState) GetValue() int {
+	return v.Value
+}
+
+// GetSectorStatesSnapDealsSectorState includes the requested fields of the GraphQL type SectorState.
+type GetSectorStatesSnapDealsSectorState struct {
+	Key   string `json:"Key"`
+	Value int    `json:"Value"`
+}
+
+// GetKey returns GetSectorStatesSnapDealsSectorState.Key, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesSnapDealsSectorState) GetKey() string {
+	return v.Key
+}
+
+// GetValue returns GetSectorStatesSnapDealsSectorState.Value, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesSnapDealsSectorState) GetValue() int {
+	return v.Value
+}
+
 // LegacyDealLegacyDeal includes the requested fields of the GraphQL type LegacyDeal.
 type LegacyDealLegacyDeal struct {
-	ID              string      `json:"ID"`
-	ProviderAddress string      `json:"ProviderAddress"`
-	PieceCid        string      `json:"PieceCid"`
+	ID              string          `json:"ID"`
+	ProviderAddress string          `json:"ProviderAddress"`
+	PieceCid        string          `json:"PieceCid"`
 	SectorNumber    ChainDealID `json:"SectorNumber"`
 	ChainDealID     ChainDealID `json:"ChainDealID"`
-	Status          string      `json:"Status"`
-	Message         string      `json:"Message"`
-	InboundCARPath  string      `json:"InboundCARPath"`
-	DealDataRoot    string      `json:"DealDataRoot"`
+	Status          string          `json:"Status"`
+	Message         string          `json:"Message"`
+	InboundCARPath  string          `json:"InboundCARPath"`
+	DealDataRoot    string          `json:"DealDataRoot"`
 }
 
 // GetID returns LegacyDealLegacyDeal.ID, and is useful for accessing the field via an interface.
@@ -118,6 +238,14 @@ type __DealInput struct {
 // GetUuid returns __DealInput.Uuid, and is useful for accessing the field via an interface.
 func (v *__DealInput) GetUuid() string { return v.Uuid }
 
+// __GetDealListByStatusInput is used internally by genqlient
+type __GetDealListByStatusInput struct {
+	CheckPoint Checkpoint `json:"checkPoint"`
+}
+
+// GetCheckPoint returns __GetDealListByStatusInput.CheckPoint, and is useful for accessing the field via an interface.
+func (v *__GetDealListByStatusInput) GetCheckPoint() Checkpoint { return v.CheckPoint }
+
 // __LegacyDealInput is used internally by genqlient
 type __LegacyDealInput struct {
 	ProposalCid string `json:"proposalCid"`
@@ -125,6 +253,39 @@ type __LegacyDealInput struct {
 
 // GetProposalCid returns __LegacyDealInput.ProposalCid, and is useful for accessing the field via an interface.
 func (v *__LegacyDealInput) GetProposalCid() string { return v.ProposalCid }
+
+// GetLegacyDealsList includes the requested fields of the GraphQL type LegacyDealList.
+type GetLegacyDealsList struct {
+	Deals []GetLegacyDealsListDeal `json:"deals"`
+}
+
+// GetDeals returns GetLegacyDealsList.Deals, and is useful for accessing the field via an interface.
+func (v *GetLegacyDealsList) GetDeals() []GetLegacyDealsListDeal {
+	return v.Deals
+}
+
+// GetLegacyDealsListDeal includes the requested fields of the GraphQL type LegacyDeal.
+type GetLegacyDealsListDeal struct {
+	ID     string `json:"ID"`
+	Status string `json:"Status"`
+}
+
+// GetID returns GetLegacyDealsListDeal.ID, and is useful for accessing the field via an interface.
+func (v *GetLegacyDealsListDeal) GetID() string { return v.ID }
+
+// GetStatus returns GetLegacyDealsListDeal.Status, and is useful for accessing the field via an interface.
+func (v *GetLegacyDealsListDeal) GetStatus() string { return v.Status }
+
+// GetLegacyDealsResponse is returned by getLegacyDeals on success.
+type GetLegacyDealsResponse struct {
+	// Get all Deals made with legacy markets endpoint
+	LegacyDeals GetLegacyDealsList `json:"legacyDeals"`
+}
+
+// GetLegacyDeals returns GetLegacyDealsResponse.LegacyDeals, and is useful for accessing the field via an interface.
+func (v *GetLegacyDealsResponse) GetLegacyDeals() GetLegacyDealsList {
+	return v.LegacyDeals
+}
 
 func Deal(
 	ctx context.Context,
@@ -167,6 +328,79 @@ query Deal ($uuid: ID!) {
 	return &data, err
 }
 
+func GetDealListByStatus(
+	ctx context.Context,
+	client graphql.Client,
+	checkPoint Checkpoint,
+) (*GetDealListByStatusResponse, error) {
+	req := &graphql.Request{
+		OpName: "GetDealListByStatus",
+		Query: `
+query GetDealListByStatus ($checkPoint: Checkpoint!) {
+	deals(filter: {Checkpoint:$checkPoint}) {
+		totalCount
+	}
+}
+`,
+		Variables: &__GetDealListByStatusInput{
+			CheckPoint: checkPoint,
+		},
+	}
+	var err error
+
+	var data GetDealListByStatusResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func GetSectorStates(
+	ctx context.Context,
+	client graphql.Client,
+) (*GetSectorStatesResponse, error) {
+	req := &graphql.Request{
+		OpName: "GetSectorStates",
+		Query: `
+query GetSectorStates {
+	sealingpipeline {
+		SectorStates {
+			Regular {
+				Key
+				Value
+			}
+			SnapDeals {
+				Key
+				Value
+			}
+			RegularError {
+				Key
+				Value
+			}
+		}
+	}
+}
+`,
+	}
+	var err error
+
+	var data GetSectorStatesResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func LegacyDeal(
 	ctx context.Context,
 	client graphql.Client,
@@ -197,6 +431,37 @@ query LegacyDeal ($proposalCid: ID!) {
 	var err error
 
 	var data LegacyDealResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func GetLegacyDeals(
+	ctx context.Context,
+	client graphql.Client,
+) (*GetLegacyDealsResponse, error) {
+	req := &graphql.Request{
+		OpName: "GetLegacyDeals",
+		Query: `
+query getLegacyDeals {
+	legacyDeals(limit: 1000000) {
+		deals {
+			ID
+			Status
+		}
+	}
+}
+`,
+	}
+	var err error
+
+	var data GetLegacyDealsResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
