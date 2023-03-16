@@ -493,11 +493,6 @@ func GetSectorStates() (int64, int64, bool) {
 		logs.GetLogger().Error(fmt.Sprintf("get running task Published status failed, please check boost running status! error: %s", err.Error()))
 		return 0, 0, false
 	}
-	confirmedStatus, err := hqlClient.GetDealListByStatus(gen.CheckpointPublishconfirmed)
-	if err != nil {
-		logs.GetLogger().Error(fmt.Sprintf("get running task PublishConfirmed status failed, please check boost running status! error: %s", err.Error()))
-		return 0, 0, false
-	}
 
 	var sealingNum int
 	var addPieceNum int
@@ -512,6 +507,6 @@ func GetSectorStates() (int64, int64, bool) {
 		}
 	}
 
-	count := sealingNum + transferredStatus.Deals.TotalCount + publishedStatus.Deals.TotalCount + confirmedStatus.Deals.TotalCount
+	count := sealingNum + transferredStatus.Deals.TotalCount + publishedStatus.Deals.TotalCount
 	return int64(count), int64(addPieceNum), true
 }
