@@ -403,10 +403,3 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 		UpdateStatusAndLog(deal, deal.Status, *onChainStatus, onChainMessage)
 	}
 }
-
-func getMax(x, y int64) int64 {
-	if x > y {
-		return x
-	}
-	return y
-}
