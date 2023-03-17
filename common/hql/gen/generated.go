@@ -22,16 +22,16 @@ const (
 
 // DealDeal includes the requested fields of the GraphQL type Deal.
 type DealDeal struct {
-	ID                string          `json:"ID"`
-	ProviderAddress   string          `json:"ProviderAddress"`
-	PieceCid          string          `json:"PieceCid"`
-	IsVerified        bool            `json:"IsVerified"`
-	SignedProposalCid string          `json:"SignedProposalCid"`
-	InboundFilePath   string          `json:"InboundFilePath"`
+	ID                string      `json:"ID"`
+	ProviderAddress   string      `json:"ProviderAddress"`
+	PieceCid          string      `json:"PieceCid"`
+	IsVerified        bool        `json:"IsVerified"`
+	SignedProposalCid string      `json:"SignedProposalCid"`
+	InboundFilePath   string      `json:"InboundFilePath"`
 	ChainDealID       ChainDealID `json:"ChainDealID"`
-	Checkpoint        Checkpoint      `json:"Checkpoint"`
-	Err               string          `json:"Err"`
-	Message           string          `json:"Message"`
+	Checkpoint        Checkpoint  `json:"Checkpoint"`
+	Err               string      `json:"Err"`
+	Message           string      `json:"Message"`
 }
 
 // GetID returns DealDeal.ID, and is useful for accessing the field via an interface.
@@ -113,9 +113,10 @@ func (v *GetSectorStatesStruct) GetSectorStates() GetSectorStatesSealingPipeline
 
 // GetSectorStatesSealingPipeline includes the requested fields of the GraphQL type SectorStates.
 type GetSectorStatesSealingPipeline struct {
-	Regular      []GetSectorStatesRegularSectorState      `json:"Regular"`
-	SnapDeals    []GetSectorStatesSnapDealsSectorState  `json:"SnapDeals"`
-	RegularError []GetSectorStatesRegularErrorSectorState `json:"RegularError"`
+	Regular        []GetSectorStatesRegularSectorState        `json:"Regular"`
+	SnapDeals      []GetSectorStatesSnapDealsSectorState      `json:"SnapDeals"`
+	RegularError   []GetSectorStatesRegularErrorSectorState   `json:"RegularError"`
+	SnapDealsError []GetSectorStatesSnapDealsErrorSectorState `json:"SnapDealsError"`
 }
 
 // GetRegular returns GetSectorStatesSealingPipeline.Regular, and is useful for accessing the field via an interface.
@@ -131,6 +132,11 @@ func (v *GetSectorStatesSealingPipeline) GetSnapDeals() []GetSectorStatesSnapDea
 // GetRegularError returns GetSectorStatesSealingPipeline.RegularError, and is useful for accessing the field via an interface.
 func (v *GetSectorStatesSealingPipeline) GetRegularError() []GetSectorStatesRegularErrorSectorState {
 	return v.RegularError
+}
+
+// GetSnapDealsError returns GetSectorStatesSealingPipeline.SnapDealsError, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesSealingPipeline) GetSnapDealsError() []GetSectorStatesSnapDealsErrorSectorState {
+	return v.SnapDealsError
 }
 
 // GetSectorStatesRegularErrorSectorState includes the requested fields of the GraphQL type SectorState.
@@ -165,6 +171,22 @@ func (v *GetSectorStatesRegularSectorState) GetValue() int {
 	return v.Value
 }
 
+// GetSectorStatesSnapDealsErrorSectorState includes the requested fields of the GraphQL type SectorState.
+type GetSectorStatesSnapDealsErrorSectorState struct {
+	Key   string `json:"Key"`
+	Value int    `json:"Value"`
+}
+
+// GetKey returns GetSectorStatesSnapDealsErrorSectorState.Key, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesSnapDealsErrorSectorState) GetKey() string {
+	return v.Key
+}
+
+// GetValue returns GetSectorStatesSnapDealsErrorSectorState.Value, and is useful for accessing the field via an interface.
+func (v *GetSectorStatesSnapDealsErrorSectorState) GetValue() int {
+	return v.Value
+}
+
 // GetSectorStatesSnapDealsSectorState includes the requested fields of the GraphQL type SectorState.
 type GetSectorStatesSnapDealsSectorState struct {
 	Key   string `json:"Key"`
@@ -183,15 +205,15 @@ func (v *GetSectorStatesSnapDealsSectorState) GetValue() int {
 
 // LegacyDealLegacyDeal includes the requested fields of the GraphQL type LegacyDeal.
 type LegacyDealLegacyDeal struct {
-	ID              string          `json:"ID"`
-	ProviderAddress string          `json:"ProviderAddress"`
-	PieceCid        string          `json:"PieceCid"`
+	ID              string      `json:"ID"`
+	ProviderAddress string      `json:"ProviderAddress"`
+	PieceCid        string      `json:"PieceCid"`
 	SectorNumber    ChainDealID `json:"SectorNumber"`
 	ChainDealID     ChainDealID `json:"ChainDealID"`
-	Status          string          `json:"Status"`
-	Message         string          `json:"Message"`
-	InboundCARPath  string          `json:"InboundCARPath"`
-	DealDataRoot    string          `json:"DealDataRoot"`
+	Status          string      `json:"Status"`
+	Message         string      `json:"Message"`
+	InboundCARPath  string      `json:"InboundCARPath"`
+	DealDataRoot    string      `json:"DealDataRoot"`
 }
 
 // GetID returns LegacyDealLegacyDeal.ID, and is useful for accessing the field via an interface.
@@ -360,6 +382,37 @@ query GetDealListByStatus ($checkPoint: Checkpoint!) {
 	return &data, err
 }
 
+func GetLegacyDeals(
+	ctx context.Context,
+	client graphql.Client,
+) (*GetLegacyDealsResponse, error) {
+	req := &graphql.Request{
+		OpName: "GetLegacyDeals",
+		Query: `
+query GetLegacyDeals {
+	legacyDeals(limit: 1000000) {
+		deals {
+			ID
+			Status
+		}
+	}
+}
+`,
+	}
+	var err error
+
+	var data GetLegacyDealsResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func GetSectorStates(
 	ctx context.Context,
 	client graphql.Client,
@@ -379,6 +432,10 @@ query GetSectorStates {
 				Value
 			}
 			RegularError {
+				Key
+				Value
+			}
+			SnapDealsError {
 				Key
 				Value
 			}
@@ -431,37 +488,6 @@ query LegacyDeal ($proposalCid: ID!) {
 	var err error
 
 	var data LegacyDealResponse
-	resp := &graphql.Response{Data: &data}
-
-	err = client.MakeRequest(
-		ctx,
-		req,
-		resp,
-	)
-
-	return &data, err
-}
-
-func GetLegacyDeals(
-	ctx context.Context,
-	client graphql.Client,
-) (*GetLegacyDealsResponse, error) {
-	req := &graphql.Request{
-		OpName: "GetLegacyDeals",
-		Query: `
-query getLegacyDeals {
-	legacyDeals(limit: 1000000) {
-		deals {
-			ID
-			Status
-		}
-	}
-}
-`,
-	}
-	var err error
-
-	var data GetLegacyDealsResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

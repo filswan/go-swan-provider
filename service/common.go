@@ -498,12 +498,19 @@ func GetSectorStates() (int64, int64, bool) {
 	var addPieceNum int
 	sectorStates, err := hqlClient.GetSectorStates()
 	regularSectorStates := sectorStates.GetSealingpipeline().SectorStates.Regular
+	regularErrorSectorStates := sectorStates.GetSealingpipeline().SectorStates.RegularError
 	for _, sectorState := range regularSectorStates {
-		if sectorState.Key == "PreCommit1" || sectorState.Key == "SealPreCommit1Failed" || sectorState.Key == "Packing" || sectorState.Key == "WaitDeals" || sectorState.Key == "AddPiece" {
+		if sectorState.Key == "Packing" || sectorState.Key == "WaitDeals" || sectorState.Key == "AddPiece" || sectorState.Key == "PreCommit1" {
 			if sectorState.Key == "AddPiece" {
 				addPieceNum += sectorState.Value
 			}
 			sealingNum += sectorState.Value
+		}
+	}
+	for _, sectorState := range regularErrorSectorStates {
+		if sectorState.Key == "SealPreCommit1Failed" {
+			sealingNum += sectorState.Value
+			break
 		}
 	}
 

@@ -43,6 +43,10 @@ query GetSectorStates{
                 Key
                 Value
             }
+            SnapDealsError {
+                Key
+                Value
+            }
         }
     }
 }
