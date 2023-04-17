@@ -64,7 +64,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 		if !continueFlag {
 			return
 		}
-		logs.GetLogger().Warnf("Throttle::sealing info addPiece: %d, max: %d, run:%d, limit:%d", addPieceNum, maxAddPiece, currentRunningTask, sealingCapability)
+		logs.GetLogger().Warnf("Throttle::sealing info addPiece: %d, max: %d; run:%d, limit:%d", addPieceNum, maxAddPiece, currentRunningTask, sealingCapability)
 		if currentRunningTask >= sealingCapability {
 			logs.GetLogger().Warn("Throttle::Enough sectors to seal, stop importing deals.")
 			return
