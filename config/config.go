@@ -38,8 +38,8 @@ type lotus struct {
 	ClientApiToken    string `toml:"client_api_token"`
 	MarketApiUrl      string `toml:"market_api_url"`
 	MarketAccessToken string `toml:"market_access_token"`
-	SealingCapability int64  `toml:"sealing_capability"`
-	MaxAddPiece       int64  `toml:"max_add_piece"`
+	MaxSealing        int64  `toml:"max_sealing"`
+	MaxAddPiece       int64  `toml:"max_addPiece"`
 }
 
 type aria2 struct {
@@ -171,6 +171,8 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"lotus", "market_api_url"},
 		{"lotus", "market_access_token"},
 		{"lotus", "client_api_token"},
+		{"lotus", "max_sealing"},
+		{"lotus", "max_addPiece"},
 
 		{"aria2", "aria2_download_dir"},
 		{"aria2", "aria2_host"},
@@ -251,6 +253,8 @@ func assignConfig(config *Configuration, configBak *ConfigurationBak) {
 	config.Lotus.ClientApiToken = configBak.Lotus.ClientApiToken
 	config.Lotus.MarketApiUrl = configBak.Lotus.MarketApiUrl
 	config.Lotus.MarketAccessToken = configBak.Lotus.MarketAccessToken
+	config.Lotus.MaxSealing = configBak.Lotus.MaxSealing
+	config.Lotus.MaxAddPiece = configBak.Lotus.MaxAddPiece
 	config.Aria2.Aria2DownloadDir = configBak.Aria2.Aria2DownloadDir
 	config.Aria2.Aria2Host = configBak.Aria2.Aria2Host
 	config.Aria2.Aria2Port = configBak.Aria2.Aria2Port
