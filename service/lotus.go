@@ -57,7 +57,7 @@ func GetLotusService() *LotusService {
 func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 	maxImportNum := LOTUS_IMPORT_NUMNBER
 	if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
-		sealingCapability := config.GetConfig().Lotus.SealingCapability
+		sealingCapability := config.GetConfig().Lotus.MaxSealing
 		maxAddPiece := config.GetConfig().Lotus.MaxAddPiece
 
 		currentRunningTask, addPieceNum, continueFlag := GetSectorStates()
