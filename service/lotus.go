@@ -75,8 +75,9 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 		if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
 			minerId, dealId, onChainStatus, onChainMessage, err = lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 			if err != nil {
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 				logs.GetLogger().Error(err)
-				return
+				continue
 			}
 			if onChainStatus == nil && onChainMessage == nil {
 				UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
@@ -85,20 +86,21 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 		} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
 			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
 			if err != nil {
-				logs.GetLogger().Error(err)
+				logs.GetLogger().Errorf("get graphqlApi from configuration file failed, error: %+v", err)
 				return
 			}
 			hqlClient, err := hql.NewClient(graphqlApi)
 			if err != nil {
-				logs.GetLogger().Error(err)
+				logs.GetLogger().Errorf("create graphql client failed, error: %+v", err)
 				return
 			}
 
 			if _, err := uuid.Parse(deal.DealCid); err == nil {
 				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
 				if err != nil {
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
 					logs.GetLogger().Error(err)
-					return
+					continue
 				}
 				minerId = dealResp.Deal.GetProviderAddress()
 				dealId, err = strconv.ParseUint(dealResp.Deal.GetChainDealID().Value, 10, 64)
@@ -108,6 +110,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			} else {
 				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
 				if err != nil {
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
 					logs.GetLogger().Error(err)
 					continue
 				}
