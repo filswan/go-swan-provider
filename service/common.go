@@ -305,7 +305,7 @@ func UpdateDealInfoAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, file
 		return
 	}
 
-	err := UpdateOfflineDeal(swanClient, deal.Id, newSwanStatus, &note, &filefullpathTemp)
+	err := UpdateOfflineDeal(swanClient, deal.Id, newSwanStatus, &note, &filefullpathTemp, deal.ChainDealId)
 	if err != nil {
 		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
 	} else {
@@ -364,14 +364,24 @@ func GetOfflineDeals(swanClient *swan.SwanClient, dealStatus string, minerFid st
 	return offlineDeals
 }
 
-func UpdateOfflineDeal(swanClient *swan.SwanClient, dealId int, status string, note, filePath *string) error {
-	params := &swan.UpdateOfflineDealParams{
-		DealId:   dealId,
-		Status:   status,
-		Note:     note,
-		FilePath: filePath,
+func UpdateOfflineDeal(swanClient *swan.SwanClient, dealId int, status string, note, filePath *string, chainDealId int64) error {
+	var params *swan.UpdateOfflineDealParams
+	if chainDealId != 0 {
+		params = &swan.UpdateOfflineDealParams{
+			DealId:      dealId,
+			Status:      status,
+			Note:        note,
+			FilePath:    filePath,
+			ChainDealId: chainDealId,
+		}
+	} else {
+		params = &swan.UpdateOfflineDealParams{
+			DealId:   dealId,
+			Status:   status,
+			Note:     note,
+			FilePath: filePath,
+		}
 	}
-
 	err := swanClient.UpdateOfflineDeal(*params)
 	if err != nil {
 		logs.GetLogger().Error()

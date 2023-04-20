@@ -123,6 +123,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 		}
 
+		deal.ChainDealId = int64(dealId)
 		lotusService.importingDirs.Store(filepath.Dir(deal.FilePath), struct{}{})
 		go func(minerId string, dealId uint64, onChainStatus *string, onChainMessage string, deal *model.OfflineDeal, aria2AutoDeleteCarFile bool) {
 			UpdateSwanDealStatus(minerId, dealId, onChainStatus, onChainMessage, deal, aria2AutoDeleteCarFile)

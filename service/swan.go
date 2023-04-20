@@ -34,6 +34,7 @@ func (swanService *SwanService) UpdateBidConf(swanClient *swan.SwanClient) {
 		ExpectedSealingTime: config.GetConfig().Bid.ExpectedSealingTime,
 		StartEpoch:          config.GetConfig().Bid.StartEpoch,
 		AutoBidDealPerDay:   config.GetConfig().Bid.AutoBidDealPerDay,
+		MarketVersion:       config.GetConfig().Main.MarketVersion,
 	}
 
 	swanClient.UpdateMinerBidConf(swanService.MinerFid, *confMiner)
