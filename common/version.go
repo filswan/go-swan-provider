@@ -7,7 +7,7 @@ const (
 	MinorVersion = 5
 	FixVersion   = 0
 	CommitHash   = ""
-	VERSION      = "v2.2.0"
+	VERSION      = "v2.2.0-rc1"
 )
 
 func GetVersion() string {
