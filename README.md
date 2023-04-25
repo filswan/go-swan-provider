@@ -53,7 +53,7 @@ export SWAN_PATH="/data/.swan"
 ### Option:one: **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ####  Build Instructions
 ```shell
-wget --no-check-certificate https://raw.githubusercontent.com/filswan/go-swan-provider/release-2.2.0/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/v2.2.0/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
