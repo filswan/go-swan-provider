@@ -162,7 +162,7 @@ swan-provider daemon
   ```
   kill -9 $(ps -ef | grep -E 'swan-provider|boostd' | grep -v grep | awk '{print$2}' )
   ```
-  (2) 编辑 boost 的配置文件`$SWAN_PATH/boost/config.toml`：
+  (2) 编辑 boost 的配置文件`$SWAN_PATH/provider/boost/config.toml`：
   ```
   [Libp2p]
       ListenAddresses = ["/ip4/0.0.0.0/tcp/24001", "/ip6/::/tcp/24001"]   # Binding address for the libp2p host
