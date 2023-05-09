@@ -53,7 +53,7 @@ export SWAN_PATH="/data/.swan"
 ### Option:one: **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ####  Build Instructions
 ```shell
-wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/v2.2.0/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/v2.2.1/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
@@ -64,7 +64,7 @@ chmod +x ./install.sh
 ```
 ulimit -SHn 1048576
 export SWAN_PATH="/data/.swan"
-nohup swan-provider-2.2.0-linux-amd64 daemon >> swan-provider.log 2>&1 & 
+nohup swan-provider-2.2.1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
 ```
 ### Option:two: Source Code
 Building the `swan-provider` requires some system dependencies:
@@ -93,7 +93,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout release-2.2.0
+git checkout release-2.2.1
 ./build_from_source.sh
 ```
 
