@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -18,6 +17,7 @@ import (
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
+	"github.com/google/uuid"
 )
 
 type Aria2Service struct {
@@ -255,7 +255,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 	for _, dir := range aria2Service.CandidateDirs {
 		outDir = strings.TrimSuffix(dir, "/")
 		filePath = outDir + "/" + outFilename
-		if IsExist(filePath) {
+		if IsDownloadFinish(filePath) {
 			UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
 			return
 		}
@@ -263,7 +263,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 
 	outDir = strings.TrimSuffix(aria2Service.DownloadDir, "/")
 	filePath = outDir + "/" + outFilename
-	if IsExist(filePath) {
+	if IsDownloadFinish(filePath) {
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
 		return
 	}

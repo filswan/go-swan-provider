@@ -3,9 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/filswan/go-swan-lib/client/boost"
-	"github.com/filswan/go-swan-lib/model"
-	"github.com/google/uuid"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,10 +13,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/filswan/go-swan-lib/client/boost"
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
 	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
+	"github.com/google/uuid"
 )
 
 type LotusService struct {
@@ -223,6 +223,10 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 func IsExist(filePath string) bool {
 	_, err := os.Stat(filePath)
 	return err == nil || os.IsExist(err)
+}
+
+func IsDownloadFinish(filePath string) bool {
+	return IsExist(filePath) && !IsExist(filePath+".aria2")
 }
 
 func DeleteDownloadedFiles(filePath string) {
