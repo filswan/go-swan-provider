@@ -53,7 +53,7 @@ export SWAN_PATH="/data/.swan"
 ### 选项:one: **预构建包**: 参照 [release assets](https://github.com/filswan/go-swan-provider/releases)
 ####  构建指南
 ```shell
-wget --no-check-certificate https://raw.githubusercontent.com/filswan/go-swan-provider/release-2.2.0-rc1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/v2.2.1/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
@@ -64,7 +64,7 @@ chmod +x ./install.sh
 ```
 ulimit -SHn 1048576
 export SWAN_PATH="/data/.swan"
-nohup swan-provider-2.2.0-rc1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
+nohup swan-provider-2.2.1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
 ```
 ### 选项:two: 从源代码构建
 构建 `swan-provider` 需要安装以下依赖包:
@@ -77,9 +77,9 @@ sudo apt-get install -y nodejs
 ```
 sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
 ```
-- Go(需要 **1.18.1+**)
+- Go(需要 **1.19.5+**)
 ```
-wget -c https://golang.org/dl/go1.18.1.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+wget -c https://golang.org/dl/go1.19.5.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
 ```
 ```
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc
@@ -93,7 +93,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout release-2.2.0-rc1
+git checkout release-2.2.1
 ./build_from_source.sh
 ```
 
@@ -120,7 +120,7 @@ aria2_auto_delete_car_file= false               # 当订单状态变为 Active �
 aria2_max_downloading_tasks = 10                # Aria2 最大并行下载数 默认：10
 
 [main]
-market_version = "1.1"                          # 订单版本为 1.1 或 1.2, 配置(market_version=1.1) 将被弃用，很快会被删除 (默认: "1.1")，如果设置为 1.2，需要设置 [market] 部分
+market_version = "1.2"                          # 订单版本为 1.1 或 1.2, 配置(market_version=1.1) 将被弃用，很快会被删除 (默认: "1.2")，如果设置为 1.2，需要设置 [market] 部分
 api_url = "https://go-swan-server.filswan.com"  # Swan API 地址。生产环境地址为 "https://go-swan-server.filswan.com"
 api_key = ""                                    # api 密钥。从 Filswan -> "My Profile"->"Developer Settings"获得
 access_token = ""                               # Token，从 Filswan -> "My Profile"->"Developer Settings"获得
@@ -130,10 +130,10 @@ scan_interval = 600                             # 600 秒或 10 分钟。扫描�
 api_heartbeat_interval = 300                    # 300 秒或 5 分钟。发送心跳的时间间隔。
 
 [bid]
-bid_mode = 1									# 0: 手动, 1: 自动
-expected_sealing_time = 1920					# 1920 epoch 或 16 小时。 订单的预期封装时长。过早开始将会被拒绝。
-start_epoch = 2880            					# 2880 epoch 或 24 小时。 当前 epoch 的相对值
-auto_bid_deal_per_day = 600   				    # 上面配置的 miner_fid 每日可接受自动竞价订单的最大数量
+bid_mode = 1					# 0: 手动, 1: 自动
+expected_sealing_time = 1920			# 1920 epoch 或 16 小时。 订单的预期封装时长。过早开始将会被拒绝。
+start_epoch = 2880            			# 2880 epoch 或 24 小时。 当前 epoch 的相对值
+auto_bid_deal_per_day = 600   			# 上面配置的 miner_fid 每日可接受自动竞价订单的最大数量
 
 [market]
 collateral_wallet = ""                          # 质押订单用到的钱包
@@ -141,7 +141,7 @@ publish_wallet = ""                             # 发送 PublishStorageDeals 消
 ```
 **(1) `market_version = "1.1"` 时**，存储提供商会使用 lotus 内置的 Market 导入订单。因此，无需设置 `[market]` 部分。
 
-**(2) `market_version = "1.2"` 时**, 存储提供商会使用 `Boost` 中的 Market 导入订单, 因此须确保存储提供商状态是可接入的。具体的配置步骤如下：
+**(2) `market_version = "1.2(推荐)"` 时**, 存储提供商会使用 `Boost` 中的 Market 导入订单, 因此须确保存储提供商状态是可接入的。具体的配置步骤如下：
 - 在 miner 配置中禁用 market 子系统：
 ```
 vi $LOTUS_MINER_PATH/config.toml
@@ -162,7 +162,7 @@ swan-provider daemon
   ```
   kill -9 $(ps -ef | grep -E 'swan-provider|boostd' | grep -v grep | awk '{print$2}' )
   ```
-  (2) 编辑 boost 的配置文件`$SWAN_PATH/boost/config.toml`：
+  (2) 编辑 boost 的配置文件`$SWAN_PATH/provider/boost/config.toml`：
   ```
   [Libp2p]
       ListenAddresses = ["/ip4/0.0.0.0/tcp/24001", "/ip6/::/tcp/24001"]   # Binding address for the libp2p host

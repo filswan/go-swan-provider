@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/filswan/go-swan-lib/client/boost"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"
@@ -221,7 +222,24 @@ func checkLotusConfig() {
 			logs.GetLogger().Fatal(err)
 			return
 		}
-		logs.GetLogger().Infof("start boostd successful, pid: %d", boostPid)
+		boostToken, err := GetBoostToken(market.Repo)
+		boostClient, closer, err := boost.NewClient(boostToken, rpcApi)
+		if err != nil {
+			logs.GetLogger().Error(err)
+			return
+		}
+		defer closer()
+
+		for {
+			if _, err = boostClient.GetDealsConsiderOfflineStorageDeals(context.TODO()); err == nil {
+				break
+			} else {
+				logs.GetLogger().Errorf("boost started failed, error: %v", err)
+			}
+			time.Sleep(1 * time.Second)
+		}
+
+		logs.GetLogger().Infof("start boostd rpc service successful, pid: %d", boostPid)
 		BoostPid = boostPid
 	}
 
@@ -305,7 +323,7 @@ func UpdateDealInfoAndLog(deal *libmodel.OfflineDeal, newSwanStatus string, file
 		return
 	}
 
-	err := UpdateOfflineDeal(swanClient, deal.Id, newSwanStatus, &note, &filefullpathTemp)
+	err := UpdateOfflineDeal(swanClient, deal.Id, newSwanStatus, &note, &filefullpathTemp, deal.ChainDealId)
 	if err != nil {
 		logs.GetLogger().Error(GetLog(deal, constants.UPDATE_OFFLINE_DEAL_STATUS_FAIL))
 	} else {
@@ -364,14 +382,24 @@ func GetOfflineDeals(swanClient *swan.SwanClient, dealStatus string, minerFid st
 	return offlineDeals
 }
 
-func UpdateOfflineDeal(swanClient *swan.SwanClient, dealId int, status string, note, filePath *string) error {
-	params := &swan.UpdateOfflineDealParams{
-		DealId:   dealId,
-		Status:   status,
-		Note:     note,
-		FilePath: filePath,
+func UpdateOfflineDeal(swanClient *swan.SwanClient, dealId int, status string, note, filePath *string, chainDealId int64) error {
+	var params *swan.UpdateOfflineDealParams
+	if chainDealId != 0 {
+		params = &swan.UpdateOfflineDealParams{
+			DealId:      dealId,
+			Status:      status,
+			Note:        note,
+			FilePath:    filePath,
+			ChainDealId: chainDealId,
+		}
+	} else {
+		params = &swan.UpdateOfflineDealParams{
+			DealId:   dealId,
+			Status:   status,
+			Note:     note,
+			FilePath: filePath,
+		}
 	}
-
 	err := swanClient.UpdateOfflineDeal(*params)
 	if err != nil {
 		logs.GetLogger().Error()
@@ -445,6 +473,8 @@ func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 		logs.GetLogger().Error(err)
 		return 0, errors.Wrap(err, "start boostd process failed")
 	}
+	logs.GetLogger().Warn("wait for the boost startup to be finished...")
+	time.Sleep(10 * time.Second)
 	return boostProcess.Pid, nil
 }
 

@@ -3,9 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/filswan/go-swan-lib/client/boost"
-	"github.com/filswan/go-swan-lib/model"
-	"github.com/google/uuid"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,10 +13,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/filswan/go-swan-lib/client/boost"
 	"github.com/filswan/go-swan-lib/client/lotus"
 	"github.com/filswan/go-swan-lib/client/swan"
 	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
+	"github.com/google/uuid"
 )
 
 type LotusService struct {
@@ -75,8 +75,9 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 		if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
 			minerId, dealId, onChainStatus, onChainMessage, err = lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
 			if err != nil {
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 				logs.GetLogger().Error(err)
-				return
+				continue
 			}
 			if onChainStatus == nil && onChainMessage == nil {
 				UpdateStatusAndLog(deal, ONCHAIN_DEAL_STATUS_ERROR, "can not find from lotus-miner DagStore")
@@ -85,20 +86,21 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 		} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
 			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
 			if err != nil {
-				logs.GetLogger().Error(err)
+				logs.GetLogger().Errorf("get graphqlApi from configuration file failed, error: %+v", err)
 				return
 			}
 			hqlClient, err := hql.NewClient(graphqlApi)
 			if err != nil {
-				logs.GetLogger().Error(err)
+				logs.GetLogger().Errorf("create graphql client failed, error: %+v", err)
 				return
 			}
 
 			if _, err := uuid.Parse(deal.DealCid); err == nil {
 				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
 				if err != nil {
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
 					logs.GetLogger().Error(err)
-					return
+					continue
 				}
 				minerId = dealResp.Deal.GetProviderAddress()
 				dealId, err = strconv.ParseUint(dealResp.Deal.GetChainDealID().Value, 10, 64)
@@ -108,6 +110,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			} else {
 				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
 				if err != nil {
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
 					logs.GetLogger().Error(err)
 					continue
 				}
@@ -120,6 +123,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 
 		}
 
+		deal.ChainDealId = int64(dealId)
 		lotusService.importingDirs.Store(filepath.Dir(deal.FilePath), struct{}{})
 		go func(minerId string, dealId uint64, onChainStatus *string, onChainMessage string, deal *model.OfflineDeal, aria2AutoDeleteCarFile bool) {
 			UpdateSwanDealStatus(minerId, dealId, onChainStatus, onChainMessage, deal, aria2AutoDeleteCarFile)
@@ -219,6 +223,10 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 func IsExist(filePath string) bool {
 	_, err := os.Stat(filePath)
 	return err == nil || os.IsExist(err)
+}
+
+func IsDownloadFinish(filePath string) bool {
+	return IsExist(filePath) && !IsExist(filePath+".aria2")
 }
 
 func DeleteDownloadedFiles(filePath string) {

@@ -53,7 +53,7 @@ export SWAN_PATH="/data/.swan"
 ### Option:one: **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ####  Build Instructions
 ```shell
-wget --no-check-certificate https://raw.githubusercontent.com/filswan/go-swan-provider/release-2.2.0-rc1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/v2.2.1/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
@@ -64,7 +64,7 @@ chmod +x ./install.sh
 ```
 ulimit -SHn 1048576
 export SWAN_PATH="/data/.swan"
-nohup swan-provider-2.2.0-rc1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
+nohup swan-provider-2.2.1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
 ```
 ### Option:two: Source Code
 Building the `swan-provider` requires some system dependencies:
@@ -77,9 +77,9 @@ sudo apt-get install -y nodejs
 ```
 sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
 ```
-- Go(required **1.18.1+**)
+- Go(required **1.19.5+**)
 ```
-wget -c https://golang.org/dl/go1.18.1.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+wget -c https://golang.org/dl/go1.19.5.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
 ```
 ```
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc
@@ -93,7 +93,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout release-2.2.0-rc1
+git checkout release-2.2.1
 ./build_from_source.sh
 ```
 
@@ -120,7 +120,7 @@ aria2_auto_delete_car_file= false               # After the deal becomes Active 
 aria2_max_downloading_tasks = 10                # Aria2 max downloading tasks. default: 10
 
 [main]
-market_version = "1.1"                          # Send deal type, 1.1 or 1.2, config(market_version=1.1) is DEPRECATION, will REMOVE SOON (default: "1.1"), If set to 1.2, you need to set the [market] section
+market_version = "1.2"                          # Send deal type, 1.1 or 1.2, config(market_version=1.1) is DEPRECATION, will REMOVE SOON (default: "1.2"), If set to 1.2, you need to set the [market] section
 api_url = "https://go-swan-server.filswan.com"  # Swan API address. For Swan production, it is "https://go-swan-server.filswan.com"
 api_key = ""                                    # Your api key. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
 access_token = ""                               # Your access token. Acquire from Filswan -> "My Profile"->"Developer Settings". You can also check the Guide.
@@ -142,7 +142,7 @@ publish_wallet = ""                             # wallet to be used for PublishS
 **(1) when `market_version = "1.1"`**, the storage provider will import deals using the Market built-in lotus, so the `[market]` section is not necessary to set.
 
 
-**(2) when `market_version = "1.2"`**, the storage provider will import deals using the Market like `Boost`, so you must ensure the storage provider is reachable. The following steps are:
+**(2) when `market_version = "1.2 (Recommend)"`**, the storage provider will import deals using the Market like `Boost`, so you must ensure the storage provider is reachable. The following steps are:
 
 - Disable the markets subsystem in miner config:
 ```
@@ -165,7 +165,7 @@ swan-provider daemon
 	```
 	kill -9 $(ps -ef | grep -E 'swan-provider|boostd' | grep -v grep | awk '{print$2}' )
 	```
-	(2) Edit the boost configuration in the `$SWAN_PATH/boost/config.toml`:
+	(2) Edit the boost configuration in the `$SWAN_PATH/provider/boost/config.toml`:
 	```
 	[Libp2p]
   	  ListenAddresses = ["/ip4/0.0.0.0/tcp/24001", "/ip6/::/tcp/24001"]   # Binding address for the libp2p host

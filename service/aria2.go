@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -18,6 +17,7 @@ import (
 	"github.com/filswan/go-swan-lib/logs"
 	libmodel "github.com/filswan/go-swan-lib/model"
 	"github.com/filswan/go-swan-lib/utils"
+	"github.com/google/uuid"
 )
 
 type Aria2Service struct {
@@ -166,38 +166,39 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 	for _, deal := range suspendingDeals {
 		if lotusService.MarketVersion == constants.MARKET_VERSION_1 {
 			_, _, onChainStatus, onChainMessage, err := lotusService.LotusMarket.LotusGetDealOnChainStatus(deal.DealCid)
-			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
-			}
 
-			if onChainStatus == nil {
-				logs.GetLogger().Info("not found the deal on the chain", *deal.TaskName+":"+deal.DealCid)
+			if err != nil || onChainStatus == nil {
+				if err != nil {
+					logs.GetLogger().Error(err)
+				} else {
+					logs.GetLogger().Info("not found the deal on the chain", *deal.TaskName+":"+deal.DealCid)
+				}
 				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
 				continue
 			}
-
 			if *onChainStatus == ONCHAIN_DEAL_STATUS_WAITTING {
 				UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", *onChainStatus, *onChainMessage)
 			} else if *onChainStatus == ONCHAIN_DEAL_STATUS_ERROR {
 				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", *onChainMessage)
 			}
+
 		} else {
 			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
 			if err != nil {
-				logs.GetLogger().Error(err)
+				logs.GetLogger().Errorf("get graphqlApi from configuration file failed, error: %+v", err)
 				return
 			}
 			hqlClient, err := hql.NewClient(graphqlApi)
 			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
+				logs.GetLogger().Errorf("create graphql client failed, error: %+v", err)
+				return
 			}
 
 			if _, err := uuid.Parse(deal.DealCid); err == nil {
 				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
 				if err != nil {
-					logs.GetLogger().Error(err)
+					logs.GetLogger().Errorf("get deal info form db failed, dealId: %s,error: %+v", deal.DealCid, err)
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
 					continue
 				}
 				switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
@@ -211,7 +212,8 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 			} else {
 				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
 				if err != nil {
-					logs.GetLogger().Error(err)
+					logs.GetLogger().Errorf("get deal info form db failed, dealId: %s,error: %+v", deal.DealCid, err)
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
 					continue
 				}
 
@@ -253,7 +255,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 	for _, dir := range aria2Service.CandidateDirs {
 		outDir = strings.TrimSuffix(dir, "/")
 		filePath = outDir + "/" + outFilename
-		if IsExist(filePath) {
+		if IsDownloadFinish(filePath) {
 			UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
 			return
 		}
@@ -261,7 +263,7 @@ func (aria2Service *Aria2Service) StartDownload4Deal(deal *libmodel.OfflineDeal,
 
 	outDir = strings.TrimSuffix(aria2Service.DownloadDir, "/")
 	filePath = outDir + "/" + outFilename
-	if IsExist(filePath) {
+	if IsDownloadFinish(filePath) {
 		UpdateDealInfoAndLog(deal, DEAL_STATUS_IMPORT_READY, &filePath, outFilename+", the car file already exists, skip downloading it")
 		return
 	}
@@ -314,27 +316,28 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			_, _, onChainStatus, onChainMessage, err = lotusService.LotusMarket.LotusGetDealOnChainStatus(deal2Download.DealCid)
 			if err != nil {
 				logs.GetLogger().Error(err)
-				break
+				UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
+				continue
 			}
 		} else if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
 			_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
 			if err != nil {
-				logs.GetLogger().Error(err)
+				logs.GetLogger().Errorf("get graphqlApi from configuration file failed, error: %+v", err)
 				return
 			}
 			hqlClient, err := hql.NewClient(graphqlApi)
 			if err != nil {
-				logs.GetLogger().Error(err)
-				break
+				logs.GetLogger().Errorf("create graphql client failed, error: %+v", err)
+				return
 			}
 
 			logs.GetLogger().Infof("taskName: %s, dealCid: %s, carFileUrl: %s", *deal2Download.TaskName, deal2Download.DealCid, deal2Download.CarFileUrl)
 			if _, err := uuid.Parse(deal2Download.DealCid); err == nil {
 				dealResp, err := hqlClient.GetDealByUuid(deal2Download.DealCid)
 				if err != nil {
-					logs.GetLogger().Error(err)
-					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
-					break
+					logs.GetLogger().Errorf("get deal info form db failed, dealId: %s,error: %+v", deal2Download.DealCid, err)
+					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					continue
 				}
 
 				msg := hql.Message(dealResp.Deal.GetCheckpoint(), dealResp.Deal.GetErr())
@@ -353,8 +356,8 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 			} else {
 				dealResp, err := hqlClient.GetProposalCid(deal2Download.DealCid)
 				if err != nil {
-					logs.GetLogger().Error(err)
-					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal on the chain")
+					logs.GetLogger().Errorf("get deal info form db failed, dealId: %s,error: %+v", deal2Download.DealCid, err)
+					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
 					continue
 				}
 				onChainStatus = &dealResp.LegacyDeal.Status
