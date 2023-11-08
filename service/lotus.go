@@ -3,6 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/filswan/go-swan-lib/client/lotus"
+	"github.com/filswan/go-swan-lib/client/swan"
+	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
+	"github.com/filswan/swan-boost-lib/provider"
+	"github.com/google/uuid"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -12,14 +19,6 @@ import (
 	"swan-provider/config"
 	"sync"
 	"time"
-
-	"github.com/filswan/go-swan-lib/client/boost"
-	"github.com/filswan/go-swan-lib/client/lotus"
-	"github.com/filswan/go-swan-lib/client/swan"
-	"github.com/filswan/go-swan-lib/logs"
-	"github.com/filswan/go-swan-lib/model"
-	"github.com/filswan/go-swan-lib/utils"
-	"github.com/google/uuid"
 )
 
 type LotusService struct {
@@ -98,7 +97,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			if _, err := uuid.Parse(deal.DealCid); err == nil {
 				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
 				if err != nil {
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "StartImport: not found the deal in the db")
 					logs.GetLogger().Error(err)
 					continue
 				}
@@ -110,7 +109,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			} else {
 				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
 				if err != nil {
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "StartImport: not found the deal in the db")
 					logs.GetLogger().Error(err)
 					continue
 				}
@@ -189,7 +188,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
 				if err != nil {
 					logs.GetLogger().Errorf("taskName: %s, dealUuid: %s, get deal info failed, error: %+v", *deal.TaskName, deal.DealCid, err)
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "StartScan: not found the deal in the db")
 					continue
 				}
 				minerId = dealResp.Deal.GetProviderAddress()
@@ -205,7 +204,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
 				if err != nil {
 					logs.GetLogger().Errorf("taskName: %s, dealCid: %s, get deal info failed, error: %+v", *deal.TaskName, deal.DealCid, err)
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "StartScan: not found the deal in the db")
 					continue
 				}
 
@@ -345,7 +344,7 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 				return
 			}
 
-			boostClient, closer, err := boost.NewClient(boostToken, rpcApi)
+			boostClient, closer, err := provider.NewClient(boostToken, rpcApi)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return

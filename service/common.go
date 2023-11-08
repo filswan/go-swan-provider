@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/filswan/go-swan-lib/client/boost"
+	"github.com/filswan/swan-boost-lib/provider"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"
@@ -223,7 +223,7 @@ func checkLotusConfig() {
 			return
 		}
 		boostToken, err := GetBoostToken(market.Repo)
-		boostClient, closer, err := boost.NewClient(boostToken, rpcApi)
+		boostClient, closer, err := provider.NewClient(boostToken, rpcApi)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return

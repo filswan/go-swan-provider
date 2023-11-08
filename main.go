@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/filswan/go-swan-lib/client/boost"
+	"github.com/filswan/swan-boost-lib/provider"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -154,7 +154,7 @@ func setAsk() {
 		return
 	}
 
-	boostClient, closer, err := boost.NewClient(boostToken, rpcApi)
+	boostClient, closer, err := provider.NewClient(boostToken, rpcApi)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return

@@ -198,7 +198,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
 				if err != nil {
 					logs.GetLogger().Errorf("get deal info form db failed, dealId: %s,error: %+v", deal.DealCid, err)
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "CheckAndRestoreSuspendingStatus: not found the deal in the db")
 					continue
 				}
 				switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
@@ -213,7 +213,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
 				if err != nil {
 					logs.GetLogger().Errorf("get deal info form db failed, dealId: %s,error: %+v", deal.DealCid, err)
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "CheckAndRestoreSuspendingStatus: not found the deal in the db")
 					continue
 				}
 
@@ -336,7 +336,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 				dealResp, err := hqlClient.GetDealByUuid(deal2Download.DealCid)
 				if err != nil {
 					logs.GetLogger().Errorf("get deal info form db failed, dealId: %s,error: %+v", deal2Download.DealCid, err)
-					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "StartDownload: not found the deal in the db")
 					continue
 				}
 
@@ -357,7 +357,7 @@ func (aria2Service *Aria2Service) StartDownload(aria2Client *client.Aria2Client,
 				dealResp, err := hqlClient.GetProposalCid(deal2Download.DealCid)
 				if err != nil {
 					logs.GetLogger().Errorf("get deal info form db failed, dealId: %s,error: %+v", deal2Download.DealCid, err)
-					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal2Download, DEAL_STATUS_IMPORT_FAILED, "StartDownload: not found the deal in the db")
 					continue
 				}
 				onChainStatus = &dealResp.LegacyDeal.Status
