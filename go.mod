@@ -1,6 +1,6 @@
 module swan-provider
 
-go 1.16
+go 1.19
 
 require (
 	github.com/BurntSushi/toml v1.3.2
@@ -16,3 +16,8 @@ require (
 )
 
 replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
+
+exclude (
+	github.com/filecoin-project/boost v1.4.0
+	github.com/filecoin-project/boost v1.7.0
+)
