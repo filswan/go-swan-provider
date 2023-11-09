@@ -86,6 +86,7 @@ type market struct {
 	GraphqlUrl       string
 	Repo             string
 	BoostLog         string
+	BoostDataLog     string
 }
 
 var config *Configuration
@@ -131,6 +132,7 @@ func InitConfig() {
 
 	config.Market.Repo = filepath.Join(basePath, "boost")
 	config.Market.BoostLog = filepath.Join(basePath, "boost.log")
+	config.Market.BoostDataLog = filepath.Join(basePath, "boostd-data.log")
 
 	fullNodeApi, err := ChangeToFull(config.Lotus.ClientApiUrl, config.Lotus.ClientApiToken)
 	if err != nil {

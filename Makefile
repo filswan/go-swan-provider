@@ -50,7 +50,7 @@ build_win: test
 
 build_boost:
 	git clone https://github.com/filecoin-project/boost
-	cd boost && git checkout v1.7.0
-	cd boost && make build && sudo mv boostd /usr/local/bin/
-	rm -rf boost
+	cd boost && git checkout v2.1.0-rc3
+	cd boost && make clean build
+	cd boost && sudo make install
 .PHONY: build_boost
