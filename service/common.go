@@ -204,7 +204,7 @@ func checkLotusConfig() {
 		market := config.GetConfig().Market
 		if _, err := os.Stat(market.Repo); err != nil {
 			if err := initBoost(market.Repo, market.MinerApi, market.FullNodeApi, market.PublishWallet, market.CollateralWallet); err != nil {
-				logs.GetLogger().Fatal(err)
+				os.Exit(0)
 				return
 			}
 			logs.GetLogger().Info("init boostd successful")
@@ -431,7 +431,7 @@ func UpdateOfflineDealStatus(swanClient *swan.SwanClient, dealId int, status str
 
 	err := swanClient.UpdateOfflineDeal(*params)
 	if err != nil {
-		logs.GetLogger().Error()
+		logs.GetLogger().Error(err)
 		return err
 	}
 
@@ -454,8 +454,9 @@ func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) 
 	cmd := exec.CommandContext(ctx, "boostd", args...)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
 
-	if _, err := cmd.CombinedOutput(); err != nil {
-		return errors.Wrap(err, "init boostd failed")
+	if data, err := cmd.CombinedOutput(); err != nil {
+		logs.GetLogger().Errorf("init boostd failed, output: %s,error: %+v", string(data), err)
+		return err
 	}
 	return nil
 }
