@@ -497,9 +497,10 @@ func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 func startBoostData(repo, logFile string) (int, error) {
 	args := make([]string, 0)
 	args = append(args, "boostd-data")
-	args = append(args, "--repo="+repo)
 	args = append(args, "--vv")
 	args = append(args, "run")
+	args = append(args, "leveldb")
+	args = append(args, "--repo="+repo)
 
 	outFile, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
