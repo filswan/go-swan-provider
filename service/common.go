@@ -67,6 +67,7 @@ var aria2Service *Aria2Service
 var lotusService *LotusService
 
 var BoostPid int
+var BoostDataPid int
 
 func AdminOfflineDeal() {
 	swanService = GetSwanService()
@@ -224,10 +225,12 @@ func checkLotusConfig() {
 		}
 
 		// start boostd-data
-		if _, err = startBoostData(market.Repo, market.BoostDataLog); err != nil {
+		boostDataPid, err := startBoostData(market.Repo, market.BoostDataLog)
+		if err != nil {
 			logs.GetLogger().Errorf("start boostd-data service failed, error: %+v", err)
 			os.Exit(0)
 		}
+		BoostDataPid = boostDataPid
 
 		// start boostd
 		boostPid, err := startBoost(market.Repo, market.BoostLog, market.FullNodeApi)
@@ -503,7 +506,7 @@ func startBoostData(repo, logFile string) (int, error) {
 		logs.GetLogger().Error(err)
 		return 0, errors.Wrap(err, "open log file failed")
 	}
-	boostProcess, err := os.StartProcess("/usr/local/bin/boostd", args, &os.ProcAttr{
+	boostProcess, err := os.StartProcess("/usr/local/bin/boostd-data", args, &os.ProcAttr{
 		Sys: &syscall.SysProcAttr{
 			Setsid: true,
 		},

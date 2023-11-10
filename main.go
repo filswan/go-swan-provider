@@ -45,6 +45,8 @@ func main() {
 		case sig := <-sigCh:
 			logs.GetLogger().Warn("received shutdown signal: ", sig)
 			service.StopProcessById("boostd", service.BoostPid)
+			service.StopProcessById("boostd-data", service.BoostDataPid)
+
 		}
 	default:
 		printUsage()
