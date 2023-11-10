@@ -67,7 +67,8 @@ var aria2Service *Aria2Service
 var lotusService *LotusService
 
 var BoostPid int
-var BoostDataPid int
+
+//var BoostDataPid int
 
 func AdminOfflineDeal() {
 	swanService = GetSwanService()
@@ -224,13 +225,13 @@ func checkLotusConfig() {
 			return
 		}
 
-		// start boostd-data
-		boostDataPid, err := startBoostData(market.Repo, market.BoostDataLog)
-		if err != nil {
-			logs.GetLogger().Errorf("start boostd-data service failed, error: %+v", err)
-			os.Exit(0)
-		}
-		BoostDataPid = boostDataPid
+		//// start boostd-data
+		//boostDataPid, err := startBoostData(market.Repo, market.BoostDataLog)
+		//if err != nil {
+		//	logs.GetLogger().Errorf("start boostd-data service failed, error: %+v", err)
+		//	os.Exit(0)
+		//}
+		//BoostDataPid = boostDataPid
 
 		// start boostd
 		boostPid, err := startBoost(market.Repo, market.BoostLog, market.FullNodeApi)
@@ -494,37 +495,37 @@ func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 	return boostProcess.Pid, nil
 }
 
-func startBoostData(repo, logFile string) (int, error) {
-	args := make([]string, 0)
-	args = append(args, "boostd-data")
-	args = append(args, "--vv")
-	args = append(args, "run")
-	args = append(args, "leveldb")
-	args = append(args, "--repo="+repo)
-
-	outFile, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return 0, errors.Wrap(err, "open log file failed")
-	}
-	boostProcess, err := os.StartProcess("/usr/local/bin/boostd-data", args, &os.ProcAttr{
-		Sys: &syscall.SysProcAttr{
-			Setsid: true,
-		},
-		Files: []*os.File{
-			nil,
-			outFile,
-			outFile},
-	})
-
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return 0, errors.Wrap(err, "start boostd-data process failed")
-	}
-	logs.GetLogger().Warn("wait for the boostd-data startup to be finished...")
-	time.Sleep(10 * time.Second)
-	return boostProcess.Pid, nil
-}
+//func startBoostData(repo, logFile string) (int, error) {
+//	args := make([]string, 0)
+//	args = append(args, "boostd-data")
+//	args = append(args, "--vv")
+//	args = append(args, "run")
+//	args = append(args, "leveldb")
+//	args = append(args, "--repo="+repo)
+//
+//	outFile, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+//	if err != nil {
+//		logs.GetLogger().Error(err)
+//		return 0, errors.Wrap(err, "open log file failed")
+//	}
+//	boostProcess, err := os.StartProcess("/usr/local/bin/boostd-data", args, &os.ProcAttr{
+//		Sys: &syscall.SysProcAttr{
+//			Setsid: true,
+//		},
+//		Files: []*os.File{
+//			nil,
+//			outFile,
+//			outFile},
+//	})
+//
+//	if err != nil {
+//		logs.GetLogger().Error(err)
+//		return 0, errors.Wrap(err, "start boostd-data process failed")
+//	}
+//	logs.GetLogger().Warn("wait for the boostd-data startup to be finished...")
+//	time.Sleep(10 * time.Second)
+//	return boostProcess.Pid, nil
+//}
 
 func boostEnableLeveldb(configFile string) error {
 	args := []string{"-i", "/\\[LocalIndexDirectory.Leveldb\\]/,/Enabled/s/#Enabled = false/Enabled = true/", configFile}
