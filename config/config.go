@@ -237,7 +237,7 @@ func GetRpcInfoByFile(configPath string) (string, string, error) {
 		config.Graphql.Port = constants.DEFAULT_GRAPHQL_PORT
 	}
 
-	graphqlUrl := fmt.Sprintf("http://%d:%d/graphql/query", host, config.Graphql.Port)
+	graphqlUrl := fmt.Sprintf("http://%s:%d/graphql/query", host, config.Graphql.Port)
 	return rpcUrl, graphqlUrl, nil
 }
 
