@@ -38,6 +38,8 @@ type lotus struct {
 	ClientApiToken    string `toml:"client_api_token"`
 	MarketApiUrl      string `toml:"market_api_url"`
 	MarketAccessToken string `toml:"market_access_token"`
+	MaxSealing        int64  `toml:"max_sealing"`
+	MaxAddPiece       int64  `toml:"max_addPiece"`
 }
 
 type aria2 struct {
@@ -105,6 +107,12 @@ func InitConfig() {
 		configFile = filepath.Join(homedir, ".swan/provider/config.toml")
 		basePath = filepath.Join(homedir, ".swan/provider")
 	}
+	if config.Lotus.MaxAddPiece == 0 {
+		config.Lotus.MaxAddPiece = 5
+	}
+	if config.Lotus.MaxSealing == 0 {
+		config.Lotus.MaxSealing = 15
+	}
 
 	logs.GetLogger().Info("Your config file is:", configFile)
 
@@ -171,6 +179,8 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"lotus", "market_api_url"},
 		{"lotus", "market_access_token"},
 		{"lotus", "client_api_token"},
+		{"lotus", "max_sealing"},
+		{"lotus", "max_addPiece"},
 
 		{"aria2", "aria2_download_dir"},
 		{"aria2", "aria2_host"},

@@ -15,6 +15,8 @@ import (
 	"strconv"
 	"strings"
 	"swan-provider/common/constants"
+	"swan-provider/common/hql"
+	"swan-provider/common/hql/gen"
 	"swan-provider/config"
 	"syscall"
 	"time"
@@ -559,4 +561,51 @@ func GetBoostToken(repo string) (string, error) {
 		return "", errors.Wrap(err, "open token file failed")
 	}
 	return string(tokenFile), nil
+}
+
+func GetSectorStates() (int64, int64, bool) {
+	_, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(config.GetConfig().Market.Repo, "config.toml"))
+	if err != nil {
+		logs.GetLogger().Errorf("get graphqlApi from configuration file failed, error: %+v", err)
+		return 0, 0, false
+	}
+	hqlClient, err := hql.NewClient(graphqlApi)
+	if err != nil {
+		logs.GetLogger().Errorf("create graphql client failed, error: %+v", err)
+		return 0, 0, false
+	}
+
+	transferredStatus, err := hqlClient.GetDealListByStatus(gen.CheckpointTransferred)
+	if err != nil {
+		logs.GetLogger().Error(fmt.Sprintf("get running task Transferred status failed, please check boost running status! error: %s", err.Error()))
+		return 0, 0, false
+	}
+	publishedStatus, err := hqlClient.GetDealListByStatus(gen.CheckpointPublished)
+	if err != nil {
+		logs.GetLogger().Error(fmt.Sprintf("get running task Published status failed, please check boost running status! error: %s", err.Error()))
+		return 0, 0, false
+	}
+
+	var sealingNum int
+	var addPieceNum int
+	sectorStates, err := hqlClient.GetSectorStates()
+	regularSectorStates := sectorStates.GetSealingpipeline().SectorStates.Regular
+	regularErrorSectorStates := sectorStates.GetSealingpipeline().SectorStates.RegularError
+	for _, sectorState := range regularSectorStates {
+		if sectorState.Key == "Packing" || sectorState.Key == "WaitDeals" || sectorState.Key == "AddPiece" || sectorState.Key == "PreCommit1" {
+			if sectorState.Key == "AddPiece" {
+				addPieceNum += sectorState.Value
+			}
+			sealingNum += sectorState.Value
+		}
+	}
+	for _, sectorState := range regularErrorSectorStates {
+		if sectorState.Key == "SealPreCommit1Failed" {
+			sealingNum += sectorState.Value
+			break
+		}
+	}
+
+	count := sealingNum + transferredStatus.Deals.TotalCount + publishedStatus.Deals.TotalCount
+	return int64(count), int64(addPieceNum), true
 }

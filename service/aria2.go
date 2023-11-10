@@ -203,7 +203,7 @@ func (aria2Service *Aria2Service) CheckAndRestoreSuspendingStatus(aria2Client *c
 				}
 				switch hql.Checkpoint[dealResp.Deal.Checkpoint] {
 				case constants.CHECKPOINT_ACCEPTED:
-					UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", dealResp.Deal.Checkpoint, dealResp.Deal.Message)
+					UpdateStatusAndLog(deal, DEAL_STATUS_WAITING, "deal waiting for downloading after suspending", string(dealResp.Deal.Checkpoint), dealResp.Deal.Message)
 				case constants.CHECKPOINT_COMPLETE:
 					if dealResp.Deal.Err != "" {
 						UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "deal error after suspending", dealResp.Deal.Err)
