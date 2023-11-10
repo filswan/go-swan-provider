@@ -86,6 +86,7 @@ type market struct {
 	GraphqlUrl       string
 	Repo             string
 	BoostLog         string
+	BoostDataLog     string
 }
 
 var config *Configuration
@@ -131,6 +132,7 @@ func InitConfig() {
 
 	config.Market.Repo = filepath.Join(basePath, "boost")
 	config.Market.BoostLog = filepath.Join(basePath, "boost.log")
+	config.Market.BoostDataLog = filepath.Join(basePath, "boostd-data.log")
 
 	fullNodeApi, err := ChangeToFull(config.Lotus.ClientApiUrl, config.Lotus.ClientApiToken)
 	if err != nil {
@@ -210,7 +212,8 @@ func GetRpcInfoByFile(configPath string) (string, string, error) {
 			ListenAddress string
 		}
 		Graphql struct {
-			Port uint64
+			Port          uint64
+			ListenAddress string
 		}
 	}
 
@@ -218,18 +221,23 @@ func GetRpcInfoByFile(configPath string) (string, string, error) {
 		return "", "", err
 	}
 
-	var rpcUrl string
-	splits := strings.Split(config.API.ListenAddress, "/")
-	if len(splits) == 0 {
-		rpcUrl = fmt.Sprintf("127.0.0.1:%d", constants.DEFAULT_API_PORT)
-	} else {
-		rpcUrl = fmt.Sprintf("127.0.0.1:%s", splits[4])
+	var host = "127.0.0.1"
+	var rpcUrl = fmt.Sprintf("%s:%d", host, constants.DEFAULT_API_PORT)
+
+	if len(config.API.ListenAddress) > 0 {
+		splits := strings.Split(config.API.ListenAddress, "/")
+		rpcUrl = fmt.Sprintf("%s:%s", splits[2], splits[4])
+	}
+
+	if len(config.Graphql.ListenAddress) > 0 {
+		host = config.Graphql.ListenAddress
 	}
 
 	if config.Graphql.Port == 0 {
 		config.Graphql.Port = constants.DEFAULT_GRAPHQL_PORT
 	}
-	graphqlUrl := fmt.Sprintf("http://127.0.0.1:%d/graphql/query", config.Graphql.Port)
+
+	graphqlUrl := fmt.Sprintf("http://%s:%d/graphql/query", host, config.Graphql.Port)
 	return rpcUrl, graphqlUrl, nil
 }
 

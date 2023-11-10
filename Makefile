@@ -38,6 +38,14 @@ install-provider:
 clean: ## Remove previous build
 	@go clean
 	@rm -rf $(shell pwd)/build
+	@rm -rf /usr/local/bin/boost
+	@rm -rf /usr/local/bin/boostd
+	@rm -rf /usr/local/bin/boostx
+	@rm -rf /usr/local/bin/boostd-data
+	@rm -rf /usr/local/bin/booster-http
+	@rm -rf /usr/local/bin/booster-bitswap
+	@rm -rf /usr/local/bin/migrate-lid
+	@rm -rf /usr/local/bin/$(BINARY_NAME)
 	@echo "Done cleaning."
 
 help: ## Display this help screen
@@ -50,7 +58,7 @@ build_win: test
 
 build_boost:
 	git clone https://github.com/filecoin-project/boost
-	cd boost && git checkout v1.7.0
-	cd boost && make build && sudo mv boostd /usr/local/bin/
-	rm -rf boost
+	cd boost && git checkout v2.1.0-rc3
+	cd boost && make clean build
+	cd boost && sudo make install
 .PHONY: build_boost

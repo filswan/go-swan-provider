@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/filswan/go-swan-lib/client/boost"
+	"github.com/filswan/swan-boost-lib/provider"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"
@@ -67,6 +67,8 @@ var aria2Service *Aria2Service
 var lotusService *LotusService
 
 var BoostPid int
+
+//var BoostDataPid int
 
 func AdminOfflineDeal() {
 	swanService = GetSwanService()
@@ -204,26 +206,41 @@ func checkLotusConfig() {
 		market := config.GetConfig().Market
 		if _, err := os.Stat(market.Repo); err != nil {
 			if err := initBoost(market.Repo, market.MinerApi, market.FullNodeApi, market.PublishWallet, market.CollateralWallet); err != nil {
-				logs.GetLogger().Fatal(err)
+				os.Exit(0)
 				return
 			}
 			logs.GetLogger().Info("init boostd successful")
+
+			// enable Leveldb
+			if err = boostEnableLeveldb(filepath.Join(market.Repo, "config.toml")); err != nil {
+				logs.GetLogger().Warning("enable leveldb failed, please manually update [LocalIndexDirectory.Leveldb] Enabled=true")
+				os.Exit(0)
+			}
+			logs.GetLogger().Info("boostd enable leveldb successful")
 		}
 
-		rpcApi, graphqlApi, err := config.GetRpcInfoByFile(filepath.Join(market.Repo, "config.toml"))
+		rpcApi, _, err := config.GetRpcInfoByFile(filepath.Join(market.Repo, "config.toml"))
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return
 		}
-		market.RpcUrl = rpcApi
-		market.GraphqlUrl = graphqlApi
+
+		//// start boostd-data
+		//boostDataPid, err := startBoostData(market.Repo, market.BoostDataLog)
+		//if err != nil {
+		//	logs.GetLogger().Errorf("start boostd-data service failed, error: %+v", err)
+		//	os.Exit(0)
+		//}
+		//BoostDataPid = boostDataPid
+
+		// start boostd
 		boostPid, err := startBoost(market.Repo, market.BoostLog, market.FullNodeApi)
 		if err != nil {
 			logs.GetLogger().Fatal(err)
 			return
 		}
 		boostToken, err := GetBoostToken(market.Repo)
-		boostClient, closer, err := boost.NewClient(boostToken, rpcApi)
+		boostClient, closer, err := provider.NewClient(boostToken, rpcApi)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			return
@@ -417,7 +434,7 @@ func UpdateOfflineDealStatus(swanClient *swan.SwanClient, dealId int, status str
 
 	err := swanClient.UpdateOfflineDeal(*params)
 	if err != nil {
-		logs.GetLogger().Error()
+		logs.GetLogger().Error(err)
 		return err
 	}
 
@@ -435,13 +452,14 @@ func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) 
 	args = append(args, "--api-sector-index="+minerApi)
 	args = append(args, "--wallet-publish-storage-deals="+publishWallet)
 	args = append(args, "--wallet-deal-collateral="+collatWallet)
-	args = append(args, "--max-staging-deals-bytes=50000000000000")
+	args = append(args, "--max-staging-deals-bytes=5000000000000000")
 
 	cmd := exec.CommandContext(ctx, "boostd", args...)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
 
-	if _, err := cmd.CombinedOutput(); err != nil {
-		return errors.Wrap(err, "init boostd failed")
+	if data, err := cmd.CombinedOutput(); err != nil {
+		logs.GetLogger().Errorf("init boostd failed, output: %s,error: %+v", string(data), err)
+		return err
 	}
 	return nil
 }
@@ -473,21 +491,65 @@ func startBoost(repo, logFile, fullNodeApi string) (int, error) {
 		logs.GetLogger().Error(err)
 		return 0, errors.Wrap(err, "start boostd process failed")
 	}
-	logs.GetLogger().Warn("wait for the boost startup to be finished...")
 	time.Sleep(10 * time.Second)
 	return boostProcess.Pid, nil
 }
 
-func StopBoost(pid int) {
+//func startBoostData(repo, logFile string) (int, error) {
+//	args := make([]string, 0)
+//	args = append(args, "boostd-data")
+//	args = append(args, "--vv")
+//	args = append(args, "run")
+//	args = append(args, "leveldb")
+//	args = append(args, "--repo="+repo)
+//
+//	outFile, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+//	if err != nil {
+//		logs.GetLogger().Error(err)
+//		return 0, errors.Wrap(err, "open log file failed")
+//	}
+//	boostProcess, err := os.StartProcess("/usr/local/bin/boostd-data", args, &os.ProcAttr{
+//		Sys: &syscall.SysProcAttr{
+//			Setsid: true,
+//		},
+//		Files: []*os.File{
+//			nil,
+//			outFile,
+//			outFile},
+//	})
+//
+//	if err != nil {
+//		logs.GetLogger().Error(err)
+//		return 0, errors.Wrap(err, "start boostd-data process failed")
+//	}
+//	logs.GetLogger().Warn("wait for the boostd-data startup to be finished...")
+//	time.Sleep(10 * time.Second)
+//	return boostProcess.Pid, nil
+//}
+
+func boostEnableLeveldb(configFile string) error {
+	args := []string{"-i", "/\\[LocalIndexDirectory.Leveldb\\]/,/Enabled/s/#Enabled = false/Enabled = true/", configFile}
+	cmd := exec.Command("sed", args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return errors.New("exec sed cmd failed")
+	}
+	return nil
+}
+
+func StopProcessById(processName string, pid int) {
 	if pid == 0 {
 		return
 	}
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("sudo kill %d", pid))
 	if _, err := cmd.CombinedOutput(); err != nil {
-		logs.GetLogger().Errorf("stop boostd failed, error: %s", err.Error())
+		logs.GetLogger().Errorf("stop %s failed, error: %s", processName, err.Error())
 		return
 	}
-	logs.GetLogger().Info("stop boostd successful")
+	logs.GetLogger().Infof("stop %s successfully", processName)
 }
 
 func GetBoostToken(repo string) (string, error) {
