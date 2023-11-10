@@ -210,9 +210,8 @@ func checkLotusConfig() {
 			logs.GetLogger().Info("init boostd successful")
 
 			// enable Leveldb
-			if err = boostEnableLeveldb(); err != nil {
-				logs.GetLogger().Errorf("enable leveldb failed, error: %+v", err)
-				logs.GetLogger().Warning("please manually modify [LocalIndexDirectory.Leveldb] Enabled=true")
+			if err = boostEnableLeveldb(filepath.Join(market.Repo, "config.toml")); err != nil {
+				logs.GetLogger().Warning("enable leveldb failed, please manually update [LocalIndexDirectory.Leveldb] Enabled=true")
 				os.Exit(0)
 			}
 			logs.GetLogger().Info("boostd enable leveldb successful")
@@ -449,7 +448,7 @@ func initBoost(repo, minerApi, fullNodeApi, publishWallet, collatWallet string) 
 	args = append(args, "--api-sector-index="+minerApi)
 	args = append(args, "--wallet-publish-storage-deals="+publishWallet)
 	args = append(args, "--wallet-deal-collateral="+collatWallet)
-	args = append(args, "--max-staging-deals-bytes=50000000000000")
+	args = append(args, "--max-staging-deals-bytes=5000000000000000")
 
 	cmd := exec.CommandContext(ctx, "boostd", args...)
 	cmd.Env = append(os.Environ(), fmt.Sprintf("MINER_API_INFO=%s", minerApi), fmt.Sprintf("FULLNODE_API_INFO=%s", fullNodeApi))
@@ -523,18 +522,15 @@ func startBoostData(repo, logFile string) (int, error) {
 	return boostProcess.Pid, nil
 }
 
-func boostEnableLeveldb() error {
-	command := "sed"
-	args := []string{"-i", "/\\[LocalIndexDirectory.Leveldb\\]/,/Enabled/s/#Enabled = false/Enabled = true/", "config.toml"}
-
-	cmd := exec.Command(command, args...)
+func boostEnableLeveldb(configFile string) error {
+	args := []string{"-i", "/\\[LocalIndexDirectory.Leveldb\\]/,/Enabled/s/#Enabled = false/Enabled = true/", configFile}
+	cmd := exec.Command("sed", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	err := cmd.Run()
 	if err != nil {
-		logs.GetLogger().Errorf("exec sed cmd failed, error: %+v", err)
-		return err
+		return errors.New("exec sed cmd failed")
 	}
 	return nil
 }
