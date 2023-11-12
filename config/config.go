@@ -107,12 +107,6 @@ func InitConfig() {
 		configFile = filepath.Join(homedir, ".swan/provider/config.toml")
 		basePath = filepath.Join(homedir, ".swan/provider")
 	}
-	if config.Lotus.MaxAddPiece == 0 {
-		config.Lotus.MaxAddPiece = 5
-	}
-	if config.Lotus.MaxSealing == 0 {
-		config.Lotus.MaxSealing = 15
-	}
 
 	logs.GetLogger().Info("Your config file is:", configFile)
 
@@ -125,6 +119,13 @@ func InitConfig() {
 		} else {
 			logs.GetLogger().Fatal("error:", err)
 		}
+	}
+
+	if config.Lotus.MaxAddPiece == 0 {
+		config.Lotus.MaxAddPiece = 5
+	}
+	if config.Lotus.MaxSealing == 0 {
+		config.Lotus.MaxSealing = 15
 	}
 
 	dirs := config.Aria2.Aria2CandidateDirs
