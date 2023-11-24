@@ -378,7 +378,7 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 			defer closer()
 
 			if _, err := uuid.Parse(deal.DealCid); err == nil {
-				rej, err := boostClient.OfflineDealWithData(context.TODO(), deal.DealCid, deal.FilePath)
+				rej, err := boostClient.OfflineDealWithData(context.TODO(), deal.DealCid, deal.FilePath, false)
 				var msg string
 				if err != nil {
 					msg = fmt.Sprintf("import deal failed: %w", err.Error())
