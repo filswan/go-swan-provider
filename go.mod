@@ -7,7 +7,7 @@ require (
 	github.com/Khan/genqlient v0.5.0
 	github.com/fatih/color v1.13.0
 	github.com/filswan/go-swan-lib v0.2.143
-	github.com/filswan/swan-boost-lib v0.0.0-20231124100523-b2886160dc16
+	github.com/filswan/swan-boost-lib v0.0.0-20231128082343-fdf2ff201642
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.3.0
 	github.com/itsjamie/gin-cors v0.0.0-20160420130702-97b4a9da7933
@@ -45,7 +45,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/elastic/go-elasticsearch/v7 v7.14.0 // indirect
 	github.com/elastic/gosigar v0.14.2 // indirect
-	github.com/filecoin-project/boost v0.0.0-20231101173716-1622d0ce2581 // indirect
+	github.com/filecoin-project/boost v1.7.5-0.20231124125934-3233c510357f // indirect
 	github.com/filecoin-project/boost-gfm v1.26.7 // indirect
 	github.com/filecoin-project/go-address v1.1.0 // indirect
 	github.com/filecoin-project/go-amt-ipld/v2 v2.1.0 // indirect
@@ -62,11 +62,11 @@ require (
 	github.com/filecoin-project/go-hamt-ipld/v3 v3.1.0 // indirect
 	github.com/filecoin-project/go-jsonrpc v0.3.1 // indirect
 	github.com/filecoin-project/go-padreader v0.0.1 // indirect
-	github.com/filecoin-project/go-state-types v0.12.5 // indirect
+	github.com/filecoin-project/go-state-types v0.12.8 // indirect
 	github.com/filecoin-project/go-statemachine v1.0.3 // indirect
 	github.com/filecoin-project/go-statestore v0.2.0 // indirect
 	github.com/filecoin-project/kubo-api-client v0.0.2-0.20230829103503-14448166d14d // indirect
-	github.com/filecoin-project/lotus v1.25.0-rc1 // indirect
+	github.com/filecoin-project/lotus v1.25.0 // indirect
 	github.com/filecoin-project/specs-actors v0.9.15 // indirect
 	github.com/filecoin-project/specs-actors/v2 v2.3.6 // indirect
 	github.com/filecoin-project/specs-actors/v3 v3.1.2 // indirect
