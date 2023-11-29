@@ -81,6 +81,7 @@ sudo systemctl restart aria2c.service            # Start Aria2
 BINARY_NAME=swan-provider
 
 git submodule update --init --recursive
+
 make build_boost
 make ffi
 make
