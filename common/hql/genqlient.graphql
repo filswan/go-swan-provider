@@ -27,3 +27,41 @@ query LegacyDeal($proposalCid: ID!){
         DealDataRoot
     }
 }
+
+query GetSectorStates{
+    sealingpipeline {
+        SectorStates {
+            Regular {
+                Key
+                Value
+            }
+            SnapDeals {
+                Key
+                Value
+            }
+            RegularError {
+                Key
+                Value
+            }
+            SnapDealsError {
+                Key
+                Value
+            }
+        }
+    }
+}
+
+query GetDealListByStatus($checkPoint: Checkpoint!) {
+    deals(filter:{Checkpoint:$checkPoint}) {
+        totalCount
+    }
+}
+
+query GetLegacyDeals {
+    legacyDeals(limit: 1000000) {
+        deals {
+            ID
+            Status
+        }
+    }
+}

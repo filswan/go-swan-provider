@@ -37,6 +37,16 @@ type Sector {
   Length: Uint64!
 }
 
+enum Checkpoint {
+  Accepted
+  Transferred
+  Published
+  PublishConfirmed
+  AddedPiece
+  IndexedAndAnnounced
+  Complete
+}
+
 type Deal {
   ID: ID!
   ClientAddress: String!
@@ -45,6 +55,8 @@ type Deal {
   PieceCid: String!
   PieceSize: Uint64!
   IsVerified: Boolean!
+  AnnounceToIPNI: Boolean!
+  KeepUnsealedCopy: Boolean!
   ProposalLabel: String!
   ProviderCollateral: Uint64!
   ClientCollateral: Uint64!
@@ -61,7 +73,7 @@ type Deal {
   Transfer: TransferParams!
   TransferSamples: [TransferPoint]!
   IsTransferStalled: Boolean!
-  Checkpoint: String!
+  Checkpoint: Checkpoint!
   CheckpointAt: Time!
   Err: String!
   Retry: String!
@@ -189,6 +201,51 @@ type ProposalLogsList {
 type ProposalLogsCount {
   Accepted: Int!
   Rejected: Int!
+  Period: Uint64!
+}
+
+type DTEvent {
+  CreatedAt: Time!
+  Name: String!
+  Message: String!
+}
+
+type MarketEvent {
+  CreatedAt: Time!
+  Name: String!
+  Status: String!
+  Message: String!
+}
+
+type RetrievalState {
+  CreatedAt: Time!
+  UpdatedAt: Time!
+  PeerID: String!
+  TransferID: Uint64!
+  DealID: Uint64!
+  PayloadCID: String!
+  PieceCID: String!
+  PaymentInterval: Uint64!
+  PaymentIntervalIncrease: Uint64!
+  PricePerByte: BigInt!
+  UnsealPrice: BigInt!
+  Status: String!
+  Message: String!
+  TotalSent: Uint64!
+  DTStatus: String!
+  DTMessage: String!
+  DTEvents: [DTEvent]!
+  MarketEvents: [MarketEvent]!
+}
+
+type RetrievalStateList {
+  totalCount: Int!
+  logs: [RetrievalState]!
+  more: Boolean!
+}
+
+type RetrievalStatesCount {
+  Count: Int!
   Period: Uint64!
 }
 
@@ -337,6 +394,13 @@ input StorageAskUpdate {
   MaxPieceSize: Uint64
 }
 
+input DealFilter {
+  Checkpoint: Checkpoint
+  IsOffline: Boolean
+  TransferType: String
+  IsVerified: Boolean
+}
+
 type RootQuery {
   """Get height of chain"""
   epoch: EpochInfo!
@@ -348,7 +412,7 @@ type RootQuery {
   legacyDeal(id: ID!): LegacyDeal
 
   """Get all Deals"""
-  deals(query: String, cursor: ID, offset: Int, limit: Int): DealList!
+  deals(query: String, filter: DealFilter, cursor: ID, offset: Int, limit: Int): DealList!
 
   """Get all Deals made with legacy markets endpoint"""
   legacyDeals(query: String, cursor: ID, offset: Int, limit: Int): LegacyDealList!
@@ -365,11 +429,23 @@ type RootQuery {
   """Get the number of accepted and rejected deal proposal logs"""
   proposalLogsCount: ProposalLogsCount!
 
+  """Get individual retrieval log"""
+  retrievalLog(peerID: String!, dealID: Uint64!): RetrievalState
+
+  """Get retrieval logs"""
+  retrievalLogs(cursor: BigInt, offset: Int, limit: Int): RetrievalStateList!
+
+  """Get the number of retrieval logs"""
+  retrievalLogsCount: RetrievalStatesCount!
+
   """Get information about a piece from the piece store, DAG store and database"""
   pieceStatus(pieceCid: String!): PieceStatus!
 
   """Get the pieces that contain a particular payload CID"""
   piecesWithPayloadCid(payloadCid: String!): [String!]!
+
+  """Get the pieces that have a particular root payload CID"""
+  piecesWithRootPayloadCid(payloadCid: String!): [String!]!
 
   """Get storage space usage"""
   storage: Storage!
