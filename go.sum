@@ -277,8 +277,8 @@ github.com/filecoin-project/specs-actors/v6 v6.0.2 h1:K1xPRJoW5PBvb08QF9+4w1Ajcn
 github.com/filecoin-project/specs-actors/v6 v6.0.2/go.mod h1:wnfVvPnYmzPZilNvSqCSSA/ZQX3rdV/U/Vf9EIoQhrI=
 github.com/filecoin-project/specs-actors/v7 v7.0.1 h1:w72xCxijK7xs1qzmJiw+WYJaVt2EPHN8oiwpA1Ay3/4=
 github.com/filecoin-project/specs-actors/v7 v7.0.1/go.mod h1:tPLEYXoXhcpyLh69Ccq91SOuLXsPWjHiY27CzawjUEk=
-github.com/filswan/go-swan-lib v0.2.143 h1:kbo1uovgjIfjojr5NkuW24oDc4D9Zp1cKXng8y0H9jo=
-github.com/filswan/go-swan-lib v0.2.143/go.mod h1:o66+BeOgakzHTK0HgGLV1AJEhFU8Xjj3q0/NXkcP7qU=
+github.com/filswan/go-swan-lib v0.2.144-0.20231129055134-bddc2a551476 h1:D3NQL9S/Dx/P8fqKCZY5inmhAvPR4HPvLTAxTURqAZs=
+github.com/filswan/go-swan-lib v0.2.144-0.20231129055134-bddc2a551476/go.mod h1:o66+BeOgakzHTK0HgGLV1AJEhFU8Xjj3q0/NXkcP7qU=
 github.com/filswan/swan-boost-lib v0.0.0-20231128082343-fdf2ff201642 h1:BSGzGsRmlPDrMYVD1jHqyCHgBRK6RV+M/5ixGhpVmZY=
 github.com/filswan/swan-boost-lib v0.0.0-20231128082343-fdf2ff201642/go.mod h1:PHIqIpjh+BhRWZNloYKb/TJL+W/KHTA2unZNIr2/KRE=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
