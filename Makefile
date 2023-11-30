@@ -57,6 +57,8 @@ build_win: test
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(GOBIN)/$(BINARY_NAME) -v  main.go
 
 build_boost:
-	cd extern/boost && make clean build
-	cd extern/boost && sudo make install
+	git clone https://github.com/FogMeta/boost.git
+	cd boost && git checkout customize-v2.1.0
+	cd boost && make build && sudo mv boostd /usr/local/bin/
+	rm -rf boost
 .PHONY: build_boost
