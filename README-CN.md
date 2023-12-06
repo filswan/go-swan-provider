@@ -64,7 +64,7 @@ chmod +x ./install.sh
 ```
 ulimit -SHn 1048576
 export SWAN_PATH="/data/.swan"
-nohup swan-provider-2.2.1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
+nohup swan-provider-2.3.0-linux-amd64 daemon >> swan-provider.log 2>&1 & 
 ```
 ### 选项:two: 从源代码构建
 构建 `swan-provider` 需要安装以下依赖包:
@@ -77,9 +77,9 @@ sudo apt-get install -y nodejs
 ```
 sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
 ```
-- Go(需要 **1.19.5+**)
+- Go(需要 **1.20+**)
 ```
-wget -c https://golang.org/dl/go1.19.5.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+wget -c https://golang.org/dl/go1.21.4.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
 ```
 ```
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc

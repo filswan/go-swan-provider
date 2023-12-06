@@ -86,5 +86,4 @@ make ffi
 make
 chmod +x ./build/${BINARY_NAME}
 make install-provider
-./build/${BINARY_NAME}  daemon                       # Run swan provider
 
