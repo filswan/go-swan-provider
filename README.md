@@ -77,9 +77,9 @@ sudo apt-get install -y nodejs
 ```
 sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
 ```
-- Go(required **1.19.12+**)
+- Go(required **1.20+**)
 ```
-wget -c https://golang.org/dl/go1.19.12.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+wget -c https://golang.org/dl/go1.21.4.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
 ```
 ```
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc
