@@ -53,7 +53,7 @@ export SWAN_PATH="/data/.swan"
 ### 选项:one: **预构建包**: 参照 [release assets](https://github.com/filswan/go-swan-provider/releases)
 ####  构建指南
 ```shell
-wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/v2.2.1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/v2.3.0/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
@@ -93,7 +93,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout release-2.2.1
+git checkout release-2.3.0
 ./build_from_source.sh
 ```
 
@@ -109,6 +109,8 @@ client_api_url = "http://[ip]:[port]/rpc/v0"    # lotus 客户端 web API 的 Ur
 client_api_token = ""                           # lotus 客户端 web API 的 token (lotus auth api-info --perm=admin)
 market_api_url = "http://[ip]:[port]/rpc/v0"   	# lotus market web API 的 Url，通常 [port] 为 2345，当 market 和 miner 没有分离的时候, 它也是 miner web API 的 URL
 market_access_token = ""                        # lotus market web API 的 token，当 market 和 miner 没有分离的时候, 它也是 miner web API 的 token
+max_sealing = 5                                 # Limit the number of concurrently executing tasks for sealing sectors.
+max_addPiece = 2                                # Limit the number of concurrently executing tasks for addPiece.
 
 [aria2]
 aria2_download_dir = "%%ARIA2_DOWNLOAD_DIR%%"   # 离线订单文件的下载目录
