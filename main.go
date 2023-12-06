@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/filswan/go-swan-lib/client/boost"
+	"github.com/filswan/swan-boost-lib/provider"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -44,7 +44,9 @@ func main() {
 		select {
 		case sig := <-sigCh:
 			logs.GetLogger().Warn("received shutdown signal: ", sig)
-			service.StopBoost(service.BoostPid)
+			service.StopProcessById("boostd", service.BoostPid)
+			//service.StopProcessById("boostd-data", service.BoostDataPid)
+
 		}
 	default:
 		printUsage()
@@ -154,7 +156,7 @@ func setAsk() {
 		return
 	}
 
-	boostClient, closer, err := boost.NewClient(boostToken, rpcApi)
+	boostClient, closer, err := provider.NewClient(boostToken, rpcApi)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return

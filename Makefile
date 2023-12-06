@@ -38,6 +38,14 @@ install-provider:
 clean: ## Remove previous build
 	@go clean
 	@rm -rf $(shell pwd)/build
+	@rm -rf /usr/local/bin/boost
+	@rm -rf /usr/local/bin/boostd
+	@rm -rf /usr/local/bin/boostx
+	@rm -rf /usr/local/bin/boostd-data
+	@rm -rf /usr/local/bin/booster-http
+	@rm -rf /usr/local/bin/booster-bitswap
+	@rm -rf /usr/local/bin/migrate-lid
+	@rm -rf /usr/local/bin/$(BINARY_NAME)
 	@echo "Done cleaning."
 
 help: ## Display this help screen
@@ -49,8 +57,8 @@ build_win: test
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(GOBIN)/$(BINARY_NAME) -v  main.go
 
 build_boost:
-	git clone https://github.com/filecoin-project/boost
-	cd boost && git checkout v1.7.0
+	git clone https://github.com/filecoin-project/boost.git
+	cd boost && git checkout v2.1.0
 	cd boost && make build && sudo mv boostd /usr/local/bin/
 	rm -rf boost
 .PHONY: build_boost

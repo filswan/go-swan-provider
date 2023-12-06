@@ -53,7 +53,7 @@ export SWAN_PATH="/data/.swan"
 ### Option:one: **Prebuilt package**: See [release assets](https://github.com/filswan/go-swan-provider/releases)
 ####  Build Instructions
 ```shell
-wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/v2.2.1/install.sh
+wget --no-check-certificate https://github.com/filswan/go-swan-provider/releases/download/v2.3.0/install.sh
 chmod +x ./install.sh
 ./install.sh
 ```
@@ -64,7 +64,7 @@ chmod +x ./install.sh
 ```
 ulimit -SHn 1048576
 export SWAN_PATH="/data/.swan"
-nohup swan-provider-2.2.1-linux-amd64 daemon >> swan-provider.log 2>&1 & 
+nohup swan-provider-2.3.0-linux-amd64 daemon >> swan-provider.log 2>&1 & 
 ```
 ### Option:two: Source Code
 Building the `swan-provider` requires some system dependencies:
@@ -77,9 +77,9 @@ sudo apt-get install -y nodejs
 ```
 sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y && sudo apt upgrade -y
 ```
-- Go(required **1.19.5+**)
+- Go(required **1.20+**)
 ```
-wget -c https://golang.org/dl/go1.19.5.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
+wget -c https://golang.org/dl/go1.21.4.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
 ```
 ```
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc
@@ -93,7 +93,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```shell
 git clone https://github.com/filswan/go-swan-provider.git
 cd go-swan-provider
-git checkout release-2.2.1
+git checkout release-2.3.0
 ./build_from_source.sh
 ```
 
@@ -109,6 +109,8 @@ client_api_url = "http://[ip]:[port]/rpc/v0"    # Url of lotus client web API, g
 client_api_token = ""                           # Access token of lotus client web API. (lotus auth api-info --perm=admin)
 market_api_url = "http://[ip]:[port]/rpc/v0"   	# Url of lotus market web API, generally the [port] is 2345, when market and miner are not separate, it is also the URL of miner web API
 market_access_token = ""                        # Access token of lotus market web API, when market and miner are not separate, it is also the access token of miner web API
+max_sealing = 5                                 # Limit the number of concurrently executing tasks for sealing sectors.
+max_addPiece = 2                                # Limit the number of concurrently executing tasks for addPiece.
 
 [aria2]
 aria2_download_dir = "%%ARIA2_DOWNLOAD_DIR%%"   # Directory where offline deal files will be downloaded for importing

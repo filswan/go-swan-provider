@@ -3,6 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/filswan/go-swan-lib/client/lotus"
+	"github.com/filswan/go-swan-lib/client/swan"
+	"github.com/filswan/go-swan-lib/logs"
+	"github.com/filswan/go-swan-lib/model"
+	"github.com/filswan/go-swan-lib/utils"
+	"github.com/filswan/swan-boost-lib/provider"
+	"github.com/google/uuid"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -12,14 +19,6 @@ import (
 	"swan-provider/config"
 	"sync"
 	"time"
-
-	"github.com/filswan/go-swan-lib/client/boost"
-	"github.com/filswan/go-swan-lib/client/lotus"
-	"github.com/filswan/go-swan-lib/client/swan"
-	"github.com/filswan/go-swan-lib/logs"
-	"github.com/filswan/go-swan-lib/model"
-	"github.com/filswan/go-swan-lib/utils"
-	"github.com/google/uuid"
 )
 
 type LotusService struct {
@@ -56,6 +55,32 @@ func GetLotusService() *LotusService {
 
 func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 	maxImportNum := LOTUS_IMPORT_NUMNBER
+	if lotusService.MarketVersion == constants.MARKET_VERSION_2 {
+		sealingCapability := config.GetConfig().Lotus.MaxSealing
+		maxAddPiece := config.GetConfig().Lotus.MaxAddPiece
+
+		currentRunningTask, addPieceNum, continueFlag := GetSectorStates()
+		if !continueFlag {
+			return
+		}
+		logs.GetLogger().Infof("Throttle::sealing info addPiece: %d, max-addPiece: %d, running-PC1:%d, limit-PC1:%d", addPieceNum, maxAddPiece, currentRunningTask, sealingCapability)
+		if currentRunningTask >= sealingCapability {
+			logs.GetLogger().Warn("Throttle::Enough sectors to seal, stop importing deals!")
+			return
+		}
+		if addPieceNum > maxAddPiece {
+			logs.GetLogger().Warn("Throttle::Too many addPiece sectors, stop importing deals!")
+			return
+		}
+		count := sealingCapability - currentRunningTask
+		if count < 0 {
+			count = 0
+		}
+		if count <= LOTUS_IMPORT_NUMNBER {
+			maxImportNum = int(count)
+		}
+	}
+
 	deals := GetOfflineDeals(swanClient, DEAL_STATUS_IMPORT_READY, aria2Service.MinerFid, &maxImportNum)
 	if len(deals) == 0 {
 		logs.GetLogger().Info("no pending offline deals found")
@@ -98,7 +123,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			if _, err := uuid.Parse(deal.DealCid); err == nil {
 				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
 				if err != nil {
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "StartImport: not found the deal in the db")
 					logs.GetLogger().Error(err)
 					continue
 				}
@@ -110,7 +135,7 @@ func (lotusService *LotusService) StartImport(swanClient *swan.SwanClient) {
 			} else {
 				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
 				if err != nil {
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "StartImport: not found the deal in the db")
 					logs.GetLogger().Error(err)
 					continue
 				}
@@ -189,7 +214,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 				dealResp, err := hqlClient.GetDealByUuid(deal.DealCid)
 				if err != nil {
 					logs.GetLogger().Errorf("taskName: %s, dealUuid: %s, get deal info failed, error: %+v", *deal.TaskName, deal.DealCid, err)
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "StartScan: not found the deal in the db")
 					continue
 				}
 				minerId = dealResp.Deal.GetProviderAddress()
@@ -205,7 +230,7 @@ func (lotusService *LotusService) StartScan(swanClient *swan.SwanClient) {
 				dealResp, err := hqlClient.GetProposalCid(deal.DealCid)
 				if err != nil {
 					logs.GetLogger().Errorf("taskName: %s, dealCid: %s, get deal info failed, error: %+v", *deal.TaskName, deal.DealCid, err)
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "not found the deal in the db")
+					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "StartScan: not found the deal in the db")
 					continue
 				}
 
@@ -345,7 +370,7 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 				return
 			}
 
-			boostClient, closer, err := boost.NewClient(boostToken, rpcApi)
+			boostClient, closer, err := provider.NewClient(boostToken, rpcApi)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				return
@@ -353,7 +378,7 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 			defer closer()
 
 			if _, err := uuid.Parse(deal.DealCid); err == nil {
-				rej, err := boostClient.OfflineDealWithData(context.TODO(), deal.DealCid, deal.FilePath)
+				rej, err := boostClient.OfflineDealWithData(context.TODO(), deal.DealCid, deal.FilePath, false)
 				var msg string
 				if err != nil {
 					msg = fmt.Sprintf("import deal failed: %w", err.Error())
