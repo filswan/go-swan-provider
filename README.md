@@ -172,6 +172,9 @@ swan-provider daemon
 	[Libp2p]
   	  ListenAddresses = ["/ip4/0.0.0.0/tcp/24001", "/ip6/::/tcp/24001"]   # Binding address for the libp2p host
       AnnounceAddresses = ["/ip4/209.94.92.3/tcp/24001"]                  # Addresses to explicitly announce to other peers. If not specified, all interface addresses are announced
+
+ 	[localIndexDirectory.Leveldb]
+	 Enabled = true
 	```
 	(3) Run `swan-provider` in the background.
 	```
