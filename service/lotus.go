@@ -378,7 +378,13 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 			defer closer()
 
 			if _, err := uuid.Parse(deal.DealCid); err == nil {
-				rej, err := boostClient.OfflineDealWithData(context.TODO(), deal.DealCid, deal.FilePath, false)
+				var rej *provider.DealRejectionInfo
+				if deal.Type == 1 {
+					rej, err = boostClient.BoostDirectDeal(context.TODO(), market.Repo, market.FullNodeApi, deal.ClientAddr, fmt.Sprintf("%d", deal.AllocationID), deal.FilePath, deal.PieceCid, false)
+				} else {
+					rej, err = boostClient.OfflineDealWithData(context.TODO(), deal.DealCid, deal.FilePath, false)
+				}
+
 				var msg string
 				if err != nil {
 					msg = fmt.Sprintf("import deal failed: %w", err.Error())
@@ -390,11 +396,8 @@ func UpdateSwanDealStatus(minerId string, dealId uint64, onChainStatus *string, 
 					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, msg)
 				}
 			} else {
-				err = boostClient.OfflineDealWithDataByMarket(context.TODO(), deal.DealCid, deal.FilePath)
-				if err != nil {
-					UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "import deal failed", err.Error())
-					return
-				}
+				UpdateStatusAndLog(deal, DEAL_STATUS_IMPORT_FAILED, "import deal failed, this deal is not supported,please use boost to send the deal")
+				return
 			}
 		}
 

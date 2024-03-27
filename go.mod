@@ -6,8 +6,8 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/Khan/genqlient v0.5.0
 	github.com/fatih/color v1.15.0
-	github.com/filswan/go-swan-lib v0.3.3
-	github.com/filswan/swan-boost-lib v0.0.3-0.20240325031624-67ad75e64e5f
+	github.com/filswan/go-swan-lib v0.3.4-0.20240327061621-374e1ef2d917
+	github.com/filswan/swan-boost-lib v0.0.3-0.20240327035352-9c805e5a61ac
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.3.0
 	github.com/itsjamie/gin-cors v0.0.0-20160420130702-97b4a9da7933

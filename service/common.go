@@ -250,7 +250,7 @@ func checkLotusConfig() {
 		defer closer()
 
 		for {
-			if _, err = boostClient.GetDealsConsiderOfflineStorageDeals(context.TODO()); err == nil {
+			if _, err = boostClient.CheckBoostStatus(context.TODO()); err == nil {
 				break
 			} else {
 				logs.GetLogger().Errorf("boost started failed, error: %v", err)
