@@ -163,8 +163,8 @@ func setAsk() {
 	}
 	defer closer()
 
-	if err = boostClient.MarketSetAsk(context.TODO(), price, verifiedPrice, minSize, maxSize); err != nil {
+	if err = boostClient.MarketSetAsk(context.TODO(), market.Repo, market.FullNodeApi, config.GetConfig().Main.MinerFid, price, verifiedPrice, minSize, maxSize); err != nil {
 		logs.GetLogger().Error(err)
 	}
-	fmt.Println("set-ask successfully! You can check it using “lotus client query-ask <minerID>”")
+	fmt.Println("set-ask successfully!")
 }
