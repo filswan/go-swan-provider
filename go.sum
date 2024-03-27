@@ -407,8 +407,8 @@ github.com/filecoin-project/specs-actors/v8 v8.0.1 h1:4u0tIRJeT5G7F05lwLRIsDnsrN
 github.com/filecoin-project/specs-actors/v8 v8.0.1/go.mod h1:UYIPg65iPWoFw5NEftREdJwv9b/5yaLKdCgTvNI/2FA=
 github.com/filswan/go-swan-lib v0.3.4-0.20240327061621-374e1ef2d917 h1:evi3NKlNcbG2+kSVMgHN/3TXSqx74VL2HtYdzCZ2g2E=
 github.com/filswan/go-swan-lib v0.3.4-0.20240327061621-374e1ef2d917/go.mod h1:o66+BeOgakzHTK0HgGLV1AJEhFU8Xjj3q0/NXkcP7qU=
-github.com/filswan/swan-boost-lib v0.0.3-0.20240327082526-b2dbf44d68e8 h1:YBk8rbPwYRNSLaLFVyQhat3aQni8wyl36vRKJ7ELr0Q=
-github.com/filswan/swan-boost-lib v0.0.3-0.20240327082526-b2dbf44d68e8/go.mod h1:+dTMvQ1+cKt2G9EdqwN/xzkMJt1iSvGD7TEtSJhqrrU=
+github.com/filswan/swan-boost-lib v0.0.3-0.20240327085742-c6713b469b23 h1:arVuTWYTAMLgpkfaNgXqEKXn4VNenhITXx9gyrH8rrU=
+github.com/filswan/swan-boost-lib v0.0.3-0.20240327085742-c6713b469b23/go.mod h1:+dTMvQ1+cKt2G9EdqwN/xzkMJt1iSvGD7TEtSJhqrrU=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/flynn/noise v1.0.0 h1:DlTHqmzmvcEiKj+4RYo/imoswx/4r6iBlCMfVtrMXpQ=
 github.com/flynn/noise v1.0.0/go.mod h1:xbMo+0i6+IGbYdJhF31t2eR1BIU0CYc12+BNAKwUTag=
