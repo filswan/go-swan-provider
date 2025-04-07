@@ -8,7 +8,6 @@ market_api_url = "http://[ip]:[port]/rpc/v0"   	# Url of lotus market web API, g
 market_access_token = ""                       	# Access token of lotus market web API, when market and miner are not separate, it is also the access token of miner web API
 max_sealing = 5                                 # Limit the number of concurrently executing tasks for sealing sectors.
 max_addPiece = 2                                # Limit the number of concurrently executing tasks for addPiece.
-boost_url=""
 
 [aria2]
 aria2_download_dir = "%%ARIA2_DOWNLOAD_DIR%%"   # Directory where offline deal files will be downloaded for importing
